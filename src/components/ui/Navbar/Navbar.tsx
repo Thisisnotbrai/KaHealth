@@ -7,8 +7,8 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion";
-import { Button } from "@/components/ui/button";
+} from "@/components/ui/Navbar/accordion";
+import { Button } from "@/components/ui/Navbar/button";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -17,14 +17,14 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
-} from "@/components/ui/navigation-menu";
+} from "@/components/ui/Navbar/navigation-menu";
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "@/components/ui/sheet";
+} from "@/components/ui/Navbar/sheet";
 
 const Navbar5 = () => {
   const features = [
