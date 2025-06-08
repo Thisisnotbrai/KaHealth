@@ -1,4 +1,4 @@
-import React from 'react';
+ 
 import { Navbar5 } from './Navbar/Navbar';
 import Header from './Header';
 import HeroSection from './HeroSection';
@@ -6,6 +6,7 @@ import Announcement from './Announcement';
 import HealthAlmanac from './HealthAlmanac';
 import News from './News';
 import Footer from './Footer';
+// import HealthApp from './Pages/HWPage/HealthApp';
 
 const LandingPage = () => {
   return (
@@ -17,6 +18,7 @@ const LandingPage = () => {
       <HealthAlmanac />
       <News />
       <Footer />
+      {/* <HealthApp /> */}
     </div>
   );
 };

@@ -26,10 +26,12 @@ import {
   SheetTrigger,
 } from "@/components/ui/Navbar/sheet";
 
+import { ModeToggle } from "@/components/ui/Darkmode/mode-toggle";
+
 const Navbar5 = () => {
-  const features = [
+  const contact = [
     {
-      title: "Dashboard",
+      title: "Home",
       description: "Overview of your activity",
       href: "#",
     },
@@ -74,33 +76,18 @@ const Navbar5 = () => {
               alt="Shadcn UI Navbar"
             />
             <span className="text-lg font-semibold tracking-tighter">
-              Shadcnblocks.com
+              KaHealth
             </span>
           </a>
           <NavigationMenu className="hidden lg:block">
             <NavigationMenuList>
               <NavigationMenuItem>
-                <NavigationMenuTrigger>Features</NavigationMenuTrigger>
-                <NavigationMenuContent>
-                  <div className="grid w-[600px] grid-cols-2 p-3">
-                    {features.map((feature, index) => (
-                      <NavigationMenuLink
-                        href={feature.href}
-                        key={index}
-                        className="rounded-md p-3 transition-colors hover:bg-muted/70"
-                      >
-                        <div key={feature.title}>
-                          <p className="mb-1 font-semibold text-foreground">
-                            {feature.title}
-                          </p>
-                          <p className="text-sm text-muted-foreground">
-                            {feature.description}
-                          </p>
-                        </div>
-                      </NavigationMenuLink>
-                    ))}
-                  </div>
-                </NavigationMenuContent>
+                <NavigationMenuLink
+                  href="#"
+                  className={navigationMenuTriggerStyle()}
+                >
+                  Features
+                </NavigationMenuLink>
               </NavigationMenuItem>
               <NavigationMenuItem>
                 <NavigationMenuLink
@@ -119,19 +106,39 @@ const Navbar5 = () => {
                 </NavigationMenuLink>
               </NavigationMenuItem>
               <NavigationMenuItem>
-                <NavigationMenuLink
-                  href="#"
-                  className={navigationMenuTriggerStyle()}
-                >
-                  Contact
-                </NavigationMenuLink>
+                <NavigationMenuTrigger>Contact</NavigationMenuTrigger>
+                <NavigationMenuContent>
+                  <div className="grid w-[600px] grid-cols-2 p-3">
+                    {contact.map((item, index) => (
+                      <NavigationMenuLink
+                        href={item.href}
+                        key={index}
+                        className="rounded-md p-3 transition-colors hover:bg-muted/70"
+                      >
+                        <div key={item.title}>
+                          <p className="mb-1 font-semibold text-foreground">
+                            {item.title}
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            {item.description}
+                          </p>
+                        </div>
+                      </NavigationMenuLink>
+                    ))}
+                  </div>
+                </NavigationMenuContent>
               </NavigationMenuItem>
             </NavigationMenuList>
           </NavigationMenu>
+
+          {/* Desktop Action Buttons */}
           <div className="hidden items-center gap-4 lg:flex">
+            <ModeToggle />
             <Button variant="outline">Sign in</Button>
             <Button>Start for free</Button>
           </div>
+
+          {/* Mobile Menu */}
           <Sheet>
             <SheetTrigger asChild className="lg:hidden">
               <Button variant="outline" size="icon">
@@ -160,22 +167,22 @@ const Navbar5 = () => {
                 <Accordion type="single" collapsible className="mt-4 mb-2">
                   <AccordionItem value="solutions" className="border-none">
                     <AccordionTrigger className="text-base hover:no-underline">
-                      Features
+                      Contact
                     </AccordionTrigger>
                     <AccordionContent>
                       <div className="grid md:grid-cols-2">
-                        {features.map((feature, index) => (
+                        {contact.map((item, index) => (
                           <a
-                            href={feature.href}
+                            href={item.href}
                             key={index}
                             className="rounded-md p-3 transition-colors hover:bg-muted/70"
                           >
-                            <div key={feature.title}>
+                            <div key={item.title}>
                               <p className="mb-1 font-semibold text-foreground">
-                                {feature.title}
+                                {item.title}
                               </p>
                               <p className="text-sm text-muted-foreground">
-                                {feature.description}
+                                {item.description}
                               </p>
                             </div>
                           </a>
@@ -196,6 +203,7 @@ const Navbar5 = () => {
                   </a>
                 </div>
                 <div className="mt-6 flex flex-col gap-4">
+                  <ModeToggle />
                   <Button variant="outline">Sign in</Button>
                   <Button>Start for free</Button>
                 </div>
