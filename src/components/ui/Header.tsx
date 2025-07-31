@@ -11,19 +11,19 @@ const Header = () => {
   }, []);
 
   return (
-    <div className="w-full bg-background text-foreground px-4 py-2 flex justify-between items-center shadow-sm">
-      <div className="text-sm font-medium">
-        {currentTime.toLocaleString(undefined, {
-          weekday: "short",
-          year: "numeric",
-          month: "short",
-          day: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
-          second: "2-digit",
-        })}
-      </div>
-    </div>
+<div className="w-full bg-background text-foreground px-4 py-2 flex justify-between items-center shadow-md border-b">
+  <div className="text-sm font-mono tracking-tight">
+    {currentTime.toLocaleString(undefined, {
+      weekday: "short",
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    })}
+  </div>
+</div>
   );
 };
 
