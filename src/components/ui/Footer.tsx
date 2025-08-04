@@ -1,76 +1,61 @@
-import {
-  Dialog,
-  DialogTrigger,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 const Footer = () => {
   return (
-    <footer className="bg-[#162942] text-white mt-16">
-      <div className="max-w-screen-xl mx-auto px-6 py-10 grid grid-cols-1 md:grid-cols-3 gap-10">
-
-        {/* About the Website (Modal) */}
+    <footer className="bg-[#162942] text-white py-10 px-6">
+      <div className="max-w-6xl mx-auto grid md:grid-cols-4 sm:grid-cols-2 gap-6">
         <div>
-          <h2 className="text-lg font-semibold mb-3">About</h2>
-          <Dialog>
-            <DialogTrigger asChild>
-              <button className="text-sm underline text-left hover:text-gray-300">
-                Learn more about the website
-              </button>
-            </DialogTrigger>
-            <DialogContent className="max-w-lg">
-              <DialogHeader>
-                <DialogTitle>About the Website</DialogTitle>
-                <DialogDescription>
-                  KaHealth is a mobile-first health information platform designed for residents of Barangay New Kalalake. It provides easy access to public health announcements, medical tips, and local health news to ensure community awareness and promote well-being.
-                </DialogDescription>
-              </DialogHeader>
-            </DialogContent>
-          </Dialog>
+          <h4 className="text-lg font-bold mb-2">KaHealth</h4>
+          <p className="text-sm">
+            A health information system developed for Barangay New Kalalake residents to stay updated on health news and advisories.
+          </p>
         </div>
 
-        {/* Mission and Vision (Modal) */}
         <div>
-          <h2 className="text-lg font-semibold mb-3">Mission & Vision</h2>
-          <Dialog>
-            <DialogTrigger asChild>
-              <button className="text-sm underline text-left hover:text-gray-300">
-                View Mission and Vision
-              </button>
-            </DialogTrigger>
-            <DialogContent className="max-w-lg">
-              <DialogHeader>
-                <DialogTitle>Mission & Vision</DialogTitle>
-                <DialogDescription>
-                  <p className="mb-2">
-                    <strong>Mission (New Kalalake):</strong> To promote transparency, accountability, and efficiency in the delivery of basic services for the betterment of its citizens.
-                  </p>
-                  <p>
-                    <strong>Vision (KaHealth):</strong> A healthy, informed, and empowered community in New Kalalake through accessible digital health communication.
-                  </p>
-                </DialogDescription>
-              </DialogHeader>
-            </DialogContent>
-          </Dialog>
+          <h4 className="text-lg font-bold mb-2">Information</h4>
+          <ul className="space-y-2 text-sm">
+            <li>
+              <Dialog>
+                <DialogTrigger className="hover:underline">About the Website</DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>About the Website</DialogTitle>
+                    <DialogDescription>
+                      KaHealth is a digital health hub designed for the people of Barangay New Kalalake. It aims to deliver timely and accurate health news, advisories, and education, particularly catering to mobile users and elderly individuals.
+                    </DialogDescription>
+                  </DialogHeader>
+                </DialogContent>
+              </Dialog>
+            </li>
+            <li>
+              <Dialog>
+                <DialogTrigger className="hover:underline">Mission & Vision</DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Mission & Vision</DialogTitle>
+                    <DialogDescription>
+                      <strong>Mission:</strong> To provide efficient and transparent governance that ensures the health and well-being of our community. <br /><br />
+                      <strong>Vision:</strong> A progressive Barangay New Kalalake that is healthy, resilient, and inclusive, with accessible health information for all.
+                    </DialogDescription>
+                  </DialogHeader>
+                </DialogContent>
+              </Dialog>
+            </li>
+          </ul>
         </div>
 
-        {/* Contact Info */}
         <div>
-          <h2 className="text-lg font-semibold mb-3">Contact Us</h2>
+          <h4 className="text-lg font-bold mb-2">Contact</h4>
           <ul className="text-sm space-y-1">
-            <li>📍 New Kalalake Health Center</li>
-            <li>Murphy St, New Kalalake, Olongapo City, 2200</li>
-            <li>☎️ +63 47 224 8264</li>
-            <li>🕘 Mon – Fri: 8:00 AM – 5:00 PM</li>
+            <li>Email: <a href="mailto:barangay.newkalalake@gmail.com" className="hover:underline">barangay.newkalalake@gmail.com</a></li>
+            <li>Phone: (047) 222-5677</li>
+            <li>Facebook: <a href="https://web.facebook.com/profile.php?id=100079624825596" className="hover:underline" target="_blank" rel="noopener noreferrer">Barangay New Kalalake</a></li>
           </ul>
         </div>
       </div>
 
-      <div className="border-t border-gray-700 mt-10 py-4 text-center text-xs text-gray-400">
-        &copy; {new Date().getFullYear()} KaHealth • Barangay New Kalalake, Olongapo City
+      <div className="mt-10 text-center text-xs text-gray-300">
+        © {new Date().getFullYear()} KaHealth. All rights reserved.
       </div>
     </footer>
   );
