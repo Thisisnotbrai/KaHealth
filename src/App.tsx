@@ -1,6 +1,9 @@
-import { ThemeProvider } from "./components/ui/Darkmode/theme-provider";
+import { Route, Routes } from "react-router-dom";
+import AdminLogin from "./components/ui/Admin/AdminLogin";
 import LandingPage from "./components/ui/LandingPage";
+import AdminDashboard from "./components/ui/Admin/AdminDashboard"; // create this later
 import IntroAnimation from "./components/ui/IntroAnimation";
+import { ThemeProvider } from "./components/ui/Darkmode/theme-provider";
 import { useEffect, useState } from "react";
 
 function App() {
@@ -15,16 +18,22 @@ function App() {
 
       setTimeout(() => {
         setShowIntro(false);
-      }, 2500); // match animation duration
+      }, 2500);
     }
   }, []);
 
   return (
-    <div>
-      <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-        {showIntro ? <IntroAnimation /> : <LandingPage />}
-      </ThemeProvider>
-    </div>
+    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+      {showIntro ? (
+        <IntroAnimation />
+      ) : (
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+        </Routes>
+      )}
+    </ThemeProvider>
   );
 }
 
