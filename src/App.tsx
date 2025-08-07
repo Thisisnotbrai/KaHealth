@@ -1,10 +1,13 @@
 import { Route, Routes } from "react-router-dom";
 import AdminLogin from "./components/ui/Admin/AdminLogin";
 import LandingPage from "./components/ui/LandingPage";
-import AdminDashboard from "./components/ui/Admin/AdminDashboard"; // create this later
+import AdminDashboard from "./components/ui/Admin/AdminDashboard";
 import IntroAnimation from "./components/ui/IntroAnimation";
 import { ThemeProvider } from "./components/ui/Darkmode/theme-provider";
 import { useEffect, useState } from "react";
+
+// ✅ Import Toaster from sonner
+import { Toaster } from "sonner";
 
 function App() {
   const [showIntro, setShowIntro] = useState(false);
@@ -24,6 +27,9 @@ function App() {
 
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+      {/* ✅ Mount toaster here */}
+      <Toaster richColors position="top-right" />
+      
       {showIntro ? (
         <IntroAnimation />
       ) : (
