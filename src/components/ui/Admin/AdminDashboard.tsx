@@ -1,236 +1,203 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react"
 import { supabase } from "../../../supabase-client";
 import { Button } from "../Navbar/button";
+import { Input } from "../Input";
+import { Textarea } from "../Textarea";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from "../dialog";
-import { Textarea } from "../Textarea";
-import { toast } from "sonner";
-import { Input } from "../Input";
+} from "@/components/ui/dialog"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+import { toast }  from "sonner";
+import { formatDistanceToNow } from "date-fns/formatDistanceToNow";
 
-const AdminDashboard = () => {
-  const [userEmail, setUserEmail] = useState<string | null>(null);
-  const [announcements, setAnnouncements] = useState<any[]>([]);
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
-  const [editId, setEditId] = useState<number | null>(null);
-  const [editTitle, setEditTitle] = useState("");
-  const [editContent, setEditContent] = useState("");
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [deleteId, setDeleteId] = useState<number | null>(null);
-  const [confirmDelete, setConfirmDelete] = useState(false);
+interface Announcement {
+  id: number
+  title: string
+  content: string
+  created_at: string
+}
 
-  const navigate = useNavigate();
+export default function AdminDashboard() {
+  const [announcements, setAnnouncements] = useState<Announcement[]>([])
+  const [title, setTitle] = useState("")
+  const [content, setContent] = useState("")
+  const [loading, setLoading] = useState(false)
 
+  const [editDialogOpen, setEditDialogOpen] = useState(false)
+  const [editId, setEditId] = useState<number | null>(null)
+  const [editTitle, setEditTitle] = useState("")
+  const [editContent, setEditContent] = useState("")
+
+  // Fetch announcements
   useEffect(() => {
-    const getUser = async () => {
-      const { data, error } = await supabase.auth.getUser();
-      if (error || !data.user) {
-        navigate("/admin/login");
-      } else {
-        setUserEmail(data.user.email ?? null);
-      }
-    };
+    fetchAnnouncements()
+  }, [])
 
-    getUser();
-    fetchAnnouncements();
-  }, [navigate]);
-
-  const fetchAnnouncements = async () => {
+  async function fetchAnnouncements() {
     const { data, error } = await supabase
       .from("announcements")
       .select("*")
-      .order("id", { ascending: false });
+      .order("created_at", { ascending: false })
 
-    if (!error) setAnnouncements(data || []);
-  };
+    if (!error && data) {
+      setAnnouncements(data)
+    }
+  }
 
-  const handlePostAnnouncement = async () => {
-    if (!title || !content) return;
-
+  // Add announcement
+  async function handlePost() {
+    if (!title.trim() || !content.trim()) return
+    setLoading(true)
     const { error } = await supabase
       .from("announcements")
-      .insert([{ title, content }]);
+      .insert([{ title, content }])
 
-    if (error) {
-      toast.error("Failed to post announcement");
-    } else {
-      toast.success("Announcement posted");
-      setTitle("");
-      setContent("");
-      fetchAnnouncements();
+    setLoading(false)
+    if (!error) {
+      toast("A cement posted successfully!")
+      setTitle("")
+      setContent("")
+      fetchAnnouncements()
     }
-  };
+  }
 
-  const handleDelete = async () => {
-    if (!deleteId) return;
+  // Delete announcement
+  async function handleDelete(id: number) {
+    if (!confirm("Are you sure you want to delete this announcement?")) return
+    const { error } = await supabase.from("announcements").delete().eq("id", id)
 
-    const { error } = await supabase
-      .from("announcements")
-      .delete()
-      .eq("id", deleteId);
-
-    if (error) {
-      toast.error("Failed to delete announcement");
-    } else {
-      toast.success("Announcement deleted");
-      fetchAnnouncements();
+    if (!error) {
+      toast("Announcement removed.")
+      fetchAnnouncements()
     }
+  }
 
-    setDeleteId(null);
-    setConfirmDelete(false);
-  };
+  // Open edit modal
+  function openEditModal(a: Announcement) {
+    setEditId(a.id)
+    setEditTitle(a.title)
+    setEditContent(a.content)
+    setEditDialogOpen(true)
+  }
 
-  const handleEdit = (id: number, title: string, content: string) => {
-    setEditId(id);
-    setEditTitle(title);
-    setEditContent(content);
-    setShowEditModal(true);
-  };
-
-  const handleUpdate = async () => {
-    if (!editId || !editTitle || !editContent) return;
-
+  // Save edits
+  async function handleEditSave() {
+    if (editId === null) return
     const { error } = await supabase
       .from("announcements")
       .update({ title: editTitle, content: editContent })
-      .eq("id", editId);
+      .eq("id", editId)
 
-    if (error) {
-      toast.error("Failed to update announcement");
-    } else {
-      toast.success("Announcement updated");
-      fetchAnnouncements();
+    if (!error) {
+      toast("Announcement updated successfully.")
+      setEditDialogOpen(false)
+      fetchAnnouncements()
     }
-
-    setShowEditModal(false);
-    setEditId(null);
-  };
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    navigate("/admin/login");
-  };
+  }
 
   return (
-    <div className="min-h-screen bg-background text-foreground p-6">
-      <div className="max-w-4xl mx-auto space-y-8">
-        <div className="flex justify-between items-center border-b pb-4">
-          <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-          <Button
-            onClick={handleLogout}
-            className="hover:bg-red-500 transition-colors"
-          >
-            Logout
-          </Button>
-        </div>
-
-        <p className="text-sm text-muted-foreground">
-          Logged in as: <span className="font-medium">{userEmail}</span>
-        </p>
-
-        <section>
-          <h2 className="text-xl font-semibold mb-2">📢 Announcements</h2>
-          <div className="space-y-4">
-            <Input
-              placeholder="Title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-            />
-            <Textarea
-              placeholder="Write announcement..."
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-            />
-            <Button onClick={handlePostAnnouncement} className="hover:bg-blue-600">
-              Post Announcement
-            </Button>
-          </div>
-
-          <div className="mt-6 space-y-4">
-            {announcements.map((item) => (
-              <div
-                key={item.id}
-                className="border rounded p-4 flex justify-between items-start transition hover:shadow-md"
-              >
-                <div>
-                  <h3 className="text-lg font-bold">{item.title}</h3>
-                  <p className="text-sm text-muted-foreground whitespace-pre-wrap">
-                    {item.content}
-                  </p>
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    onClick={() => handleEdit(item.id, item.title, item.content)}
-                    variant="outline"
-                    className="hover:bg-yellow-400"
-                  >
-                    Edit
-                  </Button>
-                  <Button
-                    onClick={() => {
-                      setDeleteId(item.id);
-                      setConfirmDelete(true);
-                    }}
-                    variant="destructive"
-                  >
-                    Delete
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
+    <div className="p-6 space-y-6">
+      {/* Post Form */}
+      <div className="space-y-4 border p-4 rounded-lg shadow-sm">
+        <h2 className="text-xl font-bold">Post Announcement</h2>
+        <Input
+          placeholder="Title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+        />
+        <Textarea
+          placeholder="Content"
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+        />
+        <Button onClick={handlePost} disabled={loading} className="transition hover:scale-105">
+          {loading ? "Posting..." : "Post"}
+        </Button>
       </div>
 
-      {/* Edit Modal */}
-      <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
-        <DialogContent className="transition-all animate-in fade-in-0 zoom-in-95">
+      {/* Announcements List */}
+      <div className="space-y-4">
+        <h2 className="text-lg font-semibold">Latest Announcements</h2>
+        {announcements.map((a) => (
+          <div
+            key={a.id}
+            className="border p-4 rounded-lg shadow-sm hover:shadow-md transition"
+          >
+            <div className="flex justify-between items-start">
+              <div>
+                <h3 className="font-semibold text-lg">{a.title}</h3>
+                <p className="text-sm text-gray-600">{a.content}</p>
+              </div>
+              <div className="flex space-x-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => openEditModal(a)}
+                  className="transition hover:bg-blue-100"
+                >
+                  Edit
+                </Button>
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  onClick={() => handleDelete(a.id)}
+                  className="transition hover:bg-red-100"
+                >
+                  Delete
+                </Button>
+              </div>
+            </div>
+
+            {/* Time Posted */}
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="text-xs text-gray-500 mt-2 block cursor-pointer">
+                    {formatDistanceToNow(new Date(a.created_at), { addSuffix: true })}
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{new Date(a.created_at).toLocaleString()}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+        ))}
+      </div>
+
+      {/* Edit Dialog */}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent className="sm:max-w-lg animate-in fade-in slide-in-from-top-5">
           <DialogHeader>
             <DialogTitle>Edit Announcement</DialogTitle>
           </DialogHeader>
           <Input
-            placeholder="Edit title"
+            placeholder="Title"
             value={editTitle}
             onChange={(e) => setEditTitle(e.target.value)}
           />
           <Textarea
-            placeholder="Edit content"
+            placeholder="Content"
             value={editContent}
             onChange={(e) => setEditContent(e.target.value)}
           />
           <DialogFooter>
-            <Button onClick={handleUpdate}>Save Changes</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Delete Confirmation */}
-      <Dialog open={confirmDelete} onOpenChange={setConfirmDelete}>
-        <DialogContent className="animate-in fade-in-0 zoom-in-95">
-          <DialogHeader>
-            <DialogTitle>Confirm Deletion</DialogTitle>
-          </DialogHeader>
-          <p>Are you sure you want to delete this announcement?</p>
-          <DialogFooter>
-            <Button onClick={() => setConfirmDelete(false)} variant="outline">
+            <Button variant="outline" onClick={() => setEditDialogOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleDelete} variant="destructive">
-              Delete
-            </Button>
+            <Button onClick={handleEditSave}>Save</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
-  );
-};
-
-export default AdminDashboard;
+  )
+}
