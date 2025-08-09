@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect } from "react";
 import { supabase } from "../../../supabase-client";
 import { Button } from "../Navbar/button";
 import { Input } from "../Input";
@@ -9,127 +9,128 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from "@/components/ui/dialog"
+} from "@/components/ui/dialog";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip"
+} from "@/components/ui/tooltip";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns/formatDistanceToNow";
 
 interface Announcement {
-  id: number
-  title: string
-  content: string
-  image_url?: string
-  created_at: string
+  id: number;
+  title: string;
+  content: string;
+  image_url?: string;
+  created_at: string;
 }
 
 export default function AdminDashboard() {
-  const [announcements, setAnnouncements] = useState<Announcement[]>([])
-  const [title, setTitle] = useState("")
-  const [content, setContent] = useState("")
-  const [image, setImage] = useState<File | null>(null)
-  const [loading, setLoading] = useState(false)
+  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
 
-  const [editDialogOpen, setEditDialogOpen] = useState(false)
-  const [editId, setEditId] = useState<number | null>(null)
-  const [editTitle, setEditTitle] = useState("")
-  const [editContent, setEditContent] = useState("")
-  const [editImage, setEditImage] = useState<File | null>(null)
+  // Form states
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [image, setImage] = useState<File | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  // Fetch announcements
+  // Edit states
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editId, setEditId] = useState<number | null>(null);
+  const [editTitle, setEditTitle] = useState("");
+  const [editContent, setEditContent] = useState("");
+  const [editImage, setEditImage] = useState<File | null>(null);
+
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const announcementsPerPage = 4; // changed to 4 per page
+
   useEffect(() => {
-    fetchAnnouncements()
-  }, [])
+    fetchAnnouncements();
+  }, []);
 
   async function fetchAnnouncements() {
     const { data, error } = await supabase
       .from("announcements")
       .select("*")
-      .order("created_at", { ascending: false })
+      .order("created_at", { ascending: false });
 
-    if (!error && data) {
-      setAnnouncements(data)
-    }
+    if (!error && data) setAnnouncements(data);
   }
 
-  // Upload image to Supabase Storage and get public URL
   async function uploadImage(file: File) {
-    const fileName = `${Date.now()}-${file.name}`
+    const fileName = `${Date.now()}-${file.name}`;
     const { error: uploadError } = await supabase.storage
       .from("announcement-images")
-      .upload(fileName, file)
+      .upload(fileName, file);
 
-    if (uploadError) throw uploadError
+    if (uploadError) throw uploadError;
 
     const { data } = supabase.storage
       .from("announcement-images")
-      .getPublicUrl(fileName)
+      .getPublicUrl(fileName);
 
-    return data.publicUrl
+    return data.publicUrl;
   }
 
-  // Add announcement
   async function handlePost() {
-    if (!title.trim() || !content.trim()) return
-    setLoading(true)
+    if (!title.trim() || !content.trim())
+      return toast("Please fill all fields.");
+    setLoading(true);
 
     try {
-      let imageUrl = null
-      if (image) {
-        imageUrl = await uploadImage(image)
-      }
+      const imageUrl = image ? await uploadImage(image) : null;
 
-      const { error } = await supabase
-        .from("announcements")
-        .insert([{ title, content, image_url: imageUrl }])
+      const { error } = await supabase.from("announcements").insert([
+        { title, content, image_url: imageUrl },
+      ]);
 
-      if (error) throw error
+      if (error) throw error;
 
-      toast("Announcement posted successfully!")
-      setTitle("")
-      setContent("")
-      setImage(null)
-      fetchAnnouncements()
-    } catch (err: any) {
-      console.error(err)
-      toast("Error posting announcement.")
+      toast("Announcement posted successfully!");
+      resetPostForm();
+      fetchAnnouncements();
+    } catch {
+      toast("Error posting announcement.");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 
-  // Delete announcement
+  function resetPostForm() {
+    setTitle("");
+    setContent("");
+    setImage(null);
+  }
+
   async function handleDelete(id: number) {
-    if (!confirm("Are you sure you want to delete this announcement?")) return
-    const { error } = await supabase.from("announcements").delete().eq("id", id)
+    if (!confirm("Are you sure you want to delete this announcement?")) return;
+
+    const { error } = await supabase
+      .from("announcements")
+      .delete()
+      .eq("id", id);
 
     if (!error) {
-      toast("Announcement removed.")
-      fetchAnnouncements()
+      toast("Announcement removed.");
+      fetchAnnouncements();
     }
   }
 
-  // Open edit modal
   function openEditModal(a: Announcement) {
-    setEditId(a.id)
-    setEditTitle(a.title)
-    setEditContent(a.content)
-    setEditDialogOpen(true)
+    setEditId(a.id);
+    setEditTitle(a.title);
+    setEditContent(a.content);
+    setEditDialogOpen(true);
   }
 
-  // Save edits
   async function handleEditSave() {
-    if (editId === null) return
+    if (editId === null) return;
 
     try {
-      let imageUrl = null
-      if (editImage) {
-        imageUrl = await uploadImage(editImage)
-      }
+      const imageUrl = editImage ? await uploadImage(editImage) : null;
 
       const { error } = await supabase
         .from("announcements")
@@ -138,18 +139,23 @@ export default function AdminDashboard() {
           content: editContent,
           ...(imageUrl && { image_url: imageUrl }),
         })
-        .eq("id", editId)
+        .eq("id", editId);
 
-      if (error) throw error
+      if (error) throw error;
 
-      toast("Announcement updated successfully.")
-      setEditDialogOpen(false)
-      fetchAnnouncements()
-    } catch (err: any) {
-      console.error(err)
-      toast("Error updating announcement.")
+      toast("Announcement updated successfully.");
+      setEditDialogOpen(false);
+      fetchAnnouncements();
+    } catch {
+      toast("Error updating announcement.");
     }
   }
+
+  // Pagination logic
+  const indexOfLast = currentPage * announcementsPerPage;
+  const indexOfFirst = indexOfLast - announcementsPerPage;
+  const currentAnnouncements = announcements.slice(indexOfFirst, indexOfLast);
+  const totalPages = Math.ceil(announcements.length / announcementsPerPage);
 
   return (
     <div className="p-6 space-y-6">
@@ -172,56 +178,53 @@ export default function AdminDashboard() {
           onChange={(e) => setImage(e.target.files?.[0] || null)}
           className="block"
         />
-        <Button onClick={handlePost} disabled={loading} className="transition hover:scale-105">
+        <Button
+          onClick={handlePost}
+          disabled={loading}
+          className="transition hover:scale-105"
+        >
           {loading ? "Posting..." : "Post"}
         </Button>
       </div>
 
-      {/* Announcements List */}
-      <div className="space-y-4">
-        <h2 className="text-lg font-semibold">Latest Announcements</h2>
-        {announcements.map((a) => (
-          <div
-            key={a.id}
-            className="border p-4 rounded-lg shadow-sm hover:shadow-md transition"
-          >
-            {a.image_url && (
-              <img
-                src={a.image_url}
-                alt={a.title}
-                className="w-full max-h-64 object-cover rounded mb-3"
-              />
-            )}
-            <div className="flex justify-between items-start">
-              <div>
-                <h3 className="font-semibold text-lg">{a.title}</h3>
-                <p className="text-sm text-gray-600">{a.content}</p>
-              </div>
-              <div className="flex space-x-2">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => openEditModal(a)}
-                  className="transition hover:bg-blue-100"
-                >
-                  Edit
-                </Button>
-                <Button
-                  size="sm"
-                  variant="destructive"
-                  onClick={() => handleDelete(a.id)}
-                  className="transition hover:bg-red-100"
-                >
-                  Delete
-                </Button>
-              </div>
-            </div>
+{/* Announcements List */}
+<div className="space-y-4">
+  <h2 className="text-lg font-semibold">Latest Announcements</h2>
+  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    {currentAnnouncements.map((a) => (
+      <div
+        key={a.id}
+        className="border rounded-lg shadow-sm hover:shadow-md transition bg-white flex flex-col justify-between max-w-sm w-full mx-auto"
+      >
+        {a.image_url ? (
+          <img
+            src={a.image_url}
+            alt={a.title}
+            className="w-full h-36 object-cover rounded-t-lg"
+          />
+        ) : (
+          <div className="flex items-center justify-center w-full h-36 bg-gray-100 text-gray-400 text-sm rounded-t-lg">
+            No image
+          </div>
+        )}
 
-            {/* Time Posted */}
+        {/* Card Content */}
+        <div className="flex flex-col justify-between flex-1 p-3">
+          <div>
+            <h3 className="font-semibold text-md line-clamp-2 break-words">
+              {a.title}
+            </h3>
+            <p className="text-sm text-gray-600 mt-1 line-clamp-3 break-words">
+              {a.content}
+            </p>
+          </div>
+
+          {/* Footer Row */}
+          <div className="mt-3 flex items-center justify-between">
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <span className="text-xs text-gray-500 mt-2 block cursor-pointer">
+                  <span className="text-xs text-gray-500 cursor-pointer">
                     {formatDistanceToNow(new Date(a.created_at), { addSuffix: true })}
                   </span>
                 </TooltipTrigger>
@@ -230,8 +233,55 @@ export default function AdminDashboard() {
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
+
+            <div className="flex space-x-2">
+             <Button
+  size="sm"
+  className="bg-blue-500 text-white hover:bg-blue-600 transition"
+  onClick={() => openEditModal(a)}
+>
+  Edit
+</Button>
+<Button
+  size="sm"
+  variant="destructive"
+  onClick={() => handleDelete(a.id)}
+  className="transition hover:bg-red-600 text-white"
+>
+  Delete
+</Button>
+            </div>
           </div>
-        ))}
+        </div>
+      </div>
+    ))}
+  </div>
+
+
+        {/* Pagination Controls */}
+        {totalPages > 1 && (
+          <div className="flex justify-center items-center space-x-2 mt-4">
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage((p) => p - 1)}
+            >
+              Previous
+            </Button>
+            <span className="text-sm">
+              Page {currentPage} of {totalPages}
+            </span>
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage((p) => p + 1)}
+            >
+              Next
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* Edit Dialog */}
@@ -257,7 +307,10 @@ export default function AdminDashboard() {
             className="block"
           />
           <DialogFooter>
-            <Button variant="outline" onClick={() => setEditDialogOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setEditDialogOpen(false)}
+            >
               Cancel
             </Button>
             <Button onClick={handleEditSave}>Save</Button>
@@ -265,5 +318,5 @@ export default function AdminDashboard() {
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 }

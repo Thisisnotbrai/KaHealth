@@ -52,19 +52,19 @@ export default function Announcements() {
             className="text-sm font-semibold text-[#00623B] hover:underline"
           >
             Read More
-          </button>   
+          </button>
         )}
       </div>
 
       {/* Card Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {loading
           ? [...Array(4)].map((_, i) => (
               <div
                 key={i}
                 className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm"
               >
-                <Skeleton className="w-full h-36" />
+                <Skeleton className="w-full h-44" />
                 <div className="p-4 space-y-2">
                   <Skeleton className="h-4 w-3/4" />
                   <Skeleton className="h-3 w-1/2" />
@@ -81,10 +81,10 @@ export default function Announcements() {
                   <img
                     src={announcement.image_url}
                     alt={announcement.title}
-                    className="w-full h-36 object-cover"
+                    className="w-full h-44 object-cover"
                   />
                 ) : (
-                  <div className="flex items-center justify-center h-36 text-gray-400 text-sm bg-gray-100">
+                  <div className="flex items-center justify-center h-44 text-gray-400 text-sm bg-gray-100">
                     No image
                   </div>
                 )}

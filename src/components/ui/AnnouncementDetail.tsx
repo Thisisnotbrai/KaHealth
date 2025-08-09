@@ -10,16 +10,22 @@ export default function AnnouncementDetail() {
 
   useEffect(() => {
     fetchAnnouncement();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
 
   const fetchAnnouncement = async () => {
-    const { data } = await supabase
-      .from("announcements")
-      .select("*")
-      .eq("id", id)
-      .single();
+    try {
+      const { data } = await supabase
+        .from("announcements")
+        .select("*")
+        .eq("id", id)
+        .single();
 
-    setAnnouncement(data);
+      setAnnouncement(data);
+    } catch (err) {
+      console.error("Failed to fetch announcement:", err);
+      setAnnouncement(null);
+    }
   };
 
   if (!announcement) {
@@ -34,7 +40,7 @@ export default function AnnouncementDetail() {
 
   return (
     <PageLayout>
-      <div className="flex flex-col min-h-[calc(100vh-4rem)]"> 
+      <div className="flex flex-col min-h-[calc(100vh-4rem)]">
         {/* Content area */}
         <div className="flex-grow bg-gray-50 dark:bg-white/5 p-6 rounded-lg shadow-inner">
           {/* Home Button */}
@@ -52,12 +58,17 @@ export default function AnnouncementDetail() {
             {format(new Date(announcement.created_at), "MMMM d, yyyy")}
           </p>
 
+          {/* Full image (scaled to fit, not cropped) */}
           {announcement.image_url && (
-            <img
-              src={announcement.image_url}
-              alt={announcement.title}
-              className="w-full max-h-96 object-cover rounded-lg mb-6"
-            />
+            <div className="mb-6 w-full flex justify-center">
+              <img
+                src={announcement.image_url}
+                alt={announcement.title}
+                className="max-w-full h-auto rounded-lg shadow-sm"
+                // limit to 80% of viewport height to avoid overflow on very tall images
+                style={{ maxHeight: "80vh" }}
+              />
+            </div>
           )}
 
           <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
@@ -67,7 +78,7 @@ export default function AnnouncementDetail() {
 
         {/* Footer */}
         <footer className="py-4 text-center text-sm text-gray-500">
-          © {new Date().getFullYear()} Your Site Name
+          © {new Date().getFullYear()} KaHealth
         </footer>
       </div>
     </PageLayout>
