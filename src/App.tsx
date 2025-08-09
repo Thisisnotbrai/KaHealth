@@ -3,10 +3,9 @@ import AdminLogin from "./components/ui/Admin/AdminLogin";
 import LandingPage from "./components/ui/LandingPage";
 import AdminDashboard from "./components/ui/Admin/AdminDashboard";
 import IntroAnimation from "./components/ui/IntroAnimation";
+import AnnouncementDetail from "./components/ui/AnnouncementDetail";
 import { ThemeProvider } from "./components/ui/Darkmode/theme-provider";
 import { useEffect, useState } from "react";
-
-// ✅ Import Toaster from sonner
 import { Toaster } from "sonner";
 
 function App() {
@@ -14,11 +13,9 @@ function App() {
 
   useEffect(() => {
     const hasVisited = sessionStorage.getItem("hasVisited");
-
     if (!hasVisited) {
       setShowIntro(true);
       sessionStorage.setItem("hasVisited", "true");
-
       setTimeout(() => {
         setShowIntro(false);
       }, 2500);
@@ -27,9 +24,7 @@ function App() {
 
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-      {/* ✅ Mount toaster here */}
       <Toaster richColors position="top-right" />
-      
       {showIntro ? (
         <IntroAnimation />
       ) : (
@@ -37,6 +32,7 @@ function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/announcement/:id" element={<AnnouncementDetail />} />
         </Routes>
       )}
     </ThemeProvider>

@@ -1,82 +1,106 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/supabase-client";
+import { format } from "date-fns";
+import { Skeleton } from "@/components/ui/skeleton";
 
-const advisoryData = [
-  {
-    title: "Message Of Support For PAW 2025",
-    date: "May 23, 2025",
-    image: "/advisories/paw2025.png",
-  },
-  {
-    title: "Invitation to Pre-Bid Conference – Baguio Dialysis Center",
-    date: "April 30, 2025",
-    image: "/advisories/prebid-baguio.png",
-  },
-  // Add more as needed
-];
+interface AnnouncementData {
+  id: number;
+  title: string;
+  content: string;
+  created_at: string;
+  image_url?: string;
+}
 
-const pressReleases = [
-  {
-    title: "DOH: TAOB, TATAK, TUYO...",
-    date: "June 29, 2025",
-  },
-  {
-    title: "DOH NAGBIGAY NG CHECK-UP MENTAL HEALTH SERVICES...",
-    date: "June 14, 2025",
-  },
-  // Add more as needed
-];
+export default function Announcements() {
+  const [announcements, setAnnouncements] = useState<AnnouncementData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showAll, setShowAll] = useState(false);
+  const navigate = useNavigate();
 
-export default function Announcement() {
+  useEffect(() => {
+    fetchAnnouncements();
+  }, []);
+
+  const fetchAnnouncements = async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("announcements")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Error fetching announcements:", error);
+    } else {
+      setAnnouncements(data || []);
+    }
+    setLoading(false);
+  };
+
+  const displayedAnnouncements = showAll
+    ? announcements
+    : announcements.slice(0, 4);
+
   return (
-    <section className="px-4 md:px-8 py-10">
-      <div className="flex flex-col md:flex-row gap-6">
-        {/* Advisories Section */}
-        <div className="w-full md:w-2/3">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold">📣 Kalalake Advisories</h2>
-            <a href="#" className="text-sm text-blue-600 hover:underline">Read more</a>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {advisoryData.map((item, index) => (
-              <Card key={index} className="overflow-hidden">
-                <img src={item.image} alt={item.title} className="h-32 w-full object-cover" />
-                <CardContent className="p-3">
-                  <CardTitle className="text-sm font-semibold line-clamp-2">
-                    {item.title}
-                  </CardTitle>
-                  <CardDescription className="text-xs text-gray-500 mt-1">
-                    {item.date}
-                  </CardDescription>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
+    <section className="max-w-6xl mx-auto">
+      {/* Heading */}
+      <div className="flex items-center justify-between mb-6 border-b-2 border-[#00623B] pb-2">
+        <h2 className="text-xl font-bold text-[#00623B]">📢 Advisories</h2>
+        {announcements.length > 4 && (
+          <button
+            onClick={() => setShowAll(!showAll)}
+            className="text-sm font-semibold text-[#00623B] hover:underline"
+          >
+            {showAll ? "Show Less" : "Read More"}
+          </button>
+        )}
+      </div>
 
-        {/* Press Releases Section */}
-        <div className="w-full md:w-1/3">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold">📰 Kalalake News</h2>
-            <a href="#" className="text-sm text-blue-600 hover:underline">See All</a>
-          </div>
-          <div className="flex flex-col gap-3">
-            {pressReleases.map((item, index) => (
+      {/* Card Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {loading
+          ? [...Array(4)].map((_, i) => (
               <div
-                key={index}
-                className="border-b pb-2 hover:bg-gray-100 dark:hover:bg-gray-800 px-2 py-1 rounded"
+                key={i}
+                className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm"
               >
-                <p className="text-sm font-medium line-clamp-2">{item.title}</p>
-                <p className="text-xs text-gray-500">{item.date}</p>
+                <Skeleton className="w-full h-36" />
+                <div className="p-4 space-y-2">
+                  <Skeleton className="h-4 w-3/4" />
+                  <Skeleton className="h-3 w-1/2" />
+                </div>
+              </div>
+            ))
+          : displayedAnnouncements.map((announcement) => (
+              <div
+                key={announcement.id}
+                onClick={() => navigate(`/announcement/${announcement.id}`)}
+                className="cursor-pointer bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200"
+              >
+                {announcement.image_url ? (
+                  <img
+                    src={announcement.image_url}
+                    alt={announcement.title}
+                    className="w-full h-36 object-cover"
+                  />
+                ) : (
+                  <div className="flex items-center justify-center h-36 text-gray-400 text-sm bg-gray-100">
+                    No image
+                  </div>
+                )}
+                <div className="p-4">
+                  <h3 className="text-base font-semibold text-gray-900 leading-snug line-clamp-2">
+                    {announcement.title}
+                  </h3>
+                  <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+                    {announcement.content}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-2">
+                    {format(new Date(announcement.created_at), "MMMM d, yyyy")}
+                  </p>
+                </div>
               </div>
             ))}
-          </div>
-        </div>
       </div>
     </section>
   );
