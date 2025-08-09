@@ -16,13 +16,14 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { toast }  from "sonner";
+import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns/formatDistanceToNow";
 
 interface Announcement {
   id: number
   title: string
   content: string
+  image_url?: string
   created_at: string
 }
 
@@ -30,12 +31,14 @@ export default function AdminDashboard() {
   const [announcements, setAnnouncements] = useState<Announcement[]>([])
   const [title, setTitle] = useState("")
   const [content, setContent] = useState("")
+  const [image, setImage] = useState<File | null>(null)
   const [loading, setLoading] = useState(false)
 
   const [editDialogOpen, setEditDialogOpen] = useState(false)
   const [editId, setEditId] = useState<number | null>(null)
   const [editTitle, setEditTitle] = useState("")
   const [editContent, setEditContent] = useState("")
+  const [editImage, setEditImage] = useState<File | null>(null)
 
   // Fetch announcements
   useEffect(() => {
@@ -53,20 +56,49 @@ export default function AdminDashboard() {
     }
   }
 
+  // Upload image to Supabase Storage and get public URL
+  async function uploadImage(file: File) {
+    const fileName = `${Date.now()}-${file.name}`
+    const { error: uploadError } = await supabase.storage
+      .from("announcement-images")
+      .upload(fileName, file)
+
+    if (uploadError) throw uploadError
+
+    const { data } = supabase.storage
+      .from("announcement-images")
+      .getPublicUrl(fileName)
+
+    return data.publicUrl
+  }
+
   // Add announcement
   async function handlePost() {
     if (!title.trim() || !content.trim()) return
     setLoading(true)
-    const { error } = await supabase
-      .from("announcements")
-      .insert([{ title, content }])
 
-    setLoading(false)
-    if (!error) {
-      toast("A cement posted successfully!")
+    try {
+      let imageUrl = null
+      if (image) {
+        imageUrl = await uploadImage(image)
+      }
+
+      const { error } = await supabase
+        .from("announcements")
+        .insert([{ title, content, image_url: imageUrl }])
+
+      if (error) throw error
+
+      toast("Announcement posted successfully!")
       setTitle("")
       setContent("")
+      setImage(null)
       fetchAnnouncements()
+    } catch (err: any) {
+      console.error(err)
+      toast("Error posting announcement.")
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -92,15 +124,30 @@ export default function AdminDashboard() {
   // Save edits
   async function handleEditSave() {
     if (editId === null) return
-    const { error } = await supabase
-      .from("announcements")
-      .update({ title: editTitle, content: editContent })
-      .eq("id", editId)
 
-    if (!error) {
+    try {
+      let imageUrl = null
+      if (editImage) {
+        imageUrl = await uploadImage(editImage)
+      }
+
+      const { error } = await supabase
+        .from("announcements")
+        .update({
+          title: editTitle,
+          content: editContent,
+          ...(imageUrl && { image_url: imageUrl }),
+        })
+        .eq("id", editId)
+
+      if (error) throw error
+
       toast("Announcement updated successfully.")
       setEditDialogOpen(false)
       fetchAnnouncements()
+    } catch (err: any) {
+      console.error(err)
+      toast("Error updating announcement.")
     }
   }
 
@@ -119,6 +166,12 @@ export default function AdminDashboard() {
           value={content}
           onChange={(e) => setContent(e.target.value)}
         />
+        <input
+          type="file"
+          accept="image/*"
+          onChange={(e) => setImage(e.target.files?.[0] || null)}
+          className="block"
+        />
         <Button onClick={handlePost} disabled={loading} className="transition hover:scale-105">
           {loading ? "Posting..." : "Post"}
         </Button>
@@ -132,6 +185,13 @@ export default function AdminDashboard() {
             key={a.id}
             className="border p-4 rounded-lg shadow-sm hover:shadow-md transition"
           >
+            {a.image_url && (
+              <img
+                src={a.image_url}
+                alt={a.title}
+                className="w-full max-h-64 object-cover rounded mb-3"
+              />
+            )}
             <div className="flex justify-between items-start">
               <div>
                 <h3 className="font-semibold text-lg">{a.title}</h3>
@@ -189,6 +249,12 @@ export default function AdminDashboard() {
             placeholder="Content"
             value={editContent}
             onChange={(e) => setEditContent(e.target.value)}
+          />
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => setEditImage(e.target.files?.[0] || null)}
+            className="block"
           />
           <DialogFooter>
             <Button variant="outline" onClick={() => setEditDialogOpen(false)}>
