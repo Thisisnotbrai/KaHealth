@@ -48,11 +48,11 @@ export default function Announcements() {
         <h2 className="text-xl font-bold text-[#00623B]">📢 Advisories</h2>
         {announcements.length > 4 && (
           <button
-            onClick={() => setShowAll(!showAll)}
+            onClick={() => navigate("/announcements")}
             className="text-sm font-semibold text-[#00623B] hover:underline"
           >
-            {showAll ? "Show Less" : "Read More"}
-          </button>
+            Read More
+          </button>   
         )}
       </div>
 

@@ -4,6 +4,7 @@ import LandingPage from "./components/ui/LandingPage";
 import AdminDashboard from "./components/ui/Admin/AdminDashboard";
 import IntroAnimation from "./components/ui/IntroAnimation";
 import AnnouncementDetail from "./components/ui/AnnouncementDetail";
+import AllAnnouncements from "./components/ui/AllAnnouncement";
 import { ThemeProvider } from "./components/ui/Darkmode/theme-provider";
 import { useEffect, useState } from "react";
 import { Toaster } from "sonner";
@@ -33,6 +34,7 @@ function App() {
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/announcement/:id" element={<AnnouncementDetail />} />
+          <Route path="/announcements" element={<AllAnnouncements />} />
         </Routes>
       )}
     </ThemeProvider>
