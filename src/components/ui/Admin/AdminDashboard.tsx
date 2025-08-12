@@ -1,23 +1,20 @@
-import React, { useState, useEffect } from "react";
-import { supabase } from "../../../supabase-client";
+import { useState, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { supabase } from "@/supabase-client";
 import { Button } from "../Navbar/button";
 import { Input } from "../Input";
 import { Textarea } from "../Textarea";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns/formatDistanceToNow";
+import { toast } from "sonner";
+import {
+  LayoutDashboard,
+  FileText,
+  Settings,
+  Bell,
+  LogOut,
+  Menu,
+  X,
+} from "lucide-react";
 
 interface Announcement {
   id: number;
@@ -28,28 +25,50 @@ interface Announcement {
 }
 
 export default function AdminDashboard() {
-  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+  const location = useLocation();
+  const pathname = location.pathname;
 
-  // Form states
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [image, setImage] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // Edit states
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
   const [editTitle, setEditTitle] = useState("");
   const [editContent, setEditContent] = useState("");
   const [editImage, setEditImage] = useState<File | null>(null);
 
-  // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
-  const announcementsPerPage = 4; // changed to 4 per page
+  const announcementsPerPage = 4;
+
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const [selectAll, setSelectAll] = useState(false);
+
+  const indexOfLast = currentPage * announcementsPerPage;
+  const indexOfFirst = indexOfLast - announcementsPerPage;
+  const currentAnnouncements = announcements.slice(indexOfFirst, indexOfLast);
+  const totalPages = Math.max(
+    1,
+    Math.ceil(announcements.length / announcementsPerPage)
+  );
 
   useEffect(() => {
     fetchAnnouncements();
   }, []);
+
+  useEffect(() => {
+    if (currentAnnouncements.length === 0) {
+      setSelectAll(false);
+      return;
+    }
+    const allSelected = currentAnnouncements.every((a) =>
+      selectedIds.includes(a.id)
+    );
+    setSelectAll(allSelected);
+  }, [selectedIds, currentPage, announcements]);
 
   async function fetchAnnouncements() {
     const { data, error } = await supabase
@@ -57,7 +76,51 @@ export default function AdminDashboard() {
       .select("*")
       .order("created_at", { ascending: false });
 
-    if (!error && data) setAnnouncements(data);
+    if (!error && data) {
+      setAnnouncements(data);
+      setSelectedIds([]);
+      setSelectAll(false);
+    }
+  }
+
+  function toggleSelect(id: number) {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
+  }
+
+  function toggleSelectAll() {
+    if (selectAll) {
+      setSelectedIds((prev) =>
+        prev.filter((id) => !currentAnnouncements.some((a) => a.id === id))
+      );
+      setSelectAll(false);
+    } else {
+      setSelectedIds((prev) => {
+        const visibleIds = currentAnnouncements.map((a) => a.id);
+        return Array.from(new Set([...prev, ...visibleIds]));
+      });
+      setSelectAll(true);
+    }
+  }
+
+  async function handleDeleteSelected() {
+    if (selectedIds.length === 0) return toast("No announcements selected.");
+    if (!confirm(`Delete ${selectedIds.length} announcement(s)?`)) return;
+
+    const { error } = await supabase
+      .from("announcements")
+      .delete()
+      .in("id", selectedIds);
+
+    if (!error) {
+      toast(`${selectedIds.length} announcement(s) deleted.`);
+      setSelectedIds([]);
+      setSelectAll(false);
+      fetchAnnouncements();
+    } else {
+      toast("Error deleting announcements.");
+    }
   }
 
   async function uploadImage(file: File) {
@@ -82,10 +145,9 @@ export default function AdminDashboard() {
 
     try {
       const imageUrl = image ? await uploadImage(image) : null;
-
-      const { error } = await supabase.from("announcements").insert([
-        { title, content, image_url: imageUrl },
-      ]);
+      const { error } = await supabase
+        .from("announcements")
+        .insert([{ title, content, image_url: imageUrl }]);
 
       if (error) throw error;
 
@@ -105,33 +167,18 @@ export default function AdminDashboard() {
     setImage(null);
   }
 
-  async function handleDelete(id: number) {
-    if (!confirm("Are you sure you want to delete this announcement?")) return;
-
-    const { error } = await supabase
-      .from("announcements")
-      .delete()
-      .eq("id", id);
-
-    if (!error) {
-      toast("Announcement removed.");
-      fetchAnnouncements();
-    }
-  }
-
   function openEditModal(a: Announcement) {
     setEditId(a.id);
     setEditTitle(a.title);
     setEditContent(a.content);
+    setEditImage(null);
     setEditDialogOpen(true);
   }
 
   async function handleEditSave() {
     if (editId === null) return;
-
     try {
       const imageUrl = editImage ? await uploadImage(editImage) : null;
-
       const { error } = await supabase
         .from("announcements")
         .update({
@@ -142,7 +189,6 @@ export default function AdminDashboard() {
         .eq("id", editId);
 
       if (error) throw error;
-
       toast("Announcement updated successfully.");
       setEditDialogOpen(false);
       fetchAnnouncements();
@@ -151,172 +197,307 @@ export default function AdminDashboard() {
     }
   }
 
-  // Pagination logic
-  const indexOfLast = currentPage * announcementsPerPage;
-  const indexOfFirst = indexOfLast - announcementsPerPage;
-  const currentAnnouncements = announcements.slice(indexOfFirst, indexOfLast);
-  const totalPages = Math.ceil(announcements.length / announcementsPerPage);
-
   return (
-    <div className="p-6 space-y-6">
-      {/* Post Form */}
-      <div className="space-y-4 border p-4 rounded-lg shadow-sm">
-        <h2 className="text-xl font-bold">Post Announcement</h2>
-        <Input
-          placeholder="Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
-        <Textarea
-          placeholder="Content"
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-        />
-        <input
-          type="file"
-          accept="image/*"
-          onChange={(e) => setImage(e.target.files?.[0] || null)}
-          className="block"
-        />
-        <Button
-          onClick={handlePost}
-          disabled={loading}
-          className="transition hover:scale-105"
-        >
-          {loading ? "Posting..." : "Post"}
-        </Button>
-      </div>
-
-{/* Announcements List */}
-<div className="space-y-4">
-  <h2 className="text-lg font-semibold">Latest Announcements</h2>
-  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-    {currentAnnouncements.map((a) => (
-      <div
-        key={a.id}
-        className="border rounded-lg shadow-sm hover:shadow-md transition bg-white flex flex-col justify-between max-w-sm w-full mx-auto"
+    <div className="flex min-h-screen bg-gray-900 text-gray-100">
+      {/* Sidebar */}
+      <aside
+        className={`${
+          sidebarOpen ? "w-64" : "w-16"
+        } bg-gray-800 p-4 flex flex-col transition-all duration-300 relative`}
       >
-        {a.image_url ? (
-          <img
-            src={a.image_url}
-            alt={a.title}
-            className="w-full h-36 object-cover rounded-t-lg"
-          />
-        ) : (
-          <div className="flex items-center justify-center w-full h-36 bg-gray-100 text-gray-400 text-sm rounded-t-lg">
-            No image
-          </div>
-        )}
+        {/* Toggle Button */}
+        <button
+          onClick={() => setSidebarOpen((prev) => !prev)}
+          className="absolute -right-3 top-6 bg-gray-700 text-white p-1 rounded-full hover:bg-gray-600 transition"
+        >
+          {sidebarOpen ? <X size={18} /> : <Menu size={18} />}
+        </button>
 
-        {/* Card Content */}
-        <div className="flex flex-col justify-between flex-1 p-3">
-          <div>
-            <h3 className="font-semibold text-md line-clamp-2 break-words">
-              {a.title}
-            </h3>
-            <p className="text-sm text-gray-600 mt-1 line-clamp-3 break-words">
-              {a.content}
-            </p>
-          </div>
-
-          {/* Footer Row */}
-          <div className="mt-3 flex items-center justify-between">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <span className="text-xs text-gray-500 cursor-pointer">
-                    {formatDistanceToNow(new Date(a.created_at), { addSuffix: true })}
-                  </span>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>{new Date(a.created_at).toLocaleString()}</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-
-            <div className="flex space-x-2">
-             <Button
-  size="sm"
-  className="bg-blue-500 text-white hover:bg-blue-600 transition"
-  onClick={() => openEditModal(a)}
->
-  Edit
-</Button>
-<Button
-  size="sm"
-  variant="destructive"
-  onClick={() => handleDelete(a.id)}
-  className="transition hover:bg-red-600 text-white"
->
-  Delete
-</Button>
-            </div>
-          </div>
+        {/* Title */}
+        <div className="flex items-center justify-center mb-6">
+          {sidebarOpen && <h1 className="text-lg font-bold">Admin Panel</h1>}
         </div>
-      </div>
-    ))}
-  </div>
 
+        {/* Nav Links */}
+        <nav className="space-y-2 flex-1">
+          <Link
+            to="/dashboard"
+            className={`flex items-center gap-2 px-3 py-2 rounded-lg transition ${
+              pathname === "/dashboard"
+                ? "bg-blue-600 text-white"
+                : "hover:bg-gray-700"
+            }`}
+            title={!sidebarOpen ? "Dashboard" : ""}
+          >
+            <LayoutDashboard size={18} />
+            {sidebarOpen && "Dashboard"}
+          </Link>
+          <Link
+            to="/announcements"
+            className={`flex items-center gap-2 px-3 py-2 rounded-lg transition ${
+              pathname === "/announcements"
+                ? "bg-blue-600 text-white"
+                : "hover:bg-gray-700"
+            }`}
+            title={!sidebarOpen ? "Announcements" : ""}
+          >
+            <Bell size={18} />
+            {sidebarOpen && "Announcements"}
+          </Link>
+          <Link
+            to="/posts"
+            className={`flex items-center gap-2 px-3 py-2 rounded-lg transition ${
+              pathname === "/posts"
+                ? "bg-blue-600 text-white"
+                : "hover:bg-gray-700"
+            }`}
+            title={!sidebarOpen ? "Posts" : ""}
+          >
+            <FileText size={18} />
+            {sidebarOpen && "Posts"}
+          </Link>
+          <Link
+            to="/settings"
+            className={`flex items-center gap-2 px-3 py-2 rounded-lg transition ${
+              pathname === "/settings"
+                ? "bg-blue-600 text-white"
+                : "hover:bg-gray-700"
+            }`}
+            title={!sidebarOpen ? "Settings" : ""}
+          >
+            <Settings size={18} />
+            {sidebarOpen && "Settings"}
+          </Link>
+        </nav>
 
-        {/* Pagination Controls */}
-        {totalPages > 1 && (
-          <div className="flex justify-center items-center space-x-2 mt-4">
-            <Button
-              size="sm"
-              variant="outline"
-              disabled={currentPage === 1}
-              onClick={() => setCurrentPage((p) => p - 1)}
-            >
-              Previous
-            </Button>
-            <span className="text-sm">
-              Page {currentPage} of {totalPages}
-            </span>
-            <Button
-              size="sm"
-              variant="outline"
-              disabled={currentPage === totalPages}
-              onClick={() => setCurrentPage((p) => p + 1)}
-            >
-              Next
-            </Button>
-          </div>
-        )}
-      </div>
+        {/* Logout */}
+        <div className="mt-auto pt-4 border-t border-gray-700">
+          <button
+            className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-700 transition w-full text-left"
+            title={!sidebarOpen ? "Logout" : ""}
+          >
+            <LogOut size={18} /> {sidebarOpen && "Logout"}
+          </button>
+        </div>
+      </aside>
 
-      {/* Edit Dialog */}
-      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-        <DialogContent className="sm:max-w-lg animate-in fade-in slide-in-from-top-5">
-          <DialogHeader>
-            <DialogTitle>Edit Announcement</DialogTitle>
-          </DialogHeader>
+      {/* Main Content */}
+      <main className="flex-1 p-6 space-y-6 overflow-y-auto">
+        {/* Post Form */}
+        <div className="space-y-4 border border-gray-700 p-6 rounded-xl shadow-sm bg-gray-800">
+          <h2 className="text-xl font-bold">Post Announcement</h2>
           <Input
             placeholder="Title"
-            value={editTitle}
-            onChange={(e) => setEditTitle(e.target.value)}
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className="bg-gray-700 text-white border-gray-600"
           />
           <Textarea
             placeholder="Content"
-            value={editContent}
-            onChange={(e) => setEditContent(e.target.value)}
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            className="bg-gray-700 text-white border-gray-600"
           />
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => setEditImage(e.target.files?.[0] || null)}
-            className="block"
-          />
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setEditDialogOpen(false)}
+          <div>
+            <label className="block text-sm font-medium text-gray-400 mb-2">
+              Image
+            </label>
+            <div className="flex items-center gap-4">
+              <label
+                htmlFor="post-image"
+                className="flex items-center gap-2 px-4 py-2 bg-gray-700 text-gray-200 border border-gray-600 rounded-lg cursor-pointer hover:bg-gray-600 transition"
+              >
+                Select Image
+              </label>
+              <input
+                id="post-image"
+                type="file"
+                accept="image/*"
+                onChange={(e) => setImage(e.target.files?.[0] || null)}
+                className="hidden"
+              />
+              {image && (
+                <img
+                  src={URL.createObjectURL(image)}
+                  alt="Preview"
+                  className="w-14 h-14 object-cover rounded-lg border border-gray-600"
+                />
+              )}
+            </div>
+          </div>
+          <Button
+            onClick={handlePost}
+            disabled={loading}
+            className="transition hover:scale-105 w-full bg-blue-600 hover:bg-blue-700 text-white"
+          >
+            {loading ? "Posting..." : "Post"}
+          </Button>
+        </div>
+
+        {/* Announcements Header */}
+        <div className="flex justify-between items-center">
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={selectAll}
+              onChange={toggleSelectAll}
+              className="w-4 h-4 accent-blue-600"
+            />
+            <span className="text-sm">Select All</span>
+          </div>
+          {selectedIds.length > 0 && (
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-300">
+                {selectedIds.length} selected
+              </span>
+              <Button
+                onClick={handleDeleteSelected}
+                className="bg-red-600 hover:bg-red-700 text-white"
+              >
+                Delete Selected
+              </Button>
+            </div>
+          )}
+        </div>
+
+        {/* Announcements List */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {currentAnnouncements.map((a) => (
+            <div
+              key={a.id}
+              className={`relative border rounded-lg shadow-sm transition bg-gray-800 flex flex-col justify-between max-w-sm w-full mx-auto ${
+                selectedIds.includes(a.id)
+                  ? "border-blue-500 ring-2 ring-blue-500/30"
+                  : "border-gray-700"
+              }`}
             >
-              Cancel
+              <div className="absolute top-2 left-2">
+                <input
+                  type="checkbox"
+                  checked={selectedIds.includes(a.id)}
+                  onChange={() => toggleSelect(a.id)}
+                  className="w-4 h-4 accent-blue-600"
+                />
+              </div>
+              {a.image_url ? (
+                <img
+                  src={a.image_url}
+                  alt={a.title}
+                  className="w-full h-36 object-cover rounded-t-lg"
+                />
+              ) : (
+                <div className="flex items-center justify-center w-full h-36 bg-gray-700 text-gray-500 text-sm rounded-t-lg">
+                  No image
+                </div>
+              )}
+              <div className="flex flex-col justify-between flex-1 p-3">
+                <div>
+                  <h3 className="font-semibold text-md line-clamp-2 break-words">
+                    {a.title}
+                  </h3>
+                  <p className="text-sm text-gray-400 mt-1 line-clamp-3 break-words">
+                    {a.content}
+                  </p>
+                </div>
+                <div className="mt-3 flex items-center justify-between">
+                  <span className="text-xs text-gray-500">
+                    {formatDistanceToNow(new Date(a.created_at), {
+                      addSuffix: true,
+                    })}
+                  </span>
+                  <Button
+                    size="sm"
+                    className="bg-blue-600 text-white hover:bg-blue-700 transition"
+                    onClick={() => openEditModal(a)}
+                  >
+                    Edit
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Pagination */}
+        <div className="flex justify-center space-x-2 mt-4">
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+            <Button
+              key={page}
+              variant={page === currentPage ? "default" : "outline"}
+              onClick={() => setCurrentPage(page)}
+              className={
+                page === currentPage
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-700 text-gray-300 border-gray-600 hover:bg-gray-600"
+              }
+            >
+              {page}
             </Button>
-            <Button onClick={handleEditSave}>Save</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          ))}
+        </div>
+
+        {/* Edit Modal */}
+        {editDialogOpen && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-gray-800 p-6 rounded-lg w-full max-w-md space-y-4">
+              <h2 className="text-xl font-bold">Edit Announcement</h2>
+              <Input
+                placeholder="Title"
+                value={editTitle}
+                onChange={(e) => setEditTitle(e.target.value)}
+                className="bg-gray-700 text-white border-gray-600"
+              />
+              <Textarea
+                placeholder="Content"
+                value={editContent}
+                onChange={(e) => setEditContent(e.target.value)}
+                className="bg-gray-700 text-white border-gray-600"
+              />
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-2">
+                  Image
+                </label>
+                <div className="flex items-center gap-4">
+                  <label
+                    htmlFor="edit-image"
+                    className="flex items-center gap-2 px-4 py-2 bg-gray-700 text-gray-200 border border-gray-600 rounded-lg cursor-pointer hover:bg-gray-600 transition"
+                  >
+                    Select Image
+                  </label>
+                  <input
+                    id="edit-image"
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => setEditImage(e.target.files?.[0] || null)}
+                    className="hidden"
+                  />
+                  {editImage && (
+                    <img
+                      src={URL.createObjectURL(editImage)}
+                      alt="Preview"
+                      className="w-14 h-14 object-cover rounded-lg border border-gray-600"
+                    />
+                  )}
+                </div>
+              </div>
+              <div className="flex justify-end gap-2">
+                <Button
+                  onClick={() => setEditDialogOpen(false)}
+                  className="bg-gray-600 hover:bg-gray-500"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleEditSave}
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  Save
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+      </main>
     </div>
   );
 }
