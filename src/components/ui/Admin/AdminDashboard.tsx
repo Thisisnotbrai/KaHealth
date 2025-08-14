@@ -270,15 +270,19 @@ export default function AdminDashboard() {
           </Link>
         </nav>
 
-        {/* Logout */}
-        <div className="mt-auto pt-4 border-t border-gray-700">
-          <button
-            className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-700 transition w-full text-left"
-            title={!sidebarOpen ? "Logout" : ""}
-          >
-            <LogOut size={18} /> {sidebarOpen && "Logout"}
-          </button>
-        </div>
+{/* Logout */}
+<div className="mt-auto pt-4 border-t border-gray-700">
+  <button
+    onClick={async () => {
+      await supabase.auth.signOut();
+      window.location.href = "/admin/login"; // or your login page
+    }}
+    className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-700 transition w-full text-left"
+    title={!sidebarOpen ? "Logout" : ""}
+  >
+    <LogOut size={18} /> {sidebarOpen && "Logout"}
+  </button>
+</div>
       </aside>
 
       {/* Main Content */}
