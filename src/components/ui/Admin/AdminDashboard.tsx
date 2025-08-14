@@ -135,6 +135,9 @@ export default function AdminDashboard() {
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [selectAll, setSelectAll] = useState(false);
 
+  // Added time state for Philippine Standard Time bar
+  const [currentTime, setCurrentTime] = useState(new Date());
+
   const indexOfLast = currentPage * announcementsPerPage;
   const indexOfFirst = indexOfLast - announcementsPerPage;
   const currentAnnouncements = announcements.slice(indexOfFirst, indexOfLast);
@@ -145,6 +148,12 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     fetchAnnouncements();
+  }, []);
+
+  // Timer effect for live clock
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
   }, []);
 
   useEffect(() => {
@@ -285,8 +294,29 @@ export default function AdminDashboard() {
     }
   }
 
+  const formattedTime = currentTime.toLocaleString("en-PH", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "2-digit",
+    hour: "numeric",
+    minute: "numeric",
+    second: "numeric",
+    hour12: true,
+    timeZone: "Asia/Manila",
+  });
+
   return (
     <div className="bg-gray-900 text-gray-100 min-h-screen">
+      {/* Added Philippine Standard Time top bar */}
+      <div className="w-full border-t-[6px] border-lime-400 bg-gradient-to-r from-green-900 to-green-700 py-2 px-4 text-white flex justify-between items-center">
+        <div className="text-lg font-bold">Admin Dashboard</div>
+        <div className="text-right">
+          <div className="text-sm">Philippine Standard Time</div>
+          <div className="text-base font-semibold">{formattedTime}</div>
+        </div>
+      </div>
+
       <AdminNavbar />
 
       <main className="max-w-7xl mx-auto p-6 space-y-6">
