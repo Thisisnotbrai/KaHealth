@@ -16,6 +16,7 @@ import {
   X,
 } from "lucide-react";
 
+// Types
 interface Announcement {
   id: number;
   title: string;
@@ -24,11 +25,98 @@ interface Announcement {
   created_at: string;
 }
 
-export default function AdminDashboard() {
+// Admin Navbar
+function AdminNavbar() {
   const location = useLocation();
   const pathname = location.pathname;
+  const [menuOpen, setMenuOpen] = useState(false);
 
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const navLinks = [
+    { to: "/dashboard", label: "Dashboard", icon: <LayoutDashboard size={18} /> },
+    { to: "/announcements", label: "Announcements", icon: <Bell size={18} /> },
+    { to: "/posts", label: "Posts", icon: <FileText size={18} /> },
+    { to: "/settings", label: "Settings", icon: <Settings size={18} /> },
+  ];
+
+
+  
+  return (
+    <header className="sticky top-0 z-50 shadow-md backdrop-blur-md bg-white/80 dark:bg-[#162942]/80 transition-all">
+      <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+        {/* Logo / Title */}
+        <h1 className="text-lg font-bold text-[#162942] dark:text-white">
+          Admin Panel
+        </h1>
+
+        {/* Desktop Menu */}
+        <nav className="hidden md:flex gap-6">
+          {navLinks.map((link) => (
+            <Link
+              key={link.to}
+              to={link.to}
+              className={`flex items-center gap-1 font-medium transition ${
+                pathname === link.to
+                  ? "text-[#f9a825] dark:text-[#f9a825]"
+                  : "text-[#162942] dark:text-gray-200 hover:text-[#f9a825]"
+              }`}
+            >
+              {link.icon}
+              {link.label}
+            </Link>
+          ))}
+          <button
+            onClick={async () => {
+              await supabase.auth.signOut();
+              window.location.href = "/admin/login";
+            }}
+            className="flex items-center gap-1 text-red-600 dark:text-red-400 hover:text-red-700"
+          >
+            <LogOut size={18} /> Logout
+          </button>
+        </nav>
+
+        {/* Mobile Menu Button */}
+        <button
+          onClick={() => setMenuOpen(!menuOpen)}
+          className="md:hidden p-2 rounded-lg text-[#162942] dark:text-white"
+        >
+          {menuOpen ? <X size={20} /> : <Menu size={20} />}
+        </button>
+      </div>
+
+      {/* Mobile Menu */}
+      {menuOpen && (
+        <div className="md:hidden bg-white dark:bg-[#162942] shadow-md">
+          {navLinks.map((link) => (
+            <Link
+              key={link.to}
+              to={link.to}
+              onClick={() => setMenuOpen(false)}
+              className={`block px-4 py-2 border-b border-gray-200 dark:border-white/10 ${
+                pathname === link.to
+                  ? "bg-[#f9a825]/10 text-[#f9a825]"
+                  : "hover:bg-gray-100 dark:hover:bg-white/10"
+              }`}
+            >
+              {link.label}
+            </Link>
+          ))}
+          <button
+            onClick={async () => {
+              await supabase.auth.signOut();
+              window.location.href = "/admin/login";
+            }}
+            className="w-full text-left px-4 py-2 text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-white/10"
+          >
+            Logout
+          </button>
+        </div>
+      )}
+    </header>
+  );
+}
+
+export default function AdminDashboard() {
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -198,95 +286,10 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="flex min-h-screen bg-gray-900 text-gray-100">
-      {/* Sidebar */}
-      <aside
-        className={`${
-          sidebarOpen ? "w-64" : "w-16"
-        } bg-gray-800 p-4 flex flex-col transition-all duration-300 relative`}
-      >
-        {/* Toggle Button */}
-        <button
-          onClick={() => setSidebarOpen((prev) => !prev)}
-          className="absolute -right-3 top-6 bg-gray-700 text-white p-1 rounded-full hover:bg-gray-600 transition"
-        >
-          {sidebarOpen ? <X size={18} /> : <Menu size={18} />}
-        </button>
+    <div className="bg-gray-900 text-gray-100 min-h-screen">
+      <AdminNavbar />
 
-        {/* Title */}
-        <div className="flex items-center justify-center mb-6">
-          {sidebarOpen && <h1 className="text-lg font-bold">Admin Panel</h1>}
-        </div>
-
-        {/* Nav Links */}
-        <nav className="space-y-2 flex-1">
-          <Link
-            to="/dashboard"
-            className={`flex items-center gap-2 px-3 py-2 rounded-lg transition ${
-              pathname === "/dashboard"
-                ? "bg-blue-600 text-white"
-                : "hover:bg-gray-700"
-            }`}
-            title={!sidebarOpen ? "Dashboard" : ""}
-          >
-            <LayoutDashboard size={18} />
-            {sidebarOpen && "Dashboard"}
-          </Link>
-          <Link
-            to="/announcements"
-            className={`flex items-center gap-2 px-3 py-2 rounded-lg transition ${
-              pathname === "/announcements"
-                ? "bg-blue-600 text-white"
-                : "hover:bg-gray-700"
-            }`}
-            title={!sidebarOpen ? "Announcements" : ""}
-          >
-            <Bell size={18} />
-            {sidebarOpen && "Announcements"}
-          </Link>
-          <Link
-            to="/posts"
-            className={`flex items-center gap-2 px-3 py-2 rounded-lg transition ${
-              pathname === "/posts"
-                ? "bg-blue-600 text-white"
-                : "hover:bg-gray-700"
-            }`}
-            title={!sidebarOpen ? "Posts" : ""}
-          >
-            <FileText size={18} />
-            {sidebarOpen && "Posts"}
-          </Link>
-          <Link
-            to="/settings"
-            className={`flex items-center gap-2 px-3 py-2 rounded-lg transition ${
-              pathname === "/settings"
-                ? "bg-blue-600 text-white"
-                : "hover:bg-gray-700"
-            }`}
-            title={!sidebarOpen ? "Settings" : ""}
-          >
-            <Settings size={18} />
-            {sidebarOpen && "Settings"}
-          </Link>
-        </nav>
-
-{/* Logout */}
-<div className="mt-auto pt-4 border-t border-gray-700">
-  <button
-    onClick={async () => {
-      await supabase.auth.signOut();
-      window.location.href = "/admin/login"; // or your login page
-    }}
-    className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-700 transition w-full text-left"
-    title={!sidebarOpen ? "Logout" : ""}
-  >
-    <LogOut size={18} /> {sidebarOpen && "Logout"}
-  </button>
-</div>
-      </aside>
-
-      {/* Main Content */}
-      <main className="flex-1 p-6 space-y-6 overflow-y-auto">
+      <main className="max-w-7xl mx-auto p-6 space-y-6">
         {/* Post Form */}
         <div className="space-y-4 border border-gray-700 p-6 rounded-xl shadow-sm bg-gray-800">
           <h2 className="text-xl font-bold">Post Announcement</h2>
