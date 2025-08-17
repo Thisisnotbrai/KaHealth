@@ -470,9 +470,7 @@ export default function AdminDashboard() {
                 )}
               </div>
             </div>
-            <div>
-              
-            </div>
+            
             <div className="pt-4">
               <Button
                 onClick={handlePost}
