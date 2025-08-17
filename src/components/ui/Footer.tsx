@@ -225,7 +225,7 @@ const Footer = () => {
                 <span className="text-xs">System Active</span>
               </div>
               <div className="text-xs text-emerald-200 bg-emerald-800/30 px-3 py-1 rounded-full border border-emerald-600/30">
-                Health First 💚
+                Health First 💚  d
               </div>
             </div>
           </div>
