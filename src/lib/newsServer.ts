@@ -1,7 +1,12 @@
-export async function fetchHealthNews() {
+export async function fetchHealthNews(country?: string) {
   const apiKey = import.meta.env.VITE_NEWSDATA_API_KEY;
-  const url = `https://newsdata.io/api/1/news?apikey=${apiKey}&country=ph&category=health&language=en`;
 
+  // If no country is passed → worldwide
+  let url = `https://newsdata.io/api/1/news?apikey=${apiKey}&category=health&language=en`;
+
+  if (country && country !== "world") {
+    url += `&country=${country}`;
+  }
 
   try {
     const res = await fetch(url);
