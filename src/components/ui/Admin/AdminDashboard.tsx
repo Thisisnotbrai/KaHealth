@@ -5,6 +5,8 @@ import { Button } from "../Navbar/button";
 import { Input } from "../Input";
 import { Textarea } from "../Textarea";
 import { formatDistanceToNow } from "date-fns/formatDistanceToNow";
+import { Routes, Route } from "react-router-dom";
+import AdminEvents from "@/components/ui/Admin/AdminEvents";
 import { toast } from "sonner";
 import {
   LayoutDashboard,
@@ -18,8 +20,6 @@ import {
   Edit3,
   Trash2,
   Clock,
-  Users,
-  Activity,
   Heart,
   Shield,
   TrendingUp
@@ -42,6 +42,7 @@ function AdminNavbar() {
 
   const navLinks = [
     { to: "/dashboard", label: "Dashboard", icon: <LayoutDashboard size={20} /> },
+    { to: "/admin/events", label: "Events", icon: <Clock size={20} /> },
     { to: "/announcements", label: "Health Announcements", icon: <Bell size={20} /> },
     { to: "/posts", label: "Health Posts", icon: <FileText size={20} /> },
     { to: "/settings", label: "Settings", icon: <Settings size={20} /> },

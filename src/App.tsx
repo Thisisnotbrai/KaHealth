@@ -4,9 +4,10 @@ import LandingPage from "./components/ui/LandingPage";
 import AdminDashboard from "./components/ui/Admin/AdminDashboard";
 import IntroAnimation from "./components/ui/IntroAnimation";
 import AnnouncementDetail from "./components/ui/AnnouncementDetail";
+import AdminEvents from "./components/ui/Admin/AdminEvents";
 import AllAnnouncements from "./components/ui/AllAnnouncement";
 import { ThemeProvider } from "./components/ui/Darkmode/theme-provider";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type JSX } from "react";
 import { Toaster } from "sonner";
 import { supabase } from "@/supabase-client";
 
@@ -62,6 +63,14 @@ function App() {
     );
   }
 
+  //ProtectedRoute component
+  const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
+    if (!isAdmin) {
+      return <Navigate to="/admin/login" replace />;
+    }
+    return children;
+  };
+
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
       <Toaster richColors position="top-right" />
@@ -75,11 +84,21 @@ function App() {
           <Route path="/announcement/:id" element={<AnnouncementDetail />} />
           <Route path="/announcements" element={<AllAnnouncements />} />
 
-          {/* Protected admin route */}
+          {/* ✅ Protected Admin Routes */}
           <Route
             path="/admin/dashboard"
             element={
-              isAdmin ? <AdminDashboard /> : <Navigate to="/admin/login" replace />
+              <ProtectedRoute>
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/events"
+            element={
+              <ProtectedRoute>
+                <AdminEvents />
+              </ProtectedRoute>
             }
           />
 
