@@ -63,7 +63,7 @@ function App() {
     );
   }
 
-  //ProtectedRoute component
+  // ProtectedRoute component
   const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
     if (!isAdmin) {
       return <Navigate to="/admin/login" replace />;
