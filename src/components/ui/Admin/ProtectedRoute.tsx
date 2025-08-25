@@ -12,7 +12,7 @@ export default function ProtectedRoute({ children }: { children: JSX.Element }) 
     let cancelled = false;
 
     const checkAccess = async () => {
-      // Step 1: Check active session
+
       const { data: { session } } = await supabase.auth.getSession();
 
       if (!session) {
@@ -20,7 +20,7 @@ export default function ProtectedRoute({ children }: { children: JSX.Element }) 
         return;
       }
 
-      // Step 2: Fetch role from profiles
+
       const { data, error } = await supabase
         .from("profiles")
         .select("role")
@@ -40,7 +40,7 @@ export default function ProtectedRoute({ children }: { children: JSX.Element }) 
     return () => { cancelled = true; };
   }, []);
 
-  // Step 3: Handle loading
+
   if (status === "checking") {
     return (
       <div className="flex justify-center items-center h-screen text-lg">
@@ -49,11 +49,11 @@ export default function ProtectedRoute({ children }: { children: JSX.Element }) 
     );
   }
 
-  // Step 4: Redirect if not allowed
+
   if (status === "denied") {
     return <Navigate to="/admin/login" replace state={{ from: location }} />;
   }
 
-  // Step 5: Render protected page
+
   return children;
 }
