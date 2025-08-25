@@ -39,7 +39,7 @@ function AdminNavbar() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const navLinks = [
-    { to: "/dashboard", label: "Dashboard", icon: <LayoutDashboard size={20} /> },
+    { to: "/admin/dashboard", label: "Dashboard", icon: <LayoutDashboard size={20} /> },
     { to: "/admin/events", label: "Events", icon: <Clock size={20} /> },
     { to: "/announcements", label: "Health Announcements", icon: <Bell size={20} /> },
     { to: "/posts", label: "Health Posts", icon: <FileText size={20} /> },

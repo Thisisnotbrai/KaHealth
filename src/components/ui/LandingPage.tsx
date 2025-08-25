@@ -4,8 +4,7 @@ import { Navbar5 } from './Navbar/Navbar';
 import Header from './Header';
 import HeroSection from './HeroSection';
 import Announcement from './Announcement'; // now Supabase-powered
-import HealthAlmanac from './HealthAlmanac';
-import PublicEvents from './PublicEvents'; // now Supabase-powered
+import PublicEvents from './PublicEvents';
 import News from './News';
 import Footer from './Footer';
 
@@ -38,9 +37,7 @@ const LandingPage = () => {
         >
           <HeroSection />
         </section>
-
-        {/* Barangay Calendar / Events Section */}
-<section id="events" className="space-y-4 sm:space-y-6" role="region" aria-labelledby="events-heading">
+        <section id="events" className="space-y-4 sm:space-y-6" role="region" aria-labelledby="events-heading">
   <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
     <div className="flex items-center gap-3">
       <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center shadow-lg" role="img" aria-label="Events icon">
@@ -56,7 +53,6 @@ const LandingPage = () => {
     <PublicEvents />
   </div>
 </section>
-
         {/* Enhanced Announcements Section with Loading States */}
         <section id="announcements" className="space-y-4 sm:space-y-6" role="region" aria-labelledby="announcements-heading">
           <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
@@ -77,30 +73,30 @@ const LandingPage = () => {
           </div>
         </section>
 
-        {/* Enhanced Health Topics Section */}
-        <section id="health-topics" className="space-y-4 sm:space-y-6" role="region" aria-labelledby="health-topics-heading">
+        {/* Enhanced Latest News Section */}
+        <section id="latest-news" className="space-y-4 sm:space-y-6" role="region" aria-labelledby="latest-news-heading">
           <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center shadow-lg transform-gpu" role="img" aria-label="Health topics icon">
-                <span className="text-white text-lg sm:text-xl select-none" aria-hidden="true">🩺</span>
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg transform-gpu" role="img" aria-label="News icon">
+                <span className="text-white text-lg sm:text-xl select-none" aria-hidden="true">📰</span>
               </div>
-              <h2 id="health-topics-heading" className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white">
-                Community Health Topics
+              <h2 id="latest-news-heading" className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white">
+                Health News & Updates
               </h2>
             </div>
-            <div className="hidden sm:flex flex-1 h-1 bg-gradient-to-r from-emerald-500/50 to-transparent rounded-full" aria-hidden="true"></div>
+            <div className="hidden sm:flex flex-1 h-1 bg-gradient-to-r from-blue-500/50 to-transparent rounded-full" aria-hidden="true"></div>
           </div>
-          <div className="bg-gradient-to-br from-white/90 to-emerald-50/50 dark:from-white/5 dark:to-emerald-900/10 p-4 sm:p-6 lg:p-8 rounded-2xl shadow-lg border border-white/50 dark:border-emerald-500/20 backdrop-blur-sm hover:shadow-xl transition-all duration-300 will-change-transform">
+          <div className="bg-gradient-to-br from-white/90 to-blue-50/50 dark:from-white/5 dark:to-blue-900/10 p-4 sm:p-6 lg:p-8 rounded-2xl shadow-lg border border-white/50 dark:border-blue-500/20 backdrop-blur-sm hover:shadow-xl transition-all duration-300 will-change-transform">
             <div className="relative">
-              {/* Optimized health-themed decorative elements */}
-              <div className="absolute top-0 right-0 w-16 h-16 bg-emerald-500/10 rounded-full blur-xl transform-gpu pointer-events-none" aria-hidden="true"></div>
-              <div className="absolute bottom-0 left-0 w-12 h-12 bg-teal-500/10 rounded-full blur-lg transform-gpu pointer-events-none" aria-hidden="true"></div>
+              {/* Optimized news-themed decorative elements */}
+              <div className="absolute top-2 right-2 w-20 h-20 bg-blue-500/5 rounded-full blur-2xl transform-gpu pointer-events-none" aria-hidden="true"></div>
               <div className="min-h-[200px] flex items-center justify-center">
-                <HealthAlmanac />
+                <News />
               </div>
             </div>
           </div>
         </section>
+
 
         {/* Enhanced Emergency Contact Section with Better Accessibility */}
         <section id="emergency-contact" className="space-y-4 sm:space-y-6" role="region" aria-labelledby="emergency-contact-heading">
