@@ -5,6 +5,7 @@ import Header from './Header';
 import HeroSection from './HeroSection';
 import Announcement from './Announcement'; // now Supabase-powered
 import HealthAlmanac from './HealthAlmanac';
+import PublicEvents from './PublicEvents'; // now Supabase-powered
 import News from './News';
 import Footer from './Footer';
 
@@ -37,6 +38,24 @@ const LandingPage = () => {
         >
           <HeroSection />
         </section>
+
+        {/* Barangay Calendar / Events Section */}
+<section id="events" className="space-y-4 sm:space-y-6" role="region" aria-labelledby="events-heading">
+  <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+    <div className="flex items-center gap-3">
+      <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center shadow-lg" role="img" aria-label="Events icon">
+        <span className="text-white text-lg sm:text-xl select-none" aria-hidden="true">📅</span>
+      </div>
+      <h2 id="events-heading" className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white">
+        Barangay Calendar of Events
+      </h2>
+    </div>
+    <div className="hidden sm:flex flex-1 h-1 bg-gradient-to-r from-purple-500/50 to-transparent rounded-full" aria-hidden="true"></div>
+  </div>
+  <div className="bg-gradient-to-br from-white/90 to-purple-50/30 dark:from-white/5 dark:to-purple-900/10 p-4 sm:p-6 lg:p-8 rounded-2xl shadow-lg border border-white/50 dark:border-purple-500/20 backdrop-blur-sm">
+    <PublicEvents />
+  </div>
+</section>
 
         {/* Enhanced Announcements Section with Loading States */}
         <section id="announcements" className="space-y-4 sm:space-y-6" role="region" aria-labelledby="announcements-heading">
@@ -80,122 +99,6 @@ const LandingPage = () => {
                 <HealthAlmanac />
               </div>
             </div>
-          </div>
-        </section>
-
-        {/* Enhanced Latest News Section */}
-        <section id="latest-news" className="space-y-4 sm:space-y-6" role="region" aria-labelledby="latest-news-heading">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg transform-gpu" role="img" aria-label="News icon">
-                <span className="text-white text-lg sm:text-xl select-none" aria-hidden="true">📰</span>
-              </div>
-              <h2 id="latest-news-heading" className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white">
-                Health News & Updates
-              </h2>
-            </div>
-            <div className="hidden sm:flex flex-1 h-1 bg-gradient-to-r from-blue-500/50 to-transparent rounded-full" aria-hidden="true"></div>
-          </div>
-          <div className="bg-gradient-to-br from-white/90 to-blue-50/50 dark:from-white/5 dark:to-blue-900/10 p-4 sm:p-6 lg:p-8 rounded-2xl shadow-lg border border-white/50 dark:border-blue-500/20 backdrop-blur-sm hover:shadow-xl transition-all duration-300 will-change-transform">
-            <div className="relative">
-              {/* Optimized news-themed decorative elements */}
-              <div className="absolute top-2 right-2 w-20 h-20 bg-blue-500/5 rounded-full blur-2xl transform-gpu pointer-events-none" aria-hidden="true"></div>
-              <div className="min-h-[200px] flex items-center justify-center">
-                <News />
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Enhanced Health Tips Quick Access Section with Better UX */}
-        <section id="health-tips" className="space-y-4 sm:space-y-6" role="region" aria-labelledby="health-tips-heading">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-green-500 to-lime-600 rounded-xl flex items-center justify-center shadow-lg transform-gpu" role="img" aria-label="Health tips icon">
-                <span className="text-white text-lg sm:text-xl select-none" aria-hidden="true">💡</span>
-              </div>
-              <h2 id="health-tips-heading" className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white">
-                Essential Health Tips
-              </h2>
-            </div>
-            <div className="hidden sm:flex flex-1 h-1 bg-gradient-to-r from-green-500/50 to-transparent rounded-full" aria-hidden="true"></div>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6" role="list">
-            {[
-              {
-                icon: "💧",
-                title: "Stay Hydrated",
-                tip: "Drink at least 8 glasses of water daily for optimal health and better immunity",
-                color: "from-cyan-500 to-blue-600",
-                priority: "high"
-              },
-              {
-                icon: "🏃‍♂️",
-                title: "Daily Exercise",
-                tip: "30 minutes of physical activity can boost your immunity and mental health",
-                color: "from-green-500 to-emerald-600",
-                priority: "high"
-              },
-              {
-                icon: "🥗",
-                title: "Balanced Nutrition",
-                tip: "Include colorful fruits and vegetables in every meal for essential vitamins",
-                color: "from-orange-500 to-red-500",
-                priority: "high"
-              },
-              {
-                icon: "😴",
-                title: "Quality Sleep",
-                tip: "Get 7-9 hours of restorative sleep for better mental and physical health",
-                color: "from-purple-500 to-indigo-600",
-                priority: "medium"
-              },
-              {
-                icon: "🧼",
-                title: "Hand Hygiene",
-                tip: "Wash hands regularly with soap for 20 seconds to prevent infections",
-                color: "from-teal-500 to-cyan-600",
-                priority: "medium"
-              },
-              {
-                icon: "🩺",
-                title: "Regular Checkups",
-                tip: "Schedule routine health screenings and stay updated with vaccinations",
-                color: "from-pink-500 to-rose-600",
-                priority: "medium"
-              }
-            ].map((tip, index) => (
-              <article
-                key={index}
-                role="listitem"
-                tabIndex={0}
-                className="bg-gradient-to-br from-white/90 to-gray-50/50 dark:from-white/5 dark:to-gray-800/20 p-4 sm:p-6 rounded-2xl shadow-lg border border-white/50 dark:border-gray-600/20 backdrop-blur-sm hover:shadow-xl focus:shadow-xl focus:ring-2 focus:ring-emerald-500/50 focus:outline-none transition-all duration-300 transform hover:scale-105 focus:scale-105 group cursor-pointer will-change-transform"
-                aria-describedby={`tip-${index}`}
-              >
-                <div className="flex items-start gap-3 sm:gap-4">
-                  <div 
-                    className={`w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br ${tip.color} rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 group-focus:scale-110 transition-transform duration-300 transform-gpu flex-shrink-0`}
-                    role="img"
-                    aria-label={`${tip.title} icon`}
-                  >
-                    <span className="text-white text-xl sm:text-2xl select-none" aria-hidden="true">{tip.icon}</span>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-gray-900 dark:text-white text-base sm:text-lg mb-2 line-clamp-2">
-                      {tip.title}
-                    </h3>
-                    <p id={`tip-${index}`} className="text-gray-600 dark:text-gray-300 text-sm sm:text-base leading-relaxed line-clamp-3">
-                      {tip.tip}
-                    </p>
-                    {tip.priority === 'high' && (
-                      <span className="inline-block mt-2 px-2 py-1 text-xs font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300 rounded-full">
-                        Essential
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </article>
-            ))}
           </div>
         </section>
 
