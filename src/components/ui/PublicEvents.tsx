@@ -74,6 +74,9 @@ export default function PublicEvents() {
   const [events, setEvents] = useState<Event[]>([]);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<'month' | 'week'>('month');
+  const [selectedDayEvents, setSelectedDayEvents] = useState<Event[]>([]);
+  const [isDayModalOpen, setIsDayModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -86,12 +89,20 @@ export default function PublicEvents() {
   }, []);
 
   // Navigation functions
-  const previousMonth = () => {
-    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1));
+  const previousPeriod = () => {
+    if (viewMode === 'month') {
+      setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1));
+    } else {
+      setCurrentMonth(addDays(currentMonth, -7));
+    }
   };
 
-  const nextMonth = () => {
-    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1));
+  const nextPeriod = () => {
+    if (viewMode === 'month') {
+      setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1));
+    } else {
+      setCurrentMonth(addDays(currentMonth, 7));
+    }
   };
 
   const goToToday = () => {
@@ -109,88 +120,149 @@ export default function PublicEvents() {
     setIsModalOpen(false);
   };
 
+  // Day modal functions
+  const openDayModal = (dayEvents: Event[], date: Date) => {
+    if (dayEvents.length > 0) {
+      setSelectedDayEvents(dayEvents);
+      setIsDayModalOpen(true);
+    }
+  };
+
+  const closeDayModal = () => {
+    setSelectedDayEvents([]);
+    setIsDayModalOpen(false);
+  };
+
   // Calendar helpers
-  const monthStart = startOfMonth(currentMonth);
-  const monthEnd = endOfMonth(monthStart);
-  const startDate = startOfWeek(monthStart);
-  const endDate = endOfWeek(monthEnd);
   const today = new Date();
+  
+  const getDateRange = () => {
+    if (viewMode === 'month') {
+      const monthStart = startOfMonth(currentMonth);
+      const monthEnd = endOfMonth(monthStart);
+      return {
+        startDate: startOfWeek(monthStart),
+        endDate: endOfWeek(monthEnd),
+        displayDate: monthStart
+      };
+    } else {
+      const weekStart = startOfWeek(currentMonth);
+      const weekEnd = endOfWeek(currentMonth);
+      return {
+        startDate: weekStart,
+        endDate: weekEnd,
+        displayDate: currentMonth
+      };
+    }
+  };
 
-  const rows = [];
-  let day = startDate;
+  const { startDate, endDate, displayDate } = getDateRange();
 
-  while (day <= endDate) {
-    const days: JSX.Element[] = [];
-    for (let i = 0; i < 7; i++) {
-      const formattedDate = format(day, "yyyy-MM-dd");
-      const dayEvents = events.filter((e) => e.date === formattedDate);
-      const isToday = isSameDay(day, today);
-      const isCurrentMonth = isSameMonth(day, monthStart);
+  const renderCalendarGrid = () => {
+    const rows = [];
+    let day = startDate;
+    const isWeekView = viewMode === 'week';
 
-      days.push(
-        <Card
-          key={day.toString()}
-          className={`
-            relative h-16 sm:h-20 md:h-24 lg:h-28 p-1 sm:p-2 lg:p-3 flex flex-col justify-between 
-            transition-all duration-200 hover:shadow-sm cursor-pointer
-            border hover:border-emerald-200
-            ${!isCurrentMonth 
-              ? "bg-gray-50/50 dark:bg-gray-900 opacity-50 text-gray-400 border-transparent" 
-              : "bg-white dark:bg-gray-800 hover:bg-emerald-50/30 dark:hover:bg-emerald-950/30 border-gray-100 dark:border-gray-700"
-            }
-            ${isToday 
-              ? "border-emerald-300 bg-emerald-50/80 dark:bg-emerald-950/50 shadow-sm" 
-              : ""
-            }
-          `}
-        >
-          <div className={`
-            text-xs sm:text-sm font-medium flex items-center justify-between
-            ${isToday ? "text-emerald-700 dark:text-emerald-300 font-semibold" : isCurrentMonth ? "text-gray-700 dark:text-gray-300" : ""}
-          `}>
-            <span>{format(day, "d")}</span>
-            {isToday && <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>}
-          </div>
-          
-          <CardContent className="p-0 overflow-hidden flex-1">
-            <div className="space-y-0.5 sm:space-y-1 max-h-8 sm:max-h-12 lg:max-h-16 overflow-hidden">
-              {dayEvents.slice(0, 3).map((event) => (
-                <div
-                  key={event.id}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    openModal(event);
-                  }}
-                  className="
-                    text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md truncate cursor-pointer
-                    bg-emerald-100 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-200
-                    border border-emerald-200 dark:border-emerald-800
-                    hover:bg-emerald-200 dark:hover:bg-emerald-800
-                    transition-colors duration-150
-                  "
-                  title={event.title}
-                >
-                  {event.title}
-                </div>
-              ))}
-              {dayEvents.length > 3 && (
-                <div className="text-xs text-gray-500 dark:text-gray-400 px-1.5 sm:px-2">
-                  +{dayEvents.length - 3} more
+    while (day <= endDate) {
+      const days: JSX.Element[] = [];
+      for (let i = 0; i < 7; i++) {
+        const formattedDate = format(day, "yyyy-MM-dd");
+        const dayEvents = events.filter((e) => e.date === formattedDate);
+        const isToday = isSameDay(day, today);
+        const isCurrentMonth = viewMode === 'month' ? isSameMonth(day, displayDate) : true;
+
+        days.push(
+          <Card
+            key={day.toString()}
+            className={`
+              relative ${isWeekView ? 'h-32 sm:h-40 lg:h-48' : 'h-16 sm:h-20 md:h-24 lg:h-28'} 
+              p-1 sm:p-2 lg:p-3 flex flex-col justify-between 
+              transition-all duration-200 hover:shadow-sm cursor-pointer
+              border hover:border-emerald-200
+              ${!isCurrentMonth 
+                ? "bg-gray-50/50 dark:bg-gray-900 opacity-50 text-gray-400 border-transparent" 
+                : "bg-white dark:bg-gray-800 hover:bg-emerald-50/30 dark:hover:bg-emerald-950/30 border-gray-100 dark:border-gray-700"
+              }
+              ${isToday 
+                ? "border-emerald-300 bg-emerald-50/80 dark:bg-emerald-950/50 shadow-sm" 
+                : ""
+              }
+            `}
+            onClick={() => openDayModal(dayEvents, day)}
+          >
+            <div className={`
+              text-xs sm:text-sm font-medium flex items-center justify-between
+              ${isToday ? "text-emerald-700 dark:text-emerald-300 font-semibold" : isCurrentMonth ? "text-gray-700 dark:text-gray-300" : ""}
+            `}>
+              <span>{format(day, "d")}</span>
+              {isToday && <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>}
+              {dayEvents.length > 0 && (
+                <div className="text-xs bg-emerald-500 text-white rounded-full px-1.5 py-0.5 min-w-[1.25rem] text-center">
+                  {dayEvents.length}
                 </div>
               )}
             </div>
-          </CardContent>
-        </Card>
-      );
+            
+            <CardContent className="p-0 overflow-hidden flex-1">
+              <div className={`space-y-0.5 sm:space-y-1 overflow-hidden ${
+                isWeekView ? 'max-h-24 sm:max-h-32 lg:max-h-40' : 'max-h-8 sm:max-h-12 lg:max-h-16'
+              }`}>
+                {dayEvents.slice(0, isWeekView ? 8 : 3).map((event) => (
+                  <div
+                    key={event.id}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      openModal(event);
+                    }}
+                    className="
+                      text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md truncate cursor-pointer
+                      bg-emerald-100 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-200
+                      border border-emerald-200 dark:border-emerald-800
+                      hover:bg-emerald-200 dark:hover:bg-emerald-800
+                      transition-colors duration-150
+                    "
+                    title={event.title}
+                  >
+                    {event.title}
+                  </div>
+                ))}
+                {dayEvents.length > (isWeekView ? 8 : 3) && (
+                  <div className="text-xs text-gray-500 dark:text-gray-400 px-1.5 sm:px-2">
+                    +{dayEvents.length - (isWeekView ? 8 : 3)} more
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        );
 
-      day = addDays(day, 1);
+        day = addDays(day, 1);
+      }
+      rows.push(
+        <div key={day.toString()} className="grid grid-cols-7 gap-1 sm:gap-2">
+          {days}
+        </div>
+      );
+      
+      // For week view, we only want one row
+      if (isWeekView) break;
     }
-    rows.push(
-      <div key={day.toString()} className="grid grid-cols-7 gap-1 sm:gap-2">
-        {days}
-      </div>
-    );
-  }
+    return rows;
+  };
+
+  const getDisplayTitle = () => {
+    if (viewMode === 'month') {
+      return format(displayDate, "MMMM yyyy");
+    } else {
+      const weekStart = startOfWeek(currentMonth);
+      const weekEnd = endOfWeek(currentMonth);
+      if (isSameMonth(weekStart, weekEnd)) {
+        return format(weekStart, "MMMM yyyy");
+      } else {
+        return `${format(weekStart, "MMMM")} - ${format(weekEnd, "MMMM yyyy")}`;
+      }
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -213,45 +285,70 @@ export default function PublicEvents() {
               </div>
             </div>
             
-            <button
-              onClick={goToToday}
-              className="
-                px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium
-                bg-emerald-600 text-white rounded-lg
-                hover:bg-emerald-700 transition-colors
-                self-start sm:self-auto
-              "
-            >
-              Today
-            </button>
+            <div className="flex gap-2 self-start sm:self-auto">
+              {/* View Toggle */}
+              <div className="flex bg-gray-100 dark:bg-gray-800 rounded-lg p-0.5">
+                <button
+                  onClick={() => setViewMode('month')}
+                  className={`px-3 py-1.5 text-xs sm:text-sm font-medium rounded-md transition-colors ${
+                    viewMode === 'month'
+                      ? 'bg-emerald-600 text-white'
+                      : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                  }`}
+                >
+                  Month
+                </button>
+                <button
+                  onClick={() => setViewMode('week')}
+                  className={`px-3 py-1.5 text-xs sm:text-sm font-medium rounded-md transition-colors ${
+                    viewMode === 'week'
+                      ? 'bg-emerald-600 text-white'
+                      : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                  }`}
+                >
+                  Week
+                </button>
+              </div>
+              
+              <button
+                onClick={goToToday}
+                className="
+                  px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium
+                  bg-emerald-600 text-white rounded-lg
+                  hover:bg-emerald-700 transition-colors
+                "
+              >
+                Today
+              </button>
+            </div>
           </div>
 
-          {/* Month Navigation */}
+          {/* Period Navigation */}
           <div className="flex items-center justify-between sm:justify-center gap-4 sm:gap-8">
             <button
-              onClick={previousMonth}
+              onClick={previousPeriod}
               className="
                 p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800
                 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200
                 transition-colors
               "
-              aria-label="Previous month"
+              aria-label={`Previous ${viewMode}`}
             >
               <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
             
             <h2 className="text-base sm:text-lg lg:text-xl font-semibold text-gray-900 dark:text-white">
-              {format(currentMonth, "MMMM yyyy")}
+              {getDisplayTitle()}
             </h2>
             
             <button
-              onClick={nextMonth}
+              onClick={nextPeriod}
               className="
                 p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800
                 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200
                 transition-colors
               "
-              aria-label="Next month"
+              aria-label={`Next ${viewMode}`}
             >
               <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
@@ -279,7 +376,7 @@ export default function PublicEvents() {
           
           {/* Calendar Grid */}
           <div className="space-y-0.5 sm:space-y-1 lg:space-y-2">
-            {rows}
+            {renderCalendarGrid()}
           </div>
         </div>
 
@@ -292,7 +389,7 @@ export default function PublicEvents() {
         </div>
       </div>
 
-      {/* Modal */}
+      {/* Single Event Modal */}
       {isModalOpen && selectedEvent && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-sm w-full mx-4 transform transition-all">
@@ -355,6 +452,79 @@ export default function PublicEvents() {
                   Got it
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Day Events Modal */}
+      {isDayModalOpen && selectedDayEvents.length > 0 && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-md w-full mx-4 max-h-96 flex flex-col">
+            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-emerald-100 dark:bg-emerald-900/50 rounded-lg flex items-center justify-center">
+                    <Calendar className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                      Daily Events
+                    </h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      {selectedDayEvents.length} event{selectedDayEvents.length !== 1 ? 's' : ''}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={closeDayModal}
+                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto p-6">
+              <div className="space-y-3">
+                {selectedDayEvents.map((event) => (
+                  <div
+                    key={event.id}
+                    onClick={() => {
+                      closeDayModal();
+                      openModal(event);
+                    }}
+                    className="
+                      p-3 rounded-lg border border-emerald-200 dark:border-emerald-800
+                      bg-emerald-50 dark:bg-emerald-900/30 cursor-pointer
+                      hover:bg-emerald-100 dark:hover:bg-emerald-800/50
+                      transition-colors duration-150
+                    "
+                  >
+                    <h4 className="font-medium text-emerald-800 dark:text-emerald-200">
+                      {event.title}
+                    </h4>
+                    <p className="text-sm text-emerald-600 dark:text-emerald-400 mt-1">
+                      {new Date(event.date).toLocaleDateString('en-US', {
+                        weekday: 'long',
+                        month: 'short',
+                        day: 'numeric'
+                      })}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            <div className="p-6 border-t border-gray-200 dark:border-gray-700">
+              <button
+                onClick={closeDayModal}
+                className="w-full px-4 py-2 text-sm font-medium text-white bg-emerald-600 rounded-lg hover:bg-emerald-700 transition-colors"
+              >
+                Close
+              </button>
             </div>
           </div>
         </div>
