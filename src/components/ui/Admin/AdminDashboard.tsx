@@ -20,7 +20,8 @@ import {
   Clock,
   Heart,
   Shield,
-  TrendingUp
+  TrendingUp,
+  MessageCircle
 } from "lucide-react";
 
 // Types
@@ -40,6 +41,7 @@ function AdminNavbar() {
 
   const navLinks = [
     { to: "/admin/dashboard", label: "Dashboard", icon: <LayoutDashboard size={20} /> },
+    { to: "/admin/feedback", label: "User Feedback", icon: <MessageCircle size={20} /> },
     { to: "/admin/events", label: "Events", icon: <Clock size={20} /> },
     { to: "/announcements", label: "Health Announcements", icon: <Bell size={20} /> },
     { to: "/posts", label: "Health Posts", icon: <FileText size={20} /> },

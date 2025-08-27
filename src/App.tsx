@@ -5,6 +5,7 @@ import AdminDashboard from "./components/ui/Admin/AdminDashboard";
 import IntroAnimation from "./components/ui/IntroAnimation";
 import AnnouncementDetail from "./components/ui/AnnouncementDetail";
 import AdminEvents from "./components/ui/Admin/AdminEvents";
+import AdminFeedback from "./components/ui/Admin/AdminFeedback";
 import AllAnnouncements from "./components/ui/AllAnnouncement";
 import { ThemeProvider } from "./components/ui/Darkmode/theme-provider";
 import { useEffect, useState, type JSX } from "react";
@@ -97,7 +98,15 @@ function App() {
             path="/admin/events"
             element={
               <ProtectedRoute>
-                <AdminEvents />
+                  <AdminEvents />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/feedback"
+            element={
+              <ProtectedRoute>
+                <AdminFeedback />
               </ProtectedRoute>
             }
           />

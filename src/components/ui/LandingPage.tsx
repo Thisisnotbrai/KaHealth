@@ -1,18 +1,40 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { Navbar5 } from './Navbar/Navbar';
 import Header from './Header';
 import HeroSection from './HeroSection';
-import Announcement from './Announcement'; // now Supabase-powered
+import Announcement from './Announcement'; 
+import FeedbackForm from "./FeedbackForm";
 import PublicEvents from './PublicEvents';
 import News from './News';
 import Footer from './Footer';
 
 const LandingPage = () => {
+  const [showScrollTop, setShowScrollTop] = useState(false);
+
+  // Show/hide scroll to top button based on scroll position
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 400);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Smooth scroll to top function
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  };
+
   return (
     <div className="bg-gradient-to-br from-emerald-50 via-teal-50/30 to-cyan-50 dark:bg-gradient-to-br dark:from-[#0f2027] dark:via-[#203a43] dark:to-[#2c5364] text-gray-900 dark:text-white min-h-screen transition-all duration-500 ease-in-out overflow-x-hidden">
       {/* Enhanced Sticky Navbar with Health Theme */}
-      <header className="sticky top-0 z-50 shadow-lg backdrop-blur-md bg-white/90 dark:bg-[#162942]/90 transition-all duration-300 border-b border-emerald-200/50 dark:border-teal-500/20 will-change-transform">
+      <header className="fixed top-0 left-0 right-0 z-50 shadow-lg backdrop-blur-md bg-white/90 dark:bg-[#162942]/90 transition-all duration-300 border-b border-emerald-200/50 dark:border-teal-500/20">
         <Navbar5 />
       </header>
 
@@ -38,21 +60,21 @@ const LandingPage = () => {
           <HeroSection />
         </section>
         <section id="events" className="space-y-4 sm:space-y-6" role="region" aria-labelledby="events-heading">
-  <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
-    <div className="flex items-center gap-3">
-      <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center shadow-lg" role="img" aria-label="Events icon">
-        <span className="text-white text-lg sm:text-xl select-none" aria-hidden="true">📅</span>
-      </div>
-      <h2 id="events-heading" className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white">
-        Barangay Calendar of Events
-      </h2>
-    </div>
-    <div className="hidden sm:flex flex-1 h-1 bg-gradient-to-r from-purple-500/50 to-transparent rounded-full" aria-hidden="true"></div>
-  </div>
-  <div className="bg-gradient-to-br from-white/90 to-purple-50/30 dark:from-white/5 dark:to-purple-900/10 p-4 sm:p-6 lg:p-8 rounded-2xl shadow-lg border border-white/50 dark:border-purple-500/20 backdrop-blur-sm">
-    <PublicEvents />
-  </div>
-</section>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center shadow-lg" role="img" aria-label="Events icon">
+                <span className="text-white text-lg sm:text-xl select-none" aria-hidden="true">📅</span>
+              </div>
+              <h2 id="events-heading" className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white">
+                Barangay Calendar of Events
+              </h2>
+            </div>
+            <div className="hidden sm:flex flex-1 h-1 bg-gradient-to-r from-purple-500/50 to-transparent rounded-full" aria-hidden="true"></div>
+          </div>
+          <div className="bg-gradient-to-br from-white/90 to-purple-50/30 dark:from-white/5 dark:to-purple-900/10 p-4 sm:p-6 lg:p-8 rounded-2xl shadow-lg border border-white/50 dark:border-purple-500/20 backdrop-blur-sm">
+            <PublicEvents />
+          </div>
+        </section>
         {/* Enhanced Announcements Section with Loading States */}
         <section id="announcements" className="space-y-4 sm:space-y-6" role="region" aria-labelledby="announcements-heading">
           <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
@@ -96,7 +118,6 @@ const LandingPage = () => {
             </div>
           </div>
         </section>
-
 
         {/* Enhanced Emergency Contact Section with Better Accessibility */}
         <section id="emergency-contact" className="space-y-4 sm:space-y-6" role="region" aria-labelledby="emergency-contact-heading">
@@ -216,12 +237,44 @@ const LandingPage = () => {
             ))}
           </div>
         </section>
+        <section>
+          <FeedbackForm />
+        </section>
       </main>
 
       {/* Enhanced Footer with better performance */}
       <footer className="mt-12 sm:mt-16 lg:mt-20 border-t border-emerald-200/50 dark:border-teal-500/20 bg-gradient-to-r from-white/50 to-emerald-50/30 dark:from-gray-900/50 dark:to-emerald-900/10 backdrop-blur-sm will-change-transform" role="contentinfo">
         <Footer />
       </footer>
+
+      {/* Scroll to Top Button */}
+      {showScrollTop && (
+        <button
+          onClick={scrollToTop}
+          className="fixed bottom-6 right-6 z-50 w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 focus:outline-none focus:ring-4 focus:ring-emerald-500/30 group animate-bounce"
+          aria-label="Scroll to top"
+          title="Back to top"
+        >
+          <div className="flex items-center justify-center h-full">
+            <svg 
+              className="w-5 h-5 sm:w-6 sm:h-6 transform group-hover:scale-110 transition-transform duration-200" 
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                strokeWidth={3} 
+                d="M5 10l7-7m0 0l7 7m-7-7v18" 
+              />
+            </svg>
+          </div>
+          
+          {/* Health-themed pulse effect */}
+          <div className="absolute inset-0 rounded-full bg-emerald-400 opacity-20 animate-ping"></div>
+        </button>
+      )}
     </div>
   );
 };
