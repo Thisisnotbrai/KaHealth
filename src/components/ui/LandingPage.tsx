@@ -263,7 +263,7 @@ const LandingPage = () => {
                 description: "Official Barangay information and resources for our community's health and wellness programs",
                 icon: "📋",
                 color: "from-blue-500 to-cyan-600",
-                link: "/information"
+                link: "#information"
               },
               {
                 title: "Health Facilities",
