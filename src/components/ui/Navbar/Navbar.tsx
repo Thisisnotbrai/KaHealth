@@ -85,6 +85,25 @@ const Navbar5 = () => {
             <div className="flex items-center gap-2 sm:gap-3">
               <ModeToggle />
 
+              {/* Hidden button (admin login entry point) */}
+              <Button 
+                variant="outline"
+                size="icon"
+                className="border-green-200 dark:border-emerald-800 hover:bg-green-50 dark:hover:bg-emerald-950/40 hover:border-green-300 dark:hover:border-emerald-600 transition-all duration-200"
+                onClick={() => window.location.href = "/admin/login"}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5 text-green-600 dark:text-emerald-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </Button>
+
               {/* Mobile Menu */}
               <Sheet>
                 <SheetTrigger asChild className="lg:hidden">
@@ -140,20 +159,7 @@ const Navbar5 = () => {
                         </AccordionContent>
                       </AccordionItem>
                     </Accordion>
-
-                    {/* Quick Emergency Contact in Mobile */}
-                    <div className="mt-4 p-4 bg-gradient-to-br from-red-50/80 to-rose-50/50 dark:from-red-950/20 dark:to-rose-950/10 rounded-xl border border-red-200/50 dark:border-red-500/20">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="text-red-500 text-lg">🚨</span>
-                        <span className="text-sm font-semibold text-red-600 dark:text-red-400">Emergency</span>
-                      </div>
-                      <a 
-                        href="tel:911" 
-                        className="text-red-600 dark:text-red-400 font-bold text-lg hover:text-red-700 dark:hover:text-red-300 transition-colors duration-200"
-                      >
-                        Call 911
-                      </a>
-                    </div>
+                    
                   </div>
                 </SheetContent>
               </Sheet>

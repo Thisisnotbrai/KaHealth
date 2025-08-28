@@ -34,6 +34,7 @@ const HeroSection = () => {
       const { data, error } = await supabase
         .from("carousel_images")
         .select("*")
+        // safeguard: only include banner images
         .order("created_at", { ascending: false });
 
       if (error) {
@@ -71,9 +72,8 @@ const HeroSection = () => {
   return (
     <section className="w-full max-w-screen-xl mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 py-4 sm:py-6 lg:py-8">
       <div className="relative group">
-        {/* Enhanced Health-themed container with better shadows and gradients */}
+        {/* Health-themed container */}
         <div className="relative overflow-hidden rounded-2xl lg:rounded-3xl shadow-2xl bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 border-2 border-white/50">
-          {/* Health accent bars */}
           <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 z-20"></div>
           <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-cyan-500 via-teal-500 to-emerald-500 z-20"></div>
           
@@ -84,7 +84,7 @@ const HeroSection = () => {
                   key={img.id}
                   className="keen-slider__slide relative flex justify-center items-center min-h-[280px] sm:min-h-[350px] md:min-h-[400px] lg:min-h-[450px] xl:min-h-[500px] bg-gradient-to-br from-white/80 via-emerald-50/30 to-teal-50/30"
                 >
-                  {/* Health-themed background pattern */}
+                  {/* Decorative health icons */}
                   <div className="absolute inset-0 opacity-5">
                     <div className="absolute top-4 left-4 text-emerald-300">
                       <Heart size={24} />
@@ -117,7 +117,6 @@ const HeroSection = () => {
               ))
             ) : (
               <div className="keen-slider__slide relative flex flex-col justify-center items-center min-h-[280px] sm:min-h-[350px] md:min-h-[400px] lg:min-h-[450px] xl:min-h-[500px] bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50">
-                {/* Enhanced empty state with health theme */}
                 <div className="text-center px-4 sm:px-6">
                   <div className="mb-6">
                     <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-emerald-100 to-teal-200 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
@@ -128,21 +127,12 @@ const HeroSection = () => {
                       Community health information and wellness updates will appear here
                     </p>
                   </div>
-                  
-                  {/* Health-themed decorative elements */}
-                  <div className="flex justify-center items-center gap-4 opacity-40">
-                    <Shield className="w-5 h-5 text-emerald-400" />
-                    <div className="w-2 h-2 bg-teal-400 rounded-full"></div>
-                    <Activity className="w-5 h-5 text-teal-400" />
-                    <div className="w-2 h-2 bg-cyan-400 rounded-full"></div>
-                    <Heart className="w-5 h-5 text-cyan-400" />
-                  </div>
                 </div>
               </div>
             )}
           </div>
 
-          {/* Enhanced Navigation Buttons with health theme */}
+          {/* Navigation buttons */}
           {images.length > 0 && loaded && (
             <>
               <Button
@@ -163,7 +153,7 @@ const HeroSection = () => {
           )}
         </div>
 
-        {/* Enhanced health-themed dots navigation */}
+        {/* Dots navigation */}
         {images.length > 0 && loaded && (
           <div className="flex justify-center items-center gap-2 sm:gap-3 mt-4 sm:mt-6 px-4">
             <div className="flex gap-2 p-2 sm:p-3 bg-white/80 backdrop-blur-md rounded-full border border-emerald-100 shadow-lg">
@@ -183,28 +173,6 @@ const HeroSection = () => {
                   )}
                 </button>
               ))}
-            </div>
-            
-            {/* Health status indicator */}
-            <div className="hidden sm:flex items-center gap-2 px-3 py-2 bg-emerald-50/80 backdrop-blur-sm rounded-full border border-emerald-200">
-              <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-              <span className="text-xs font-medium text-emerald-700">
-                {images.length} Health {images.length === 1 ? 'Banner' : 'Banners'}
-              </span>
-            </div>
-          </div>
-        )}
-
-        {/* Health-themed progress indicator */}
-        {images.length > 1 && loaded && (
-          <div className="absolute bottom-2 left-4 right-4 sm:bottom-3 sm:left-6 sm:right-6">
-            <div className="w-full bg-white/30 backdrop-blur-sm rounded-full h-1 overflow-hidden">
-              <div 
-                className="h-full bg-gradient-to-r from-emerald-500 to-teal-600 transition-all duration-5000 ease-linear"
-                style={{
-                  width: `${((currentSlide + 1) / images.length) * 100}%`
-                }}
-              ></div>
             </div>
           </div>
         )}
