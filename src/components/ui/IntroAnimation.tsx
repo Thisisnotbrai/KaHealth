@@ -41,8 +41,12 @@ const IntroAnimation = () => {
       <div className="text-center px-6 animate-fade-in">
         {/* Logo */}
         <div className="mb-6 animate-bounce-slow">
-          <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mx-auto shadow-lg">
-            <span className="text-4xl animate-pulse">🏥</span>
+          <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mx-auto shadow-lg p-2">
+            <img 
+              src="/KaHealth-Logo-2.png" 
+              alt="KaHealth Logo" 
+              className="w-full h-full object-contain animate-pulse"
+            />
           </div>
         </div>
 
@@ -80,7 +84,7 @@ const IntroAnimation = () => {
 
         {/* Loading text */}
         <p className="text-white/80 text-sm font-medium">
-          {progress < 100 ? 'Loading Health System...' : 'Ready!'}
+          {progress < 100 ? 'Loading KaHealth...' : 'Ready!'}
         </p>
       </div>
 

@@ -49,16 +49,18 @@ const Navbar5 = () => {
             {/* Enhanced Health Logo */}
             <a href="#" className="flex items-center gap-2 sm:gap-3 group hover:scale-105 transition-transform duration-200">
               <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow duration-200">
-                <svg className="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 6v12m6-6H6" />
-                </svg>
+                <img 
+                  src="/KaHealth-Logo-2.png" 
+                  alt="KaHealth Logo" 
+                  className="w-full h-full object-contain"
+                />
               </div>
               <div className="flex flex-col">
                 <span className="text-lg sm:text-xl font-bold text-green-600 dark:text-emerald-400 group-hover:text-green-700 dark:group-hover:text-emerald-300 transition-colors duration-200">
-                  HealthHub
+                  KaHealth
                 </span>
                 <span className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 font-medium -mt-1">
-                  Barangay Portal
+                  Information Portal
                 </span>
               </div>
             </a>

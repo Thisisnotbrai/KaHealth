@@ -26,7 +26,6 @@ function App() {
         setShowIntro(false);
       }, 2500);
     }
-
     const checkRole = async () => {
       const {
         data: { session },
@@ -75,6 +74,7 @@ function App() {
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
       <Toaster richColors position="top-right" />
+
       {showIntro ? (
         <IntroAnimation />
       ) : (
@@ -98,7 +98,7 @@ function App() {
             path="/admin/events"
             element={
               <ProtectedRoute>
-                  <AdminEvents />
+                <AdminEvents />
               </ProtectedRoute>
             }
           />

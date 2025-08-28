@@ -42,9 +42,6 @@ function AdminNavbar() {
     { to: "/admin/dashboard", label: "Dashboard", icon: <LayoutDashboard size={20} /> },
     { to: "/admin/feedback", label: "User Feedback", icon: <MessageCircle size={20} /> },
     { to: "/admin/events", label: "Events", icon: <Clock size={20} /> },
-    { to: "/announcements", label: "Health Announcements", icon: <Bell size={20} /> },
-    { to: "/posts", label: "Health Posts", icon: <FileText size={20} /> },
-    { to: "/settings", label: "Settings", icon: <Settings size={20} /> },
   ];
 
   return (
@@ -60,7 +57,7 @@ function AdminNavbar() {
               <div className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 bg-green-400 rounded-full border-2 border-white animate-pulse"></div>
             </div>
             <div className="hidden sm:block">
-              <h1 className="text-lg sm:text-xl font-bold text-gray-900">Barangay Health Admin</h1>
+              <h1 className="text-lg sm:text-xl font-bold text-gray-900">KaHealth Admin</h1>
               <p className="text-xs sm:text-sm text-emerald-600">Community Wellness System</p>
             </div>
             <div className="sm:hidden">
