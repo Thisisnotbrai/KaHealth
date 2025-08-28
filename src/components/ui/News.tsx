@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback, useMemo } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { fetchHealthNews } from "@/lib/newsServer";
 import NewsCard from "@/components/ui/NewsCard";
 import { Heart, Globe, AlertCircle, RefreshCw, CheckCircle2, Filter, ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react";
@@ -119,7 +119,7 @@ export default function News() {
   const [error, setError] = useState<string | null>(null);
   const [country, setCountry] = useState("world");
   const [currentPage, setCurrentPage] = useState(1);
-  const [retryCount, setRetryCount] = useState(0);
+  const [, setRetryCount] = useState(0);
 
   const articlesPerPage = 6;
   const maxArticles = 20;

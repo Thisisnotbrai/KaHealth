@@ -8,9 +8,6 @@ import { formatDistanceToNow } from "date-fns/formatDistanceToNow";
 import { toast } from "sonner";
 import {
   LayoutDashboard,
-  FileText,
-  Settings,
-  Bell,
   LogOut,
   Menu,
   X,
@@ -23,9 +20,6 @@ import {
   TrendingUp,
   MessageCircle,
   ImageIcon,
-  Upload,
-  Eye,
-  Activity
 } from "lucide-react";
 
 // Types
@@ -175,9 +169,9 @@ export default function AdminDashboard() {
   const [selectAll, setSelectAll] = useState(false);
 
   // Carousel states
-  const [carouselImages, setCarouselImages] = useState<CarouselImage[]>([]);
-  const [carouselFile, setCarouselFile] = useState<File | null>(null);
-  const [carouselLoading, setCarouselLoading] = useState(false);
+  const [, setCarouselImages] = useState<CarouselImage[]>([]);
+  const [] = useState<File | null>(null);
+  const [] = useState(false);
 
   // Added time state for Philippine Standard Time bar
   const [currentTime, setCurrentTime] = useState(new Date());

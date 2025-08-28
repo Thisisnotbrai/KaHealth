@@ -6,9 +6,6 @@ import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns/formatDistanceToNow";
 import {
   LayoutDashboard,
-  FileText,
-  Settings,
-  Bell,
   LogOut,
   Menu,
   X,
@@ -18,18 +15,15 @@ import {
   MessageCircle,
   Search,
   TrendingUp,
-  Star,
   Eye,
   MessageSquare,
   ThumbsUp,
   BarChart3,
   Activity,
-  Users,
   Filter,
   Archive,
   Trash2,
   RotateCcw,
-  AlertTriangle,
   ImageIcon
 } from "lucide-react";
 
@@ -546,7 +540,6 @@ export default function AdminFeedback() {
                 const feedbackDate = new Date(fb.created_at);
                 const isToday = feedbackDate.toDateString() === new Date().toDateString();
                 const isRecent = (new Date().getTime() - feedbackDate.getTime()) < (24 * 60 * 60 * 1000);
-                const isPast = !isToday && !isRecent;
                 
                 return (
                   <div

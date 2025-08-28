@@ -8,18 +8,13 @@ import { formatDistanceToNow } from "date-fns/formatDistanceToNow";
 import { toast } from "sonner";
 import {
   LayoutDashboard,
-  FileText,
-  Settings,
-  Bell,
   LogOut,
   Menu,
   X,
   Plus,
-  Edit3,
   Trash2,
   Clock,
   Heart,
-  Shield,
   TrendingUp,
   MessageCircle,
   ImageIcon,

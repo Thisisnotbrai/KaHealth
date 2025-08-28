@@ -8,9 +8,6 @@ import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns/formatDistanceToNow";
 import {
   LayoutDashboard,
-  FileText,
-  Settings,
-  Bell,
   LogOut,
   Menu,
   X,
@@ -156,7 +153,6 @@ function MiniCalendar({ events, onDateSelect, selectedDate }: {
   const month = currentMonth.getMonth();
   
   const firstDayOfMonth = new Date(year, month, 1);
-  const lastDayOfMonth = new Date(year, month + 1, 0);
   const firstDayOfCalendar = new Date(firstDayOfMonth);
   firstDayOfCalendar.setDate(firstDayOfCalendar.getDate() - firstDayOfCalendar.getDay());
   

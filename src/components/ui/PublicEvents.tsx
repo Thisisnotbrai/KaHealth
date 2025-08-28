@@ -121,7 +121,7 @@ export default function PublicEvents() {
   };
 
   // Day modal functions
-  const openDayModal = (dayEvents: Event[], date: Date) => {
+  const openDayModal = (dayEvents: Event[], _date: Date) => {
     if (dayEvents.length > 0) {
       setSelectedDayEvents(dayEvents);
       setIsDayModalOpen(true);

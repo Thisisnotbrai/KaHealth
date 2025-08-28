@@ -16,7 +16,7 @@ interface AnnouncementData {
 export default function Announcements() {
   const [announcements, setAnnouncements] = useState<AnnouncementData[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showAll, setShowAll] = useState(false);
+  const [showAll] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
