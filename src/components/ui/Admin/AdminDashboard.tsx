@@ -21,7 +21,11 @@ import {
   Heart,
   Shield,
   TrendingUp,
-  MessageCircle
+  MessageCircle,
+  ImageIcon,
+  Upload,
+  Eye,
+  Activity
 } from "lucide-react";
 
 // Types
@@ -30,6 +34,12 @@ interface Announcement {
   title: string;
   content: string;
   image_url?: string;
+  created_at: string;
+}
+
+interface CarouselImage {
+  id: number;
+  image_url: string;
   created_at: string;
 }
 
@@ -163,6 +173,11 @@ export default function AdminDashboard() {
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [selectAll, setSelectAll] = useState(false);
 
+  // Carousel states
+  const [carouselImages, setCarouselImages] = useState<CarouselImage[]>([]);
+  const [carouselFile, setCarouselFile] = useState<File | null>(null);
+  const [carouselLoading, setCarouselLoading] = useState(false);
+
   // Added time state for Philippine Standard Time bar
   const [currentTime, setCurrentTime] = useState(new Date());
 
@@ -176,6 +191,7 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     fetchAnnouncements();
+    fetchCarouselImages();
   }, []);
 
   // Timer effect for live clock
@@ -205,6 +221,17 @@ export default function AdminDashboard() {
       setAnnouncements(data);
       setSelectedIds([]);
       setSelectAll(false);
+    }
+  }
+
+  async function fetchCarouselImages() {
+    const { data, error } = await supabase
+      .from("carousel_images")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (!error && data) {
+      setCarouselImages(data);
     }
   }
 
@@ -248,16 +275,16 @@ export default function AdminDashboard() {
     }
   }
 
-  async function uploadImage(file: File) {
+  async function uploadImage(file: File, bucket: string = "carousel_images") {
     const fileName = `${Date.now()}-${file.name}`;
     const { error: uploadError } = await supabase.storage
-      .from("announcement-images")
+      .from(bucket)
       .upload(fileName, file);
 
     if (uploadError) throw uploadError;
 
     const { data } = supabase.storage
-      .from("announcement-images")
+      .from(bucket)
       .getPublicUrl(fileName);
 
     return data.publicUrl;
@@ -360,7 +387,7 @@ export default function AdminDashboard() {
 
       <main className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6 lg:space-y-8">
         {/* Enhanced Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 lg:mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 lg:mb-8">
           <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-4 sm:p-6 shadow-lg border border-white/50 hover:shadow-xl transition-all duration-300">
             <div className="flex items-center gap-3 sm:gap-4">
               <div className="p-2 sm:p-3 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl shadow-lg">
@@ -385,7 +412,7 @@ export default function AdminDashboard() {
             </div>
           </div>
           
-          <div className="sm:col-span-2 lg:col-span-1 bg-white/90 backdrop-blur-sm rounded-2xl p-4 sm:p-6 shadow-lg border border-white/50 hover:shadow-xl transition-all duration-300">
+          <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-4 sm:p-6 shadow-lg border border-white/50 hover:shadow-xl transition-all duration-300">
             <div className="flex items-center gap-3 sm:gap-4">
               <div className="p-2 sm:p-3 bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-xl shadow-lg">
                 <TrendingUp className="text-white" size={24} />
@@ -396,6 +423,7 @@ export default function AdminDashboard() {
               </div>
             </div>
           </div>
+
         </div>
 
         {/* Enhanced Post Form */}

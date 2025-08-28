@@ -29,7 +29,8 @@ import {
   Archive,
   Trash2,
   RotateCcw,
-  AlertTriangle
+  AlertTriangle,
+  ImageIcon
 } from "lucide-react";
 
 // Admin Navbar Component (reused from AdminEvents)
@@ -42,6 +43,7 @@ function AdminNavbar() {
     { to: "/admin/dashboard", label: "Dashboard", icon: <LayoutDashboard size={20} /> },
     { to: "/admin/feedback", label: "User Feedback", icon: <MessageCircle size={20} /> },
     { to: "/admin/events", label: "Events", icon: <Clock size={20} /> },
+    { to: "/admin/carousel", label: "Carousel", icon: <ImageIcon size={20} /> },
   ];
 
   return (

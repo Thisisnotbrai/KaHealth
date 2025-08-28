@@ -204,31 +204,6 @@ export default function AnnouncementDetail() {
               </div>
             </div>
           </div>
-
-          {/* Related Information Card */}
-          <div className="mt-8 bg-white/60 backdrop-blur-sm rounded-2xl shadow-lg p-6 sm:p-8">
-            <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-              <span>💡</span>
-              Health Resources
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              <div className="p-4 bg-white rounded-xl shadow-sm border border-gray-100">
-                <div className="text-blue-500 text-2xl mb-2">🏥</div>
-                <h4 className="font-semibold text-gray-800 mb-1">Emergency Services</h4>
-                <p className="text-sm text-gray-600">24/7 emergency healthcare</p>
-              </div>
-              <div className="p-4 bg-white rounded-xl shadow-sm border border-gray-100">
-                <div className="text-green-500 text-2xl mb-2">📞</div>
-                <h4 className="font-semibold text-gray-800 mb-1">Health Hotline</h4>
-                <p className="text-sm text-gray-600">Get health information</p>
-              </div>
-              <div className="p-4 bg-white rounded-xl shadow-sm border border-gray-100 sm:col-span-2 lg:col-span-1">
-                <div className="text-purple-500 text-2xl mb-2">🩺</div>
-                <h4 className="font-semibold text-gray-800 mb-1">Find a Doctor</h4>
-                <p className="text-sm text-gray-600">Locate healthcare providers</p>
-              </div>
-            </div>
-          </div>
         </div>
 
         {/* Enhanced Footer */}

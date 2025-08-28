@@ -6,7 +6,9 @@ import IntroAnimation from "./components/ui/IntroAnimation";
 import AnnouncementDetail from "./components/ui/AnnouncementDetail";
 import AdminEvents from "./components/ui/Admin/AdminEvents";
 import AdminFeedback from "./components/ui/Admin/AdminFeedback";
+import AdminCarousel from "./components/ui/Admin/AdminCarousel";
 import AllAnnouncements from "./components/ui/AllAnnouncement";
+import Information from "./components/ui/Information";
 import { ThemeProvider } from "./components/ui/Darkmode/theme-provider";
 import { useEffect, useState, type JSX } from "react";
 import { Toaster } from "sonner";
@@ -84,7 +86,7 @@ function App() {
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/announcement/:id" element={<AnnouncementDetail />} />
           <Route path="/announcements" element={<AllAnnouncements />} />
-
+          <Route path="/information" element={<Information />} />
           {/* ✅ Protected Admin Routes */}
           <Route
             path="/admin/dashboard"
@@ -107,6 +109,15 @@ function App() {
             element={
               <ProtectedRoute>
                 <AdminFeedback />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/admin/carousel"
+            element={
+              <ProtectedRoute>
+                <AdminCarousel />
               </ProtectedRoute>
             }
           />

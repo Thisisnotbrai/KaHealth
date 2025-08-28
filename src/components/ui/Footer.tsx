@@ -27,10 +27,6 @@ const Footer = () => {
             <p className="text-sm sm:text-base text-emerald-100 leading-relaxed">
               A comprehensive health information system developed for Barangay New Kalalake residents to stay informed about health news, advisories, and community wellness programs.
             </p>
-            <div className="flex items-center gap-2 text-emerald-200">
-              <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
-              <span className="text-xs sm:text-sm font-medium">Serving the community since 2024</span>
-            </div>
           </div>
 
           {/* Information Section - Enhanced */}
@@ -118,7 +114,7 @@ const Footer = () => {
                     className="text-white hover:text-emerald-200 focus:text-emerald-200 focus:outline-none focus:ring-2 focus:ring-emerald-400/50 rounded transition-colors duration-200 break-all"
                     aria-label="Send email to barangay.newkalalake@gmail.com"
                   >
-                    barangay.newkalalake@gmail.com
+                     newkalalake2020@gmail.com
                   </a>
                 </div>
               </li>
@@ -129,11 +125,11 @@ const Footer = () => {
                 <div>
                   <span className="text-emerald-200 text-xs block">Phone</span>
                   <a 
-                    href="tel:(047) 222-5677" 
+                    href="tel: 0963-526-6513" 
                     className="text-white hover:text-emerald-200 focus:text-emerald-200 focus:outline-none focus:ring-2 focus:ring-emerald-400/50 rounded transition-colors duration-200"
-                    aria-label="Call (047) 222-5677"
+                    aria-label="Call 0963-526-6513"
                   >
-                    (047) 222-5677
+                    0963-526-6513
                   </a>
                 </div>
               </li>
