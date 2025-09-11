@@ -270,20 +270,21 @@ export default function AdminDashboard() {
     }
   }
 
-  async function uploadImage(file: File, _bucket: string = "announcement-images") {
-    const fileName = `${Date.now()}-${file.name}`;
-    const { error: uploadError } = await supabase.storage
-      .from("bucket")
-      .upload(fileName, file);
+async function uploadImage(file: File, bucket: string = "announcement-images") {
+  const fileName = `${Date.now()}-${file.name}`;
 
-    if (uploadError) throw uploadError;
+  const { error: uploadError } = await supabase.storage
+    .from(bucket) 
+    .upload(fileName, file);
 
-    const { data } = supabase.storage
-      .from("bucket")
-      .getPublicUrl(fileName);
+  if (uploadError) throw uploadError;
 
-    return data.publicUrl;
-  }
+  const { data } = supabase.storage
+    .from(bucket) 
+    .getPublicUrl(fileName);
+
+  return data.publicUrl;
+}
 
   async function handlePost() {
     if (!title.trim() || !content.trim())
