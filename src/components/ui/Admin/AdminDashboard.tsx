@@ -270,16 +270,16 @@ export default function AdminDashboard() {
     }
   }
 
-  async function uploadImage(file: File, bucket: string = "carousel_images") {
+  async function uploadImage(file: File, _bucket: string = "announcement-images") {
     const fileName = `${Date.now()}-${file.name}`;
     const { error: uploadError } = await supabase.storage
-      .from("announcement-images")
+      .from("bucket")
       .upload(fileName, file);
 
     if (uploadError) throw uploadError;
 
     const { data } = supabase.storage
-      .from(bucket)
+      .from("bucket")
       .getPublicUrl(fileName);
 
     return data.publicUrl;
