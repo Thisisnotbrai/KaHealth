@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { supabase } from "@/supabase-client";
 import { Button } from "../Navbar/button";
 import { Input } from "../Input";
+import { archiveItem } from "@/lib/archiveItem";
 import { Textarea } from "../Textarea";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns/formatDistanceToNow";
@@ -25,7 +26,8 @@ import {
   ChevronLeft,
   ChevronRight,
   MessageCircle,
-  ImageIcon
+  ImageIcon,
+  Archive
 } from "lucide-react";
 
 // Admin Navbar Component
@@ -852,6 +854,21 @@ export default function AdminEvents() {
                     
                     {/* Event Actions */}
                     <div className="p-4 sm:p-6 pt-0">
+                      <Button
+  onClick={async () => {
+    try {
+      await archiveItem("events", event.id);
+      toast.success("Event archived successfully!");
+      fetchEvents();
+    } catch (err: any) {
+      toast.error(err.message);
+    }
+  }}
+  className="flex-1 px-4 py-2.5 bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-600 hover:to-yellow-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-2 text-sm"
+>
+  <Archive size={16} />
+  Archive
+</Button>
                       <Button
                         onClick={() => deleteEvent(event.id)}
                         className="w-full px-4 py-2.5 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-2 text-sm"

@@ -6,9 +6,9 @@ import IntroAnimation from "./components/ui/IntroAnimation";
 import AnnouncementDetail from "./components/ui/AnnouncementDetail";
 import AdminEvents from "./components/ui/Admin/AdminEvents";
 import AdminFeedback from "./components/ui/Admin/AdminFeedback";
-import AdminCarousel from "./components/ui/Admin/AdminCarousel";
 import AllAnnouncements from "./components/ui/AllAnnouncement";
 import Information from "./components/ui/Information";
+import ArchivePage from "./components/ui/Admin/ArchivePage";
 import { ThemeProvider } from "./components/ui/Darkmode/theme-provider";
 import { useEffect, useState, type JSX } from "react";
 import { Toaster } from "sonner";
@@ -112,12 +112,11 @@ function App() {
               </ProtectedRoute>
             }
           />
-
           <Route
-            path="/admin/carousel"
+            path="/admin/Archive"
             element={
               <ProtectedRoute>
-                <AdminCarousel />
+                <ArchivePage/>
               </ProtectedRoute>
             }
           />

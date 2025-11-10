@@ -19,7 +19,6 @@ import {
   Shield,
   TrendingUp,
   MessageCircle,
-  ImageIcon,
 } from "lucide-react";
 
 // Types
@@ -28,12 +27,6 @@ interface Announcement {
   title: string;
   content: string;
   image_url?: string;
-  created_at: string;
-}
-
-interface CarouselImage {
-  id: number;
-  image_url: string;
   created_at: string;
 }
 
@@ -47,7 +40,6 @@ function AdminNavbar() {
     { to: "/admin/dashboard", label: "Dashboard", icon: <LayoutDashboard size={20} /> },
     { to: "/admin/feedback", label: "User Feedback", icon: <MessageCircle size={20} /> },
     { to: "/admin/events", label: "Events", icon: <Clock size={20} /> },
-    { to: "/admin/carousel", label: "Carousel", icon: <ImageIcon size={20} /> },
   ];
 
   return (
@@ -168,10 +160,6 @@ export default function AdminDashboard() {
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [selectAll, setSelectAll] = useState(false);
 
-  // Carousel states
-  const [, setCarouselImages] = useState<CarouselImage[]>([]);
-  const [] = useState<File | null>(null);
-  const [] = useState(false);
 
   // Added time state for Philippine Standard Time bar
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -183,11 +171,6 @@ export default function AdminDashboard() {
     1,
     Math.ceil(announcements.length / announcementsPerPage)
   );
-
-  useEffect(() => {
-    fetchAnnouncements();
-    fetchCarouselImages();
-  }, []);
 
   // Timer effect for live clock
   useEffect(() => {
@@ -219,16 +202,6 @@ export default function AdminDashboard() {
     }
   }
 
-  async function fetchCarouselImages() {
-    const { data, error } = await supabase
-      .from("carousel_images")
-      .select("*")
-      .order("created_at", { ascending: false });
-
-    if (!error && data) {
-      setCarouselImages(data);
-    }
-  }
 
   function toggleSelect(id: number) {
     setSelectedIds((prev) =>
