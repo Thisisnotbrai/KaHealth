@@ -221,7 +221,14 @@ export default function ArchivePage() {
   useEffect(() => {
     autoDeleteOldArchives();
   }, []);
-
+const daysUntilDeletion = (createdAt: string) => {
+  const createdDate = new Date(createdAt);
+  const now = new Date();
+  const diffInMs = now.getTime() - createdDate.getTime();
+  const daysElapsed = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+  const daysLeft = 30 - daysElapsed;
+  return daysLeft > 0 ? daysLeft : 0;
+};
   const typeBadge = (type: string) => {
     switch (type) {
       case "archive_events":
@@ -285,6 +292,34 @@ export default function ArchivePage() {
       </div>
     );
   }
+
+const handleUnarchive = async (item: ArchiveItem) => {
+  let targetTable = "";
+
+  if (item.type === "archive_events") targetTable = "events";
+  else if (item.type === "archive_feedback") targetTable = "feedback";
+  else if (item.type === "archive_announcements") targetTable = "announcements";
+
+  if (!targetTable) {
+    toast.error("Unknown archive type.");
+    return;
+  }
+
+  const { error: insertError } = await supabase.from(targetTable).insert([item.data]);
+  if (insertError) {
+    toast.error(`Failed to unarchive: ${insertError.message}`);
+    return;
+  }
+
+  const { error: deleteError } = await supabase.from(item.type).delete().eq("id", item.id);
+  if (deleteError) {
+    toast.error(`Failed to remove from archive: ${deleteError.message}`);
+    return;
+  }
+
+  setArchives((prev) => prev.filter((a) => a.id !== item.id));
+  toast.success("Item successfully unarchived!");
+};
 
   return (
     <div className="bg-gradient-to-br from-emerald-50 via-teal-50/30 to-cyan-50 min-h-screen">
@@ -564,14 +599,41 @@ export default function ArchivePage() {
                       )}
                     </div>
                     
-                    <div className="p-4 sm:p-6 pt-0">
-                      <Button
-                        onClick={() => deleteArchive(item.id, item.type)}
-                        className="w-full px-4 py-2.5 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-2 text-sm"
-                      >
-                        <Trash2 size={16} />
-                        Delete Permanently
-                      </Button>
+                    
+                      <div className="p-4 sm:p-6 pt-0">
+                      <p className="text-xs text-gray-500 text-center mb-2">
+                        🕒 Will be permanently deleted in{" "}
+                        <span
+                          className={`font-semibold ${
+                            daysUntilDeletion(item.created_at) <= 10
+                              ? "text-red-600"
+                              : daysUntilDeletion(item.created_at) <= 20
+                              ? "text-orange-500"
+                              : "text-green-600"
+                          }`}
+                        >
+                          {daysUntilDeletion(item.created_at)}
+                        </span>{" "}
+                        days
+                      </p>
+
+                      <div className="flex gap-2">
+                        <Button
+                          onClick={() => handleUnarchive(item)}
+                          className="w-1/2 px-4 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-2 text-sm"
+                        >
+                          <Archive size={16} />
+                          Unarchive
+                        </Button>
+
+                        <Button
+                          onClick={() => deleteArchive(item.id, item.type)}
+                          className="w-1/2 px-4 py-2.5 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-2 text-sm"
+                        >
+                          <Trash2 size={16} />
+                          Delete Permanently
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 );

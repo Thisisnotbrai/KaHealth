@@ -18,7 +18,6 @@ import {
   MapPin,
   Heart,
   CalendarDays,
-  Trash2,
   Activity,
   Users,
   Stethoscope,
@@ -26,7 +25,6 @@ import {
   ChevronLeft,
   ChevronRight,
   MessageCircle,
-  ImageIcon,
   Archive
 } from "lucide-react";
 
@@ -40,7 +38,7 @@ function AdminNavbar() {
     { to: "/admin/dashboard", label: "Dashboard", icon: <LayoutDashboard size={20} /> },
     { to: "/admin/feedback", label: "User Feedback", icon: <MessageCircle size={20} /> },
     { to: "/admin/events", label: "Events", icon: <Clock size={20} /> },
-    { to: "/admin/carousel", label: "Carousel", icon: <ImageIcon size={20} /> },
+    { to: "/admin/archive", label: "Archives", icon: <Archive size={20} /> },
   ];
 
   return (
@@ -853,30 +851,23 @@ export default function AdminEvents() {
                     </div>
                     
                     {/* Event Actions */}
-                    <div className="p-4 sm:p-6 pt-0">
-                      <Button
-  onClick={async () => {
-    try {
-      await archiveItem("events", event.id);
-      toast.success("Event archived successfully!");
-      fetchEvents();
-    } catch (err: any) {
-      toast.error(err.message);
-    }
-  }}
-  className="flex-1 px-4 py-2.5 bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-600 hover:to-yellow-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-2 text-sm"
->
-  <Archive size={16} />
-  Archive
-</Button>
-                      <Button
-                        onClick={() => deleteEvent(event.id)}
-                        className="w-full px-4 py-2.5 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-2 text-sm"
-                      >
-                        <Trash2 size={16} />
-                        Delete Event
-                      </Button>
-                    </div>
+<div className="p-4 sm:p-6 pt-0">
+  <Button
+    onClick={async () => {
+      try {
+        await archiveItem("events", event.id);
+        toast.success("Event archived successfully!");
+        fetchEvents();
+      } catch (err: any) {
+        toast.error(err.message);
+      }
+    }}
+    className="w-full px-4 py-2.5 bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-600 hover:to-yellow-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-2 text-sm"
+  >
+    <Archive size={16} />
+    Archive Event
+  </Button>
+</div>
                   </div>
                 );
               })}
