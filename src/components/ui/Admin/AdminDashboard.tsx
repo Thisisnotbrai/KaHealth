@@ -14,7 +14,6 @@ import {
   Plus,
   Archive,
   Edit3,
-  Trash2,
   Clock,
   Heart,
   Shield,
@@ -37,7 +36,7 @@ function AdminNavbar() {
   const pathname = location.pathname;
   const [menuOpen, setMenuOpen] = useState(false);
 
-    const navLinks = [
+  const navLinks = [
     { to: "/admin/dashboard", label: "Dashboard", icon: <LayoutDashboard size={20} /> },
     { to: "/admin/feedback", label: "User Feedback", icon: <MessageCircle size={20} /> },
     { to: "/admin/events", label: "Events", icon: <Clock size={20} /> },
@@ -162,8 +161,6 @@ export default function AdminDashboard() {
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [selectAll, setSelectAll] = useState(false);
 
-
-  // Added time state for Philippine Standard Time bar
   const [currentTime, setCurrentTime] = useState(new Date());
 
   const indexOfLast = currentPage * announcementsPerPage;
@@ -189,7 +186,7 @@ export default function AdminDashboard() {
       selectedIds.includes(a.id)
     );
     setSelectAll(allSelected);
-  }, [selectedIds, currentPage, announcements]);
+  }, [selectedIds, currentPage, announcements, currentAnnouncements]);
 
   async function fetchAnnouncements() {
     const { data, error } = await supabase
@@ -203,7 +200,6 @@ export default function AdminDashboard() {
       setSelectAll(false);
     }
   }
-
 
   function toggleSelect(id: number) {
     setSelectedIds((prev) =>
@@ -226,22 +222,44 @@ export default function AdminDashboard() {
     }
   }
 
-  async function handleDeleteSelected() {
-    if (selectedIds.length === 0) return toast("No announcements selected.");
-    if (!confirm(`Delete ${selectedIds.length} announcement(s)?`)) return;
+  // ARCHIVE FUNCTION - replaces delete
+  async function handleArchiveSelected() {
+    if (selectedIds.length === 0) return toast.error("No announcements selected.");
+    if (!confirm(`Archive ${selectedIds.length} announcement(s)?`)) return;
 
-    const { error } = await supabase
-      .from("announcements")
-      .delete()
-      .in("id", selectedIds);
+    try {
+      // Get the announcements to archive
+      const toArchive = announcements.filter((a) => selectedIds.includes(a.id));
 
-    if (!error) {
-      toast(`${selectedIds.length} announcement(s) deleted.`);
+      // 1️⃣ Archive selected announcements
+const archiveData = toArchive.map((announcement) => ({
+  original_announcement_id: announcement.id,
+  title: announcement.title,
+  content: announcement.content,
+}));
+
+const { error: archiveError } = await supabase
+  .from("archive_announcements")
+  .insert(archiveData);
+
+if (archiveError) throw archiveError;
+
+// 2️⃣ Delete them from the main table
+const idsToDelete = toArchive.map((a) => a.id);
+const { error: deleteError } = await supabase
+  .from("announcements")
+  .delete()
+  .in("id", idsToDelete);
+
+if (deleteError) throw deleteError;
+
+      toast.success(`${selectedIds.length} announcement(s) archived successfully.`);
       setSelectedIds([]);
       setSelectAll(false);
       fetchAnnouncements();
-    } else {
-      toast("Error deleting announcements.");
+    } catch (error) {
+      console.error(error);
+      toast.error("Error archiving announcements.");
     }
   }
 
@@ -249,13 +267,13 @@ export default function AdminDashboard() {
     const fileName = `${Date.now()}-${file.name}`;
 
     const { error: uploadError } = await supabase.storage
-      .from(bucket) 
+      .from(bucket)
       .upload(fileName, file);
 
     if (uploadError) throw uploadError;
 
     const { data } = supabase.storage
-      .from(bucket) 
+      .from(bucket)
       .getPublicUrl(fileName);
 
     return data.publicUrl;
@@ -263,7 +281,7 @@ export default function AdminDashboard() {
 
   async function handlePost() {
     if (!title.trim() || !content.trim())
-      return toast("Please fill all fields.");
+      return toast.error("Please fill all fields.");
     setLoading(true);
 
     try {
@@ -274,11 +292,11 @@ export default function AdminDashboard() {
 
       if (error) throw error;
 
-      toast("Health announcement posted successfully!");
+      toast.success("Health announcement posted successfully!");
       resetPostForm();
       fetchAnnouncements();
     } catch {
-      toast("Error posting announcement.");
+      toast.error("Error posting announcement.");
     } finally {
       setLoading(false);
     }
@@ -312,11 +330,11 @@ export default function AdminDashboard() {
         .eq("id", editId);
 
       if (error) throw error;
-      toast("Health announcement updated successfully.");
+      toast.success("Health announcement updated successfully.");
       setEditDialogOpen(false);
       fetchAnnouncements();
     } catch {
-      toast("Error updating announcement.");
+      toast.error("Error updating announcement.");
     }
   }
 
@@ -331,6 +349,10 @@ export default function AdminDashboard() {
     hour12: true,
     timeZone: "Asia/Manila",
   });
+
+  useEffect(() => {
+    fetchAnnouncements();
+  }, []);
 
   return (
     <div className="bg-gradient-to-br from-emerald-50 via-teal-50/30 to-cyan-50 min-h-screen">
@@ -394,7 +416,6 @@ export default function AdminDashboard() {
               </div>
             </div>
           </div>
-
         </div>
 
         {/* Enhanced Post Form */}
@@ -517,11 +538,11 @@ export default function AdminDashboard() {
                     </span>
                   </div>
                   <Button
-                    onClick={handleDeleteSelected}
-                    className="px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2 text-sm"
+                    onClick={handleArchiveSelected}
+                    className="px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2 text-sm"
                   >
-                    <Trash2 size={16} />
-                    Delete Selected
+                    <Archive size={16} />
+                    Archive Selected
                   </Button>
                 </div>
               )}

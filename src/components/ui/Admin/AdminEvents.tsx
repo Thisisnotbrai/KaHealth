@@ -359,17 +359,6 @@ export default function AdminEvents() {
   };
 
   // Delete event
-  const deleteEvent = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this health event?")) return;
-    
-    const { error } = await supabase.from("events").delete().eq("id", id);
-    if (error) toast.error(error.message);
-    else {
-      toast.success("Health event deleted successfully!");
-      fetchEvents();
-    }
-  };
-
   const handleCalendarDateSelect = (dateString: string) => {
     if (selectedCalendarDate === dateString) {
       // Deselect if clicking the same date

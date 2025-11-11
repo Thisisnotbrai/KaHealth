@@ -113,7 +113,7 @@ function App() {
             }
           />
           <Route
-            path="/admin/Archive"
+            path="/admin/archive"
             element={
               <ProtectedRoute>
                 <ArchivePage/>

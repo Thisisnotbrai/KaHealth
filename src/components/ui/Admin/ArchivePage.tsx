@@ -26,6 +26,7 @@ import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns/formatDistanceToNow";
 
 type ArchiveItem = {
+  [x: string]: string;
   id: string;
   data: any;
   created_at: string;
@@ -463,7 +464,7 @@ const handleUnarchive = async (item: ArchiveItem) => {
                         <h3 className="font-bold text-gray-900 text-base sm:text-lg mb-1 line-clamp-2 leading-tight">
                           {item.type === "archive_events" && (item.data.title || "Untitled Event")}
                           {item.type === "archive_feedback" && `Feedback from ${item.data.name || "Anonymous"}`}
-                          {item.type === "archive_announcements" && (item.data.title || "Untitled Announcement")}
+                          {item.type === "archive_announcements" && (item.title || "Untitled Announcement")}
                         </h3>
                         <p className="text-xs text-gray-500 flex items-center gap-1">
                           <Clock size={12} />
@@ -565,7 +566,7 @@ const handleUnarchive = async (item: ArchiveItem) => {
 
                       {item.type === "archive_announcements" && (
                         <>
-                          {item.data.date && (
+                          {item.date && (
                             <div className="flex items-start gap-3 text-sm">
                               <div className="p-2 bg-amber-100 rounded-lg flex-shrink-0">
                                 <CalendarDays size={16} className="text-amber-600" />
@@ -584,13 +585,13 @@ const handleUnarchive = async (item: ArchiveItem) => {
                             </div>
                           )}
                           
-                          {(item.data.content || item.data.description) && (
+                          {(item.content || item.description) && (
                             <div className="flex items-start gap-3 text-sm">
                               <div className="p-2 bg-amber-100 rounded-lg flex-shrink-0">
                                 <FileText size={16} className="text-amber-600" />
                               </div>
                               <div className="min-w-0 flex-1">
-                                <p className="text-gray-700 line-clamp-4">{item.data.content || item.data.description}</p>
+                                <p className="text-gray-700 line-clamp-4">{item.content || item.description}</p>
                                 <p className="text-xs text-gray-500 mt-1">Content</p>
                               </div>
                             </div>
