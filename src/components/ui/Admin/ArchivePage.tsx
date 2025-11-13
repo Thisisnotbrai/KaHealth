@@ -306,7 +306,15 @@ const handleUnarchive = async (item: ArchiveItem) => {
     return;
   }
 
-  const { error: insertError } = await supabase.from(targetTable).insert([item.data]);
+  // Build record to restore
+  const newRecord = {
+    id: item.original_announcement_id,
+    title: item.title,
+    content: item.content,
+    created_at: item.created_at,
+  };
+
+  const { error: insertError } = await supabase.from(targetTable).insert([newRecord]);
   if (insertError) {
     toast.error(`Failed to unarchive: ${insertError.message}`);
     return;
@@ -321,6 +329,8 @@ const handleUnarchive = async (item: ArchiveItem) => {
   setArchives((prev) => prev.filter((a) => a.id !== item.id));
   toast.success("Item successfully unarchived!");
 };
+
+
 
   return (
     <div className="bg-gradient-to-br from-emerald-50 via-teal-50/30 to-cyan-50 min-h-screen">
