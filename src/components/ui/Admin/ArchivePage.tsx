@@ -296,32 +296,61 @@ const daysUntilDeletion = (createdAt: string) => {
 
 const handleUnarchive = async (item: ArchiveItem) => {
   let targetTable = "";
+  let newRecord: any = {};
 
-  if (item.type === "archive_events") targetTable = "events";
-  else if (item.type === "archive_feedback") targetTable = "feedback";
-  else if (item.type === "archive_announcements") targetTable = "announcements";
-
-  if (!targetTable) {
+  if (item.type === "archive_events") {
+    targetTable = "events";
+    newRecord = {
+      title: item.title ?? item.data?.title,
+      description: item.description ?? item.data?.description,
+      date: item.date ?? item.data?.date,
+      time: item.time ?? item.data?.time,
+      location: item.location ?? item.data?.location,
+      created_at: item.created_at,
+      is_archived: false,
+    };
+  } 
+  else if (item.type === "archive_announcements") {
+    targetTable = "announcements";
+    newRecord = {
+      title: item.title ?? item.data?.title,
+      content: item.content ?? item.data?.content,
+      created_at: item.created_at,
+      image_url: item.data?.image_url ?? null,
+      is_archived: false,
+    };
+  } 
+  else if (item.type === "archive_feedback") {
+    targetTable = "feedback";
+    newRecord = {
+      message: item.message ?? item.data?.message,
+      created_at: item.created_at,
+      is_archived: false,
+    };
+  } 
+  else {
     toast.error("Unknown archive type.");
     return;
   }
 
-  // Build record to restore
-  const newRecord = {
-    id: item.original_announcement_id,
-    title: item.title,
-    content: item.content,
-    created_at: item.created_at,
-  };
+  // Remove undefined values to avoid insert issues
+  Object.keys(newRecord).forEach((k) => newRecord[k] === undefined && delete newRecord[k]);
 
   const { error: insertError } = await supabase.from(targetTable).insert([newRecord]);
   if (insertError) {
+    console.error("Unarchive insert error:", insertError);
     toast.error(`Failed to unarchive: ${insertError.message}`);
     return;
   }
 
-  const { error: deleteError } = await supabase.from(item.type).delete().eq("id", item.id);
+  // Delete from archive table
+  const { error: deleteError } = await supabase
+    .from(item.type)
+    .delete()
+    .eq("id", item.id);
+
   if (deleteError) {
+    console.error("Unarchive delete error:", deleteError);
     toast.error(`Failed to remove from archive: ${deleteError.message}`);
     return;
   }
@@ -329,8 +358,6 @@ const handleUnarchive = async (item: ArchiveItem) => {
   setArchives((prev) => prev.filter((a) => a.id !== item.id));
   toast.success("Item successfully unarchived!");
 };
-
-
 
   return (
     <div className="bg-gradient-to-br from-emerald-50 via-teal-50/30 to-cyan-50 min-h-screen">

@@ -56,6 +56,9 @@ const format = (date: Date, formatStr: string) => {
   if (formatStr === "MMMM yyyy") {
     return `${monthNames[date.getMonth()]} ${year}`;
   }
+  if (formatStr === "MMMM") {
+    return monthNames[date.getMonth()];
+  }
   return date.toDateString();
 };
 
@@ -204,34 +207,18 @@ export default function PublicEvents() {
             </div>
             
             <CardContent className="p-0 overflow-hidden flex-1">
-              <div className={`space-y-0.5 sm:space-y-1 overflow-hidden ${
-                isWeekView ? 'max-h-24 sm:max-h-32 lg:max-h-40' : 'max-h-8 sm:max-h-12 lg:max-h-16'
-              }`}>
-                {dayEvents.slice(0, isWeekView ? 8 : 3).map((event) => (
-                  <div
-                    key={event.id}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      openModal(event);
-                    }}
-                    className="
-                      text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md truncate cursor-pointer
-                      bg-emerald-100 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-200
-                      border border-emerald-200 dark:border-emerald-800
-                      hover:bg-emerald-200 dark:hover:bg-emerald-800
-                      transition-colors duration-150
-                    "
-                    title={event.title}
-                  >
-                    {event.title}
+              {dayEvents.length > 0 && (
+                <div className="flex items-center justify-center h-full">
+                  <div className="text-center">
+                    <div className="text-xs sm:text-sm font-medium text-emerald-600 dark:text-emerald-400">
+                      {dayEvents.length} event{dayEvents.length !== 1 ? 's' : ''}
+                    </div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                      Click to view
+                    </div>
                   </div>
-                ))}
-                {dayEvents.length > (isWeekView ? 8 : 3) && (
-                  <div className="text-xs text-gray-500 dark:text-gray-400 px-1.5 sm:px-2">
-                    +{dayEvents.length - (isWeekView ? 8 : 3)} more
-                  </div>
-                )}
-              </div>
+                </div>
+              )}
             </CardContent>
           </Card>
         );

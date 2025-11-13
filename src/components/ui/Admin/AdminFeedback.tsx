@@ -22,17 +22,15 @@ import {
   Activity,
   Filter,
   Archive,
-  Trash2,
-  RotateCcw,
 } from "lucide-react";
 
-// Admin Navbar Component (reused from AdminEvents)
+// Admin Navbar Component
 function AdminNavbar() {
   const location = useLocation();
   const pathname = location.pathname;
   const [menuOpen, setMenuOpen] = useState(false);
 
-    const navLinks = [
+  const navLinks = [
     { to: "/admin/dashboard", label: "Dashboard", icon: <LayoutDashboard size={20} /> },
     { to: "/admin/feedback", label: "User Feedback", icon: <MessageCircle size={20} /> },
     { to: "/admin/events", label: "Events", icon: <Clock size={20} /> },
@@ -142,7 +140,6 @@ interface Feedback {
   id: string;
   message: string;
   created_at: string;
-  is_archived?: boolean;
 }
 
 export default function AdminFeedback() {
@@ -151,11 +148,10 @@ export default function AdminFeedback() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTimeFilter, setSelectedTimeFilter] = useState("all");
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [viewArchived, setViewArchived] = useState(false);
 
-  const feedbacksPerPage = 6; // Changed to match AdminEvents
+  const feedbacksPerPage = 6;
   
-  // Timer effect for live clock (matching AdminEvents)
+  // Timer effect for live clock
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
@@ -166,12 +162,12 @@ export default function AdminFeedback() {
       const { data, error } = await supabase
         .from("feedback")
         .select("*")
-        .eq("is_archived", viewArchived)
         .order("created_at", { ascending: false });
+      
       if (!error && data) setFeedbacks(data);
     };
     fetchFeedback();
-  }, [viewArchived]);
+  }, []);
 
   // Filter feedbacks based on search and time filter
   const filteredFeedbacks = feedbacks.filter(feedback => {
@@ -221,73 +217,64 @@ export default function AdminFeedback() {
     ? Math.round(feedbacks.reduce((sum, fb) => sum + fb.message.length, 0) / feedbacks.length)
     : 0;
 
-  // Archive/Restore/Delete functions
-  const handleArchiveFeedback = async (id: string) => {
-    const { error } = await supabase
-      .from("feedback")
-      .update({ is_archived: true })
-      .eq("id", id);
+// Archive function
+  const handleArchiveFeedback = async (id: string | number) => {
+    try {
+      // 1. Fetch the feedback data
+      const { data: feedbackData, error: fetchError } = await supabase
+        .from("feedback")
+        .select("*")
+        .eq("id", id)
+        .single();
 
-    if (error) {
-      toast.error("Failed to archive feedback");
-    } else {
+      if (fetchError || !feedbackData) {
+        toast.error("Failed to find feedback to archive");
+        return;
+      }
+
+      // 2. Insert into archive_feedback
+      const { error: insertError } = await supabase
+        .from("archive_feedback")
+        .insert([
+          {
+            original_feedback_id: feedbackData.id.toString(),
+            message: feedbackData.message,
+            created_at: feedbackData.created_at,
+            user_name: feedbackData.user_name || null,
+            data: feedbackData || {},
+          },
+        ]);
+
+      if (insertError) {
+        console.error("Insert error:", insertError);
+        toast.error("Failed to archive feedback");
+        return;
+      }
+
+      // 3. Delete from feedback table
+      const { error: deleteError } = await supabase
+        .from("feedback")
+        .delete()
+        .eq("id", feedbackData.id);
+
+      if (deleteError) {
+        console.error("Delete error:", deleteError);
+        toast.error("Failed to remove feedback from active list");
+        return;
+      }
+
+      console.log("Successfully deleted feedback with ID:", feedbackData.id);
+
+      // 4. Update UI immediately by filtering out the archived feedback
+      setFeedbacks((prev) => prev.filter((fb) => fb.id !== id));
+
       toast.success("Feedback archived successfully");
-      const fetchFeedback = async () => {
-        const { data, error } = await supabase
-          .from("feedback")
-          .select("*")
-          .eq("is_archived", viewArchived)
-          .order("created_at", { ascending: false });
-        if (!error && data) setFeedbacks(data);
-      };
-      fetchFeedback();
+    } catch (error) {
+      console.error("Archive error:", error);
+      toast.error("An error occurred while archiving feedback");
     }
   };
-
-  const handleRestoreFeedback = async (id: string) => {
-    const { error } = await supabase
-      .from("feedback")
-      .update({ is_archived: false })
-      .eq("id", id);
-
-    if (error) {
-      toast.error("Failed to restore feedback");
-    } else {
-      toast.success("Feedback restored successfully");
-      const fetchFeedback = async () => {
-        const { data, error } = await supabase
-          .from("feedback")
-          .select("*")
-          .eq("is_archived", viewArchived)
-          .order("created_at", { ascending: false });
-        if (!error && data) setFeedbacks(data);
-      };
-      fetchFeedback();
-    }
-  };
-
-  const handleDeleteFeedback = async (id: string) => {
-    if (!confirm("Are you sure you want to permanently delete this feedback? This action cannot be undone.")) return;
-    
-    const { error } = await supabase.from("feedback").delete().eq("id", id);
-    
-    if (error) {
-      toast.error("Failed to delete feedback");
-    } else {
-      toast.success("Feedback deleted permanently");
-      const fetchFeedback = async () => {
-        const { data, error } = await supabase
-          .from("feedback")
-          .select("*")
-          .eq("is_archived", viewArchived)
-          .order("created_at", { ascending: false });
-        if (!error && data) setFeedbacks(data);
-      };
-      fetchFeedback();
-    }
-  };
-
-  // Philippine Standard Time formatting (matching AdminEvents)
+  // Philippine Standard Time formatting
   const formattedTime = currentTime.toLocaleString("en-PH", {
     weekday: "long",
     year: "numeric",
@@ -302,7 +289,7 @@ export default function AdminFeedback() {
 
   return (
     <div className="bg-gradient-to-br from-emerald-50 via-teal-50/30 to-cyan-50 min-h-screen">
-      {/* Enhanced Philippine Standard Time top bar (matching AdminEvents) */}
+      {/* Enhanced Philippine Standard Time top bar */}
       <div className="bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 text-white shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 lg:py-4">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-0">
@@ -325,7 +312,7 @@ export default function AdminFeedback() {
       <AdminNavbar />
 
       <main className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6 lg:space-y-8">
-        {/* Enhanced Stats Cards (matching AdminEvents layout) */}
+        {/* Enhanced Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 lg:mb-8">
           <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-4 sm:p-6 shadow-lg border border-white/50 hover:shadow-xl transition-all duration-300">
             <div className="flex items-center gap-3 sm:gap-4">
@@ -334,7 +321,7 @@ export default function AdminFeedback() {
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-xs sm:text-sm font-medium text-gray-600 uppercase tracking-wide truncate">
-                  {viewArchived ? "Archived Feedback" : "Total Feedback"}
+                  Total Feedback
                 </p>
                 <p className="text-2xl sm:text-3xl font-bold text-gray-900">{feedbacks.length}</p>
               </div>
@@ -378,7 +365,7 @@ export default function AdminFeedback() {
           </div>
         </div>
 
-        {/* Enhanced Filters Section (matching AdminEvents style) */}
+        {/* Enhanced Filters Section */}
         <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl border border-white/50 p-4 sm:p-6">
           <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-6">
             <div className="flex items-center gap-3 sm:gap-4">
@@ -387,44 +374,12 @@ export default function AdminFeedback() {
               </div>
               <div className="min-w-0 flex-1">
                 <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
-                  {viewArchived ? "Archived Feedback" : "Community Health Feedback"}
+                  Community Health Feedback
                 </h2>
                 <p className="text-sm sm:text-base text-gray-600 mt-1">
-                  {viewArchived 
-                    ? "Review and manage archived feedback messages" 
-                    : "Monitor and analyze community wellness concerns"
-                  }
+                  Monitor and analyze community wellness concerns
                 </p>
               </div>
-            </div>
-            
-            {/* Archive Toggle Button */}
-            <div className="flex items-center gap-2">
-              <Button
-                onClick={() => {
-                  setViewArchived(!viewArchived);
-                  setCurrentPage(1);
-                  setSearchQuery("");
-                  setSelectedTimeFilter("all");
-                }}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium transition-all duration-200 text-sm ${
-                  viewArchived 
-                    ? "bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-lg"
-                    : "bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white shadow-lg"
-                }`}
-              >
-                {viewArchived ? (
-                  <>
-                    <MessageCircle size={16} />
-                    View Active
-                  </>
-                ) : (
-                  <>
-                    <Archive size={16} />
-                    View Archived
-                  </>
-                )}
-              </Button>
             </div>
           </div>
 
@@ -491,7 +446,7 @@ export default function AdminFeedback() {
           </div>
         </div>
 
-        {/* Enhanced Feedback Management Section (matching AdminEvents structure) */}
+        {/* Enhanced Feedback Management Section */}
         <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl border border-white/50 p-4 sm:p-6">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
             <div>
@@ -509,20 +464,13 @@ export default function AdminFeedback() {
           {feedbacks.length === 0 ? (
             <div className="text-center py-12 sm:py-16">
               <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                {viewArchived ? (
-                  <Archive className="text-emerald-400 w-8 h-8 sm:w-10 sm:h-10" />
-                ) : (
-                  <MessageCircle className="text-emerald-400 w-8 h-8 sm:w-10 sm:h-10" />
-                )}
+                <MessageCircle className="text-emerald-400 w-8 h-8 sm:w-10 sm:h-10" />
               </div>
               <h3 className="text-lg sm:text-xl font-semibold text-gray-600 mb-2">
-                {viewArchived ? "No archived feedback" : "No feedback received yet"}
+                No feedback received yet
               </h3>
               <p className="text-sm sm:text-base text-gray-500">
-                {viewArchived 
-                  ? "Archived feedback messages will appear here"
-                  : "Community feedback will appear here when submitted"
-                }
+                Community feedback will appear here when submitted
               </p>
             </div>
           ) : filteredFeedbacks.length === 0 ? (
@@ -551,13 +499,11 @@ export default function AdminFeedback() {
                   >
                     {/* Feedback Status Badge */}
                     <div className={`absolute top-4 right-4 px-3 py-1 rounded-full text-xs font-semibold ${
-                      viewArchived ? "bg-amber-100 text-amber-700" :
                       isToday ? "bg-emerald-100 text-emerald-700" :
                       isRecent ? "bg-teal-100 text-teal-700" :
                       "bg-gray-100 text-gray-600"
                     }`}>
-                      {viewArchived ? "Archived" : 
-                       isToday ? "Today" : isRecent ? "Recent" : "Older"}
+                      {isToday ? "Today" : isRecent ? "Recent" : "Older"}
                     </div>
                     
                     {/* Feedback Header */}
@@ -635,42 +581,21 @@ export default function AdminFeedback() {
                     
                     {/* Feedback Actions */}
                     <div className="p-4 sm:p-6 pt-0">
-                      {viewArchived ? (
-                        // Actions for archived feedback
-                        <div className="flex gap-2">
-                          <Button
-                            onClick={() => handleRestoreFeedback(fb.id)}
-                            className="flex-1 px-3 py-2 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-semibold rounded-xl shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2 text-xs sm:text-sm"
-                          >
-                            <RotateCcw size={14} />
-                            Restore
-                          </Button>
-                          <Button
-                            onClick={() => handleDeleteFeedback(fb.id)}
-                            className="flex-1 px-3 py-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-semibold rounded-xl shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2 text-xs sm:text-sm"
-                          >
-                            <Trash2 size={14} />
-                            Delete
-                          </Button>
-                        </div>
-                      ) : (
-                        // Actions for active feedback
-                        <div className="flex gap-2">
-                          <Button
-                            className="flex-1 px-3 py-2 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-semibold rounded-xl shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2 text-xs sm:text-sm"
-                          >
-                            <ThumbsUp size={14} />
-                            Mark Helpful
-                          </Button>
-                          <Button
-                            onClick={() => handleArchiveFeedback(fb.id)}
-                            className="flex-1 px-3 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-semibold rounded-xl shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2 text-xs sm:text-sm"
-                          >
-                            <Archive size={14} />
-                            Archive
-                          </Button>
-                        </div>
-                      )}
+                      <div className="flex gap-2">
+                        <Button
+                          className="flex-1 px-3 py-2 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-semibold rounded-xl shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2 text-xs sm:text-sm"
+                        >
+                          <ThumbsUp size={14} />
+                          Mark Helpful
+                        </Button>
+                        <Button
+                          onClick={() => handleArchiveFeedback(fb.id)}
+                          className="flex-1 px-3 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-semibold rounded-xl shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2 text-xs sm:text-sm"
+                        >
+                          <Archive size={14} />
+                          Archive
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 );
@@ -678,7 +603,7 @@ export default function AdminFeedback() {
             </div>
           )}
 
-          {/* Enhanced Pagination (matching AdminEvents) */}
+          {/* Enhanced Pagination */}
           {totalPages > 1 && (
             <div className="flex justify-center items-center gap-2 mt-6 sm:mt-8 pt-6 sm:pt-8 border-t border-gray-200">
               <div className="flex gap-1 sm:gap-2 overflow-x-auto pb-2">
