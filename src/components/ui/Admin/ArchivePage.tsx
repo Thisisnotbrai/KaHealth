@@ -201,6 +201,7 @@ export default function ArchivePage() {
     }
   };
 
+  //Auto-Delete in 30 days (to make it in seconds just change date to seconds)
   const autoDeleteOldArchives = async () => {
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - 30);
