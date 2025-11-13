@@ -18,7 +18,8 @@ import {
   Heart,
   Shield,
   TrendingUp,
-  MessageCircle,
+  Megaphone,
+  MessageSquare
 } from "lucide-react";
 
 // Types
@@ -37,8 +38,9 @@ function AdminNavbar() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const navLinks = [
-    { to: "/admin/dashboard", label: "Dashboard", icon: <LayoutDashboard size={20} /> },
-    { to: "/admin/feedback", label: "User Feedback", icon: <MessageCircle size={20} /> },
+    { to: "/admin/analytics", label: "Dashboard", icon: <LayoutDashboard size={20} /> },
+    { to: "/admin/dashboard", label: "Announcement", icon: <Megaphone size={20} /> },
+    { to: "/admin/feedback", label: "User Feedback", icon: <MessageSquare size={20} /> },
     { to: "/admin/events", label: "Events", icon: <Clock size={20} /> },
     { to: "/admin/archive", label: "Archives", icon: <Archive size={20} /> },
   ];
