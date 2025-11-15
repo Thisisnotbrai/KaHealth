@@ -9,9 +9,12 @@ import FeedbackForm from "./FeedbackForm";
 import PublicEvents from './PublicEvents';
 import News from './News';
 import Footer from './Footer';
+import RequestMedicineForm from "./RequestMedicineForm";
+import { Button } from "./Navbar/button";
 
 const LandingPage = () => {
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [showMedicineForm, setShowMedicineForm] = useState(false);
 
   // Show/hide scroll to top button based on scroll position
   useEffect(() => {
@@ -59,6 +62,40 @@ const LandingPage = () => {
         >
           <HeroSection />
         </section>
+
+        {/* Request Medicine Section */}
+        <section className="space-y-3 sm:space-y-4 lg:space-y-6" role="region" aria-labelledby="request-medicine-heading">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 px-2">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-teal-500 to-cyan-600 rounded-xl flex items-center justify-center shadow-lg group hover:scale-110 transition-transform duration-300 transform-gpu" role="img" aria-label="Medicine icon">
+                <div className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 bg-white/90 rounded-md flex items-center justify-center">
+                  <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-teal-600 rounded-full"></div>
+                </div>
+              </div>
+              <div>
+                <h2 id="request-medicine-heading" className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold text-gray-900 dark:text-white leading-tight">
+                  Request Medicine
+                </h2>
+                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1 hidden sm:block">
+                  Submit a request for available medicines from our health center
+                </p>
+              </div>
+            </div>
+            <div className="hidden lg:flex flex-1 h-0.5 bg-gradient-to-r from-teal-500/50 via-cyan-300/30 to-transparent rounded-full ml-4" aria-hidden="true"></div>
+          </div>
+          <div className="bg-gradient-to-br from-white/95 to-teal-50/40 dark:from-white/5 dark:to-teal-900/10 p-3 sm:p-4 lg:p-6 xl:p-8 rounded-xl sm:rounded-2xl shadow-lg border border-white/60 dark:border-teal-500/20 backdrop-blur-sm hover:shadow-xl transition-all duration-300">
+            <Button
+              onClick={() => setShowMedicineForm(true)}
+              className="px-6 py-3 bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+            >
+              Request Medicine
+            </Button>
+          </div>
+       
+
+      {/* Medicine Request Form Dialog */}
+      <RequestMedicineForm open={showMedicineForm} setOpen={setShowMedicineForm} />
+    </section>
 
         {/* Enhanced Events Section */}
         <section id="events" className="space-y-3 sm:space-y-4 lg:space-y-6" role="region" aria-labelledby="events-heading">
@@ -256,7 +293,7 @@ const LandingPage = () => {
             </div>
             <div className="hidden lg:flex flex-1 h-0.5 bg-gradient-to-r from-indigo-500/50 via-purple-300/30 to-transparent rounded-full ml-4" aria-hidden="true"></div>
           </div>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 lg:gap-6" role="list">
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4 lg:gap-6" role="list">
             {[
               {
                 title: "Barangay Information",
@@ -271,6 +308,14 @@ const LandingPage = () => {
                 icon: "🏥",
                 color: "from-purple-500 to-indigo-600",
                 link: "#facilities"
+              },
+              {
+                title: "Request Medicine",
+                description: "Submit a request for medicine from our barangay health center with your prescription",
+                icon: "💊",
+                color: "from-teal-500 to-cyan-600",
+                link: "#",
+                onClick: () => setShowMedicineForm(true)
               }
             ].map((resource, index) => (
               <article
@@ -291,6 +336,12 @@ const LandingPage = () => {
                     </p>
                     <a
                       href={resource.link}
+                      onClick={(e) => {
+                        if (resource.onClick) {
+                          e.preventDefault();
+                          resource.onClick();
+                        }
+                      }}
                       className={`inline-flex items-center justify-center px-4 py-2 sm:px-6 sm:py-3 bg-gradient-to-r ${resource.color} text-white font-semibold text-sm sm:text-base rounded-lg hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all duration-200 group-hover:scale-105 transform-gpu min-w-[120px]`}
                       aria-label={`Learn more about ${resource.title}`}
                     >
@@ -362,6 +413,7 @@ const LandingPage = () => {
           <div className="absolute inset-0 rounded-full bg-emerald-400 opacity-20 animate-ping"></div>
         </button>
       )}
+      
     </div>
   );
 };

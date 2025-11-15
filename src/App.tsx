@@ -9,6 +9,7 @@ import AdminFeedback from "./components/ui/Admin/AdminFeedback";
 import AllAnnouncements from "./components/ui/AllAnnouncement";
 import Information from "./components/ui/Information";
 import ArchivePage from "./components/ui/Admin/ArchivePage";
+import MedicineInventory from "./components/ui/Admin/Medicine/MedicineInventory";
 import { ThemeProvider } from "./components/ui/Darkmode/theme-provider";
 import { useEffect, useState, type JSX } from "react";
 import { Toaster } from "sonner";
@@ -117,6 +118,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <ArchivePage/>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/medicine-inventory"
+            element={
+              <ProtectedRoute>
+                <MedicineInventory />
               </ProtectedRoute>
             }
           />
