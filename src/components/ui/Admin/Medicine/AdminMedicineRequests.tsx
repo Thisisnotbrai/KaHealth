@@ -24,14 +24,12 @@ import {
   Clock,
   Heart,
   Shield,
-  TrendingUp,
   Megaphone,
   MessageSquare,
   Archive,
   Pill,
   Users,
   CheckCircle2,
-  XCircle
 } from "lucide-react";
 
 /**
