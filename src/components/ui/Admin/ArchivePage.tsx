@@ -23,7 +23,10 @@ import {
   Eye,
   Pill,
   Package,
-  AlertTriangle
+  AlertTriangle,
+  Phone,
+  MapPinned,
+  Hash
 } from "lucide-react";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns/formatDistanceToNow";
@@ -49,6 +52,18 @@ type ArchiveItem = {
   time?: string;
   location?: string;
   message?: string;
+  requester_name?: string;
+  age?: number;
+  sex?: string;
+  contact?: string;
+  address?: string;
+  medicine_name?: string;
+  medicine_dosage?: string;
+  medicine_form?: string;
+  quantity?: number;
+  file_url?: string;
+  status?: string;
+  archive_reason?: string;
 };
 
 function AdminNavbar() {
@@ -61,6 +76,7 @@ function AdminNavbar() {
     { to: "/admin/dashboard", label: "Announcement", icon: <Megaphone size={20} /> },
     { to: "/admin/feedback", label: "User Feedback", icon: <MessageSquare size={20} /> },
     { to: "/admin/events", label: "Events", icon: <Clock size={20} /> },
+    { to: "/admin/requests", label: "Medicine Requests", icon: <Pill size={20} /> },
     { to: "/admin/archive", label: "Archives", icon: <Archive size={20} /> },
   ];
 
@@ -177,7 +193,7 @@ export default function ArchivePage() {
 
   const fetchArchives = async () => {
     setLoading(true);
-    const tables = ["archive_events", "archive_feedback", "archive_announcements", "archive_medicines"];
+    const tables = ["archive_events", "archive_feedback", "archive_announcements", "archive_medicines", "archive_medicine_requests"];
     const results = await Promise.all(
       tables.map(async (table) => {
         const { data, error } = await supabase.from(table).select("*");
@@ -207,9 +223,9 @@ export default function ArchivePage() {
   const autoDeleteOldArchives = async () => {
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - 30);
-    const tables = ["archive_events", "archive_feedback", "archive_announcements", "archive_medicines"];
+    const tables = ["archive_events", "archive_feedback", "archive_announcements", "archive_medicines", "archive_medicine_requests"];
     for (const table of tables) {
-      const dateColumn = table === "archive_medicines" ? "archived_at" : "created_at";
+      const dateColumn = (table === "archive_medicines" || table === "archive_medicine_requests") ? "archived_at" : "created_at";
       const { error } = await supabase.from(table).delete().lt(dateColumn, cutoffDate.toISOString());
       if (error) console.error(`Error cleaning ${table}:`, error);
     }
@@ -231,7 +247,8 @@ export default function ArchivePage() {
       archive_events: <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5"><CalendarDays size={14} /> Event</span>,
       archive_feedback: <span className="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5"><MessageSquare size={14} /> Feedback</span>,
       archive_announcements: <span className="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5"><Megaphone size={14} /> Announcement</span>,
-      archive_medicines: <span className="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5"><Pill size={14} /> Medicine</span>
+      archive_medicines: <span className="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5"><Pill size={14} /> Medicine</span>,
+      archive_medicine_requests: <span className="bg-rose-100 text-rose-700 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5"><Package size={14} /> Request</span>
     };
     return badges[type] || null;
   };
@@ -250,6 +267,7 @@ export default function ArchivePage() {
   const feedbackCount = archives.filter(a => a.type === "archive_feedback").length;
   const announcementsCount = archives.filter(a => a.type === "archive_announcements").length;
   const medicinesCount = archives.filter(a => a.type === "archive_medicines").length;
+  const requestsCount = archives.filter(a => a.type === "archive_medicine_requests").length;
 
   if (loading) {
     return (
@@ -284,6 +302,21 @@ export default function ArchivePage() {
     } else if (item.type === "archive_medicines") {
       targetTable = "medicines";
       newRecord = { name: item.name, dosage: item.dosage, form: item.form, stock: item.last_stock, expiry_date: item.expiry_date };
+    } else if (item.type === "archive_medicine_requests") {
+      targetTable = "medicine_requests";
+      newRecord = { 
+        requester_name: item.requester_name, 
+        age: item.age, 
+        sex: item.sex, 
+        contact: item.contact, 
+        address: item.address,
+        medicine_id: item.data?.medicine_id,
+        quantity: item.quantity, 
+        reason: item.reason, 
+        file_url: item.file_url, 
+        status: item.status,
+        created_at: item.data?.created_at || item.created_at
+      };
     } else {
       toast.error("Unknown archive type.");
       return;
@@ -339,22 +372,23 @@ export default function ArchivePage() {
       <AdminNavbar />
 
       <main className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6 lg:space-y-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-6 mb-6 lg:mb-8">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-6 mb-6 lg:mb-8">
           {[
-            { icon: Archive, label: "Total Archives", count: totalArchives, color: "purple" },
+            { icon: Archive, label: "Total", count: totalArchives, color: "purple" },
             { icon: CalendarDays, label: "Events", count: eventsCount, color: "blue" },
             { icon: MessageSquare, label: "Feedback", count: feedbackCount, color: "emerald" },
-            { icon: Megaphone, label: "Announcements", count: announcementsCount, color: "amber" },
-            { icon: Pill, label: "Medicines", count: medicinesCount, color: "purple" }
+            { icon: Megaphone, label: "Announces", count: announcementsCount, color: "amber" },
+            { icon: Pill, label: "Medicines", count: medicinesCount, color: "purple" },
+            { icon: Package, label: "Requests", count: requestsCount, color: "rose" }
           ].map((stat, idx) => (
             <div key={idx} className="bg-white/90 backdrop-blur-sm rounded-2xl p-4 sm:p-6 shadow-lg border border-white/50 hover:shadow-xl transition-all duration-300">
-              <div className="flex items-center gap-3 sm:gap-4">
+              <div className="flex flex-col items-center gap-2 text-center">
                 <div className={`p-2 sm:p-3 bg-gradient-to-br from-${stat.color}-500 to-${stat.color}-600 rounded-xl shadow-lg`}>
-                  <stat.icon className="text-white" size={24} />
+                  <stat.icon className="text-white" size={20} />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-xs sm:text-sm font-medium text-gray-600 uppercase tracking-wide truncate">{stat.label}</p>
                   <p className="text-2xl sm:text-3xl font-bold text-gray-900">{stat.count}</p>
+                  <p className="text-xs sm:text-sm font-medium text-gray-600 uppercase tracking-wide truncate">{stat.label}</p>
                 </div>
               </div>
             </div>
@@ -373,8 +407,9 @@ export default function ArchivePage() {
                 { value: "all", label: "All", icon: <Archive size={16} /> },
                 { value: "archive_events", label: "Events", icon: <CalendarDays size={16} /> },
                 { value: "archive_feedback", label: "Feedback", icon: <MessageSquare size={16} /> },
-                { value: "archive_announcements", label: "Announcements", icon: <Megaphone size={16} /> },
-                { value: "archive_medicines", label: "Medicines", icon: <Pill size={16} /> }
+                { value: "archive_announcements", label: "Announces", icon: <Megaphone size={16} /> },
+                { value: "archive_medicines", label: "Medicines", icon: <Pill size={16} /> },
+                { value: "archive_medicine_requests", label: "Requests", icon: <Package size={16} /> }
               ].map((filter) => (
                 <button key={filter.value} onClick={() => { setSelectedFilter(filter.value); setCurrentPage(1); }}
                   className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg font-medium transition-all duration-200 text-xs sm:text-sm ${
@@ -417,6 +452,7 @@ export default function ArchivePage() {
                           {item.type === "archive_feedback" && `Feedback from ${item.data?.name || "Anonymous"}`}
                           {item.type === "archive_announcements" && (item.title || item.data?.title || "Untitled Announcement")}
                           {item.type === "archive_medicines" && (item.name || "Untitled Medicine")}
+                          {item.type === "archive_medicine_requests" && `Request from ${item.requester_name || "Unknown"}`}
                         </h3>
                         <p className="text-xs text-gray-500 flex items-center gap-1">
                           <Clock size={12} />Archived {formatDistanceToNow(archiveDate, { addSuffix: true })}
@@ -425,6 +461,82 @@ export default function ArchivePage() {
                     </div>
                     
                     <div className="p-4 sm:p-6 space-y-3">
+                      {item.type === "archive_medicine_requests" && (
+                        <>
+                          <div className="flex items-start gap-3 text-sm">
+                            <div className="p-2 bg-rose-100 rounded-lg flex-shrink-0"><User size={16} className="text-rose-600" /></div>
+                            <div className="min-w-0 flex-1">
+                              <p className="font-medium text-gray-900">{item.requester_name || "Unknown"}</p>
+                              <p className="text-xs text-gray-500">{item.age ? `${item.age} yrs • ${item.sex || ""}` : item.sex || "N/A"}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-start gap-3 text-sm">
+                            <div className="p-2 bg-rose-100 rounded-lg flex-shrink-0"><Pill size={16} className="text-rose-600" /></div>
+                            <div className="min-w-0 flex-1">
+                              <p className="font-medium text-gray-900">{item.medicine_name || "N/A"}</p>
+                              <p className="text-xs text-gray-500">{item.medicine_dosage || ""} {item.medicine_form || ""}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-start gap-3 text-sm">
+                            <div className="p-2 bg-rose-100 rounded-lg flex-shrink-0"><Hash size={16} className="text-rose-600" /></div>
+                            <div className="min-w-0 flex-1">
+                              <p className="font-medium text-gray-900">{item.quantity || 0} units</p>
+                              <p className="text-xs text-gray-500">Quantity Requested</p>
+                            </div>
+                          </div>
+                          {item.contact && (
+                            <div className="flex items-start gap-3 text-sm">
+                              <div className="p-2 bg-rose-100 rounded-lg flex-shrink-0"><Phone size={16} className="text-rose-600" /></div>
+                              <div className="min-w-0 flex-1">
+                                <p className="font-medium text-gray-900">{item.contact}</p>
+                                <p className="text-xs text-gray-500">Contact</p>
+                              </div>
+                            </div>
+                          )}
+                          {item.address && (
+                            <div className="flex items-start gap-3 text-sm">
+                              <div className="p-2 bg-rose-100 rounded-lg flex-shrink-0"><MapPinned size={16} className="text-rose-600" /></div>
+                              <div className="min-w-0 flex-1">
+                                <p className="text-gray-700 line-clamp-2">{item.address}</p>
+                                <p className="text-xs text-gray-500 mt-1">Address</p>
+                              </div>
+                            </div>
+                          )}
+                          {item.status && (
+                            <div className="flex items-start gap-3 text-sm">
+                              <div className="p-2 bg-rose-100 rounded-lg flex-shrink-0"><FileText size={16} className="text-rose-600" /></div>
+                              <div className="min-w-0 flex-1">
+                                <span className={`px-2 py-1 rounded-lg text-xs font-medium capitalize ${
+                                  item.status === 'approved' ? 'bg-green-100 text-green-700' :
+                                  item.status === 'denied' ? 'bg-red-100 text-red-700' :
+                                  item.status === 'claimed' ? 'bg-blue-100 text-blue-700' :
+                                  'bg-gray-100 text-gray-700'
+                                }`}>{item.status}</span>
+                                <p className="text-xs text-gray-500 mt-1">Request Status</p>
+                              </div>
+                            </div>
+                          )}
+                          {item.archive_reason && (
+                            <div className="flex items-start gap-3 text-sm">
+                              <div className="p-2 bg-rose-100 rounded-lg flex-shrink-0"><AlertTriangle size={16} className="text-rose-600" /></div>
+                              <div className="min-w-0 flex-1">
+                                {getReasonBadge(item.archive_reason)}
+                                <p className="text-xs text-gray-500 mt-1">Archive Reason</p>
+                              </div>
+                            </div>
+                          )}
+                          {item.notes && (
+                            <div className="flex items-start gap-3 text-sm">
+                              <div className="p-2 bg-rose-100 rounded-lg flex-shrink-0"><FileText size={16} className="text-rose-600" /></div>
+                              <div className="min-w-0 flex-1">
+                                <p className="text-gray-700 line-clamp-3">{item.notes}</p>
+                                <p className="text-xs text-gray-500 mt-1">Additional Notes</p>
+                              </div>
+                            </div>
+                          )}
+                        </>
+                      )}
+
                       {item.type === "archive_medicines" && (
                         <>
                           <div className="flex items-start gap-3 text-sm">
