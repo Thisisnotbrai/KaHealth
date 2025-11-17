@@ -43,6 +43,8 @@ function AdminNavbar() {
     { to: "/admin/feedback", label: "User Feedback", icon: <MessageSquare size={20} /> },
     { to: "/admin/events", label: "Events", icon: <Clock size={20} /> },
     { to: "/admin/archive", label: "Archives", icon: <Archive size={20} /> },
+    { to: "/admin/medicine-inventory", label: "Medicine Inventory", icon: <Shield size={20} /> },
+    { to: "/admin/medicine-requests", label: "Medicine Requests", icon: <Heart size={20} /> },
   ];
 
   return (
@@ -67,31 +69,31 @@ function AdminNavbar() {
           </div>
 
           {/* Enhanced Desktop Menu */}
-          <nav className="hidden lg:flex items-center gap-1">
+          <nav className="hidden lg:flex items-center gap-2">
             {navLinks.map((link) => (
               <Link
                 key={link.to}
                 to={link.to}
-                className={`flex items-center gap-2 px-3 xl:px-4 py-2.5 rounded-xl font-medium transition-all duration-200 hover:scale-105 text-sm xl:text-base ${
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium transition-all duration-200 hover:scale-105 text-sm whitespace-nowrap ${
                   pathname === link.to
                     ? "bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-200"
                     : "text-gray-600 hover:bg-emerald-50 hover:text-emerald-700"
                 }`}
               >
                 {link.icon}
-                <span className="hidden xl:inline font-medium">{link.label}</span>
+                <span className="font-medium">{link.label}</span>
               </Link>
             ))}
-            <div className="ml-4 pl-4 border-l border-gray-200">
+            <div className="ml-2 pl-4 border-l border-gray-200">
               <button
                 onClick={async () => {
                   await supabase.auth.signOut();
                   window.location.href = "/admin/login";
                 }}
-                className="flex items-center gap-2 px-3 xl:px-4 py-2.5 rounded-xl text-red-600 hover:bg-red-50 hover:text-red-700 transition-all duration-200 font-medium text-sm xl:text-base"
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-red-600 hover:bg-red-50 hover:text-red-700 transition-all duration-200 font-medium text-sm whitespace-nowrap"
               >
                 <LogOut size={20} />
-                <span className="hidden xl:inline">Logout</span>
+                <span>Logout</span>
               </button>
             </div>
           </nav>

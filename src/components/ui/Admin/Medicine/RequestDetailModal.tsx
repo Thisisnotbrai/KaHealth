@@ -105,12 +105,12 @@ export default function RequestDetailModal({ open, setOpen, request }: any) {
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="flex items-start gap-3">
-                <div className="p-2 bg-emerald-50 rounded-lg">
-                  <User size={16} className="text-emerald-600" />
+                <div className="p-2 bg-purple-50 rounded-lg">
+                  <Phone size={16} className="text-purple-600" />
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500 uppercase tracking-wide">Name</p>
-                  <p className="text-sm font-semibold text-gray-900">{request.requester_name}</p>
+                  <p className="text-xs text-gray-500 uppercase tracking-wide">Contact</p>
+                  <p className="text-sm font-semibold text-gray-900">{request.contact}</p>
                 </div>
               </div>
               

@@ -11,6 +11,7 @@ import Information from "./components/ui/Information";
 import ArchivePage from "./components/ui/Admin/ArchivePage";
 import MedicineInventory from "./components/ui/Admin/Medicine/MedicineInventory";
 import AdminMedicineRequests from "./components/ui/Admin/Medicine/AdminMedicineRequests";
+import Analytics from "./components/ui/Admin/Analytics";
 import { ThemeProvider } from "./components/ui/Darkmode/theme-provider";
 import { useEffect, useState, type JSX } from "react";
 import { Toaster } from "sonner";
@@ -135,6 +136,15 @@ function App() {
             element={
               <ProtectedRoute>
                 <AdminMedicineRequests />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/admin/analytics"
+            element={
+              <ProtectedRoute>
+                <Analytics />
               </ProtectedRoute>
             }
           />

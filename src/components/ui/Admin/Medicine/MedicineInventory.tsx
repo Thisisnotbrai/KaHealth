@@ -41,6 +41,8 @@ function AdminNavbar() {
     { to: "/admin/feedback", label: "User Feedback", icon: <MessageSquare size={20} /> },
     { to: "/admin/events", label: "Events", icon: <Clock size={20} /> },
     { to: "/admin/archive", label: "Archives", icon: <Archive size={20} /> },
+    { to: "/admin/medicine-inventory", label: "Medicine Inventory", icon: <Shield size={20} /> },
+    { to: "/admin/medicine-requests", label: "Medicine Requests", icon: <Heart size={20} /> },
   ];
 
   return (

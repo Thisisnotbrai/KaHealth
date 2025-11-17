@@ -64,63 +64,56 @@ const LandingPage = () => {
         </section>
 
         {/* Request Medicine Section */}
-        <section className="space-y-3 sm:space-y-4 lg:space-y-6" role="region" aria-labelledby="request-medicine-heading">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 px-2">
-            <div className="flex items-center gap-2 sm:gap-3">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-teal-500 to-cyan-600 rounded-xl flex items-center justify-center shadow-lg group hover:scale-110 transition-transform duration-300 transform-gpu" role="img" aria-label="Medicine icon">
-                <div className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 bg-white/90 rounded-md flex items-center justify-center">
-                  <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-teal-600 rounded-full"></div>
-                </div>
-              </div>
-              <div>
-                <h2 id="request-medicine-heading" className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold text-gray-900 dark:text-white leading-tight">
-                  Request Medicine
-                </h2>
-                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1 hidden sm:block">
-                  Submit a request for available medicines from our health center
-                </p>
-              </div>
-            </div>
-            <div className="hidden lg:flex flex-1 h-0.5 bg-gradient-to-r from-teal-500/50 via-cyan-300/30 to-transparent rounded-full ml-4" aria-hidden="true"></div>
-          </div>
-          <div className="bg-gradient-to-br from-white/95 to-teal-50/40 dark:from-white/5 dark:to-teal-900/10 p-3 sm:p-4 lg:p-6 xl:p-8 rounded-xl sm:rounded-2xl shadow-lg border border-white/60 dark:border-teal-500/20 backdrop-blur-sm hover:shadow-xl transition-all duration-300">
-            <Button
-              onClick={() => setShowMedicineForm(true)}
-              className="px-6 py-3 bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
-            >
-              Request Medicine
-            </Button>
-          </div>
-       
+<section className="space-y-3 sm:space-y-4 lg:space-y-6" role="region" aria-labelledby="request-medicine-heading">
+  <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 px-2">
+    <div className="flex items-center gap-2 sm:gap-3">
+      <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-teal-500 to-cyan-600 rounded-xl flex items-center justify-center shadow-lg group hover:scale-110 transition-transform duration-300 transform-gpu" role="img" aria-label="Medicine icon">
+        <div className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 bg-white/90 rounded-md flex items-center justify-center">
+          <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-teal-600 rounded-full"></div>
+        </div>
+      </div>
+      <div>
+        <h2 id="request-medicine-heading" className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold text-gray-900 dark:text-white leading-tight">
+          Request Medicine
+        </h2>
+        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1 hidden sm:block">
+          Submit a request for available medicines from our health center
+        </p>
+      </div>
+    </div>
+    <div className="hidden lg:flex flex-1 h-0.5 bg-gradient-to-r from-teal-500/50 via-cyan-300/30 to-transparent rounded-full ml-4" aria-hidden="true"></div>
+  </div>
+  
+  {/* Card with background image and centered button */}
+  <div 
+    className="relative bg-gradient-to-br from-white/95 to-teal-50/40 dark:from-white/5 dark:to-teal-900/10 p-12 sm:p-16 lg:p-20 xl:p-24 rounded-xl sm:rounded-2xl shadow-lg border border-white/60 dark:border-teal-500/20 backdrop-blur-sm hover:shadow-xl transition-all duration-300 overflow-hidden min-h-[280px] sm:min-h-[350px] lg:min-h-[400px] flex items-center justify-center"
+  >
+    {/* Background Image with Blur */}
+    <div 
+      className="absolute inset-0 bg-cover bg-center"
+      style={{
+        backgroundImage: `url('carousel/kalalake.jpg')`, // Replace with your actual image filename
+        filter: 'blur(.0px)',
+        transform: 'scale(1.05)'
+      }}
+      aria-hidden="true"
+    ></div>
+    
+    {/* Overlay for better contrast */}
+    <div className="absolute inset-0 bg-white/30 dark:bg-gray-900/30 backdrop-blur-sm"></div>
+    
+    {/* Centered Button */}
+    <Button
+      onClick={() => setShowMedicineForm(true)}
+      className="relative z-10 px-8 py-4 bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+    >
+      Request Medicine
+    </Button>
+  </div>
 
-      {/* Medicine Request Form Dialog */}
-      <RequestMedicineForm open={showMedicineForm} setOpen={setShowMedicineForm} />
-    </section>
-
-        {/* Enhanced Events Section */}
-        <section id="events" className="space-y-3 sm:space-y-4 lg:space-y-6" role="region" aria-labelledby="events-heading">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 px-2">
-            <div className="flex items-center gap-2 sm:gap-3">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center shadow-lg group hover:scale-110 transition-transform duration-300" role="img" aria-label="Events icon">
-                <div className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 bg-white/90 rounded-md flex items-center justify-center">
-                  <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-purple-600 rounded-sm"></div>
-                </div>
-              </div>
-              <div>
-                <h2 id="events-heading" className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold text-gray-900 dark:text-white leading-tight">
-                  Community Health Events
-                </h2>
-                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1 hidden sm:block">
-                  Stay updated with barangay health programs and activities
-                </p>
-              </div>
-            </div>
-            <div className="hidden lg:flex flex-1 h-0.5 bg-gradient-to-r from-purple-500/50 via-purple-300/30 to-transparent rounded-full ml-4" aria-hidden="true"></div>
-          </div>
-          <div className="bg-gradient-to-br from-white/95 to-purple-50/40 dark:from-white/5 dark:to-purple-900/10 p-3 sm:p-4 lg:p-6 xl:p-8 rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl border border-white/60 dark:border-purple-500/20 backdrop-blur-sm transition-all duration-300">
-            <PublicEvents />
-          </div>
-        </section>
+  {/* Medicine Request Form Dialog */}
+  <RequestMedicineForm open={showMedicineForm} setOpen={setShowMedicineForm} />
+</section>
 
         {/* Enhanced Announcements Section */}
         <section id="announcements" className="space-y-3 sm:space-y-4 lg:space-y-6" role="region" aria-labelledby="announcements-heading">
@@ -151,6 +144,7 @@ const LandingPage = () => {
             </div>
           </div>
         </section>
+
 
         {/* Enhanced Latest News Section */}
         <section id="latest-news" className="space-y-3 sm:space-y-4 lg:space-y-6" role="region" aria-labelledby="latest-news-heading">
@@ -184,6 +178,31 @@ const LandingPage = () => {
                 <News />
               </div>
             </div>
+          </div>
+        </section>
+
+        {/* Enhanced Events Section */}
+        <section id="events" className="space-y-3 sm:space-y-4 lg:space-y-6" role="region" aria-labelledby="events-heading">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 px-2">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center shadow-lg group hover:scale-110 transition-transform duration-300" role="img" aria-label="Events icon">
+                <div className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 bg-white/90 rounded-md flex items-center justify-center">
+                  <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-purple-600 rounded-sm"></div>
+                </div>
+              </div>
+              <div>
+                <h2 id="events-heading" className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold text-gray-900 dark:text-white leading-tight">
+                  Community Health Events
+                </h2>
+                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1 hidden sm:block">
+                  Stay updated with barangay health programs and activities
+                </p>
+              </div>
+            </div>
+            <div className="hidden lg:flex flex-1 h-0.5 bg-gradient-to-r from-purple-500/50 via-purple-300/30 to-transparent rounded-full ml-4" aria-hidden="true"></div>
+          </div>
+          <div className="bg-gradient-to-br from-white/95 to-purple-50/40 dark:from-white/5 dark:to-purple-900/10 p-3 sm:p-4 lg:p-6 xl:p-8 rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl border border-white/60 dark:border-purple-500/20 backdrop-blur-sm transition-all duration-300">
+            <PublicEvents />
           </div>
         </section>
 
