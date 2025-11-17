@@ -346,7 +346,7 @@ export default function AdminMedicineRequests() {
   };
 
   const handleReject = async (req: RequestRow) => {
-    const reason = prompt("Enter reason for rejection (optional):") || null;
+    const reason = prompt("Enter reason for Declination (optional):") || null;
 
     const { error } = await supabase
       .from("medicine_requests")
@@ -355,7 +355,7 @@ export default function AdminMedicineRequests() {
 
     if (error) {
       console.error(error);
-      toast.error("Failed to reject request.");
+      toast.error("Failed to Decline request.");
       return;
     }
 
@@ -601,7 +601,7 @@ export default function AdminMedicineRequests() {
                               className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-semibold shadow-md hover:shadow-lg transition-all" 
                               onClick={() => handleReject(r)}
                             >
-                              Reject
+                              Decline
                             </Button>
                           </>
                         )}
