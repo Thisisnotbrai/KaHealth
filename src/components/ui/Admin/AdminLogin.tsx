@@ -99,7 +99,7 @@ const AdminLogin = () => {
               </label>
               <Input
                 type="email"
-                placeholder="admin@kahealth.com"
+                placeholder="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
