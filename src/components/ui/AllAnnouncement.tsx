@@ -4,6 +4,9 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/supabase-client";
 import { format } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/Navbar/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 
 interface AnnouncementData {
   id: number;
@@ -33,7 +36,7 @@ export default function AllAnnouncement() {
       .from("announcements")
       .select("*", { count: "exact", head: true });
 
-    if (count) setTotal(count);
+    if (typeof count === "number") setTotal(count);
 
     const from = (page - 1) * pageSize;
     const to = from + pageSize - 1;
@@ -52,130 +55,153 @@ export default function AllAnnouncement() {
 
   return (
     <PageLayout>
-      <div className="flex flex-col min-h-[calc(100vh-4rem)] bg-gradient-to-br from-blue-50 via-white to-green-50">
-        {/* Main content */}
-        <div className="flex-grow px-4 sm:px-6 lg:px-8 py-6">
-          {/* Header section with improved health styling */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-green-500 rounded-xl flex items-center justify-center shadow-lg">
-                <span className="text-2xl">🏥</span>
+      <div className="min-h-[calc(100vh-4rem)] bg-gradient-to-br from-emerald-50 via-white to-teal-50">
+        <div className="mx-auto flex max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+          <div className="overflow-hidden rounded-[2rem] border border-emerald-100 bg-white/90 shadow-[0_25px_80px_-35px_rgba(15,118,110,0.35)] backdrop-blur-xl">
+            <div className="flex flex-col gap-6 p-6 sm:p-8 lg:flex-row lg:items-end lg:justify-between lg:p-10">
+              <div className="flex items-start gap-4">
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-500 shadow-lg">
+                  <span className="text-2xl text-white" aria-hidden="true">🏥</span>
+                </div>
+                <div className="space-y-3">
+                  <Badge className="w-fit border-emerald-200 bg-emerald-50 text-emerald-700 shadow-sm">
+                    Health advisories
+                  </Badge>
+                  <div>
+                    <h1 className="text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
+                      Health Advisories & Announcements
+                    </h1>
+                    <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600 sm:text-base">
+                      Stay informed with the latest health updates, announcements, and community notices in a clean, easy-to-read layout.
+                    </p>
+                  </div>
+                </div>
               </div>
-              <div>
-                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-800 leading-tight">
-                  Health Advisories & Announcements
-                </h1>
-                <p className="text-sm sm:text-base text-gray-600 mt-1">
-                  Stay informed with the latest health updates
+
+              <Button
+                type="button"
+                onClick={() => navigate("/")}
+                variant="outline"
+                className="h-11 rounded-full border-emerald-200 bg-white/90 px-5 text-emerald-700 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-emerald-300 hover:bg-emerald-50"
+              >
+                Back to home
+              </Button>
+            </div>
+
+            <div className="border-t border-emerald-100 bg-gradient-to-r from-emerald-50/70 to-teal-50/70 px-6 py-4 sm:px-8">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex flex-wrap items-center gap-2">
+                  <Badge className="border-slate-200 bg-white text-slate-700 shadow-sm">
+                    {total} total announcements
+                  </Badge>
+                  <Badge className="border-teal-200 bg-teal-50 text-teal-700 shadow-sm">
+                    Page {page} of {totalPages}
+                  </Badge>
+                </div>
+                <p className="text-sm text-slate-600">
+                  Updated in real time as new advisories are published.
                 </p>
               </div>
             </div>
-            <button
-              onClick={() => navigate("/")}
-              className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-blue-600 to-green-600 text-white rounded-xl hover:from-blue-700 hover:to-green-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 font-medium"
-            >
-              🏠 Back to Home
-            </button>
           </div>
 
-          {/* Enhanced content area */}
-          <div className="bg-white/80 backdrop-blur-sm p-4 sm:p-6 lg:p-8 rounded-2xl shadow-xl border border-white/20">
-            {/* Statistics bar */}
-            <div className="mb-6 p-4 bg-gradient-to-r from-blue-100 to-green-100 rounded-xl border-l-4 border-blue-500">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-                <p className="text-sm font-medium text-gray-700">
-                  📊 Total Announcements: <span className="font-bold text-blue-600">{total}</span>
-                </p>
-                <p className="text-sm text-gray-600">
-                  Page {page} of {totalPages}
-                </p>
-              </div>
-            </div>
-
+          <div className="rounded-[2rem] border border-slate-200/80 bg-white/90 p-4 shadow-[0_20px_60px_-35px_rgba(15,23,42,0.35)] backdrop-blur-xl sm:p-6 lg:p-8">
             {/* Responsive grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4 sm:gap-6">
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
               {loading
                 ? [...Array(6)].map((_, i) => (
                     <div
                       key={i}
-                      className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-lg"
+                      className="overflow-hidden rounded-[1.5rem] border border-slate-200/80 bg-white shadow-sm"
                     >
-                      <Skeleton className="w-full h-44 sm:h-48" />
-                      <div className="p-4 sm:p-5 space-y-3">
-                        <Skeleton className="h-5 w-full" />
-                        <Skeleton className="h-4 w-4/5" />
-                        <Skeleton className="h-3 w-1/2" />
+                      <Skeleton className="h-48 w-full" />
+                      <div className="space-y-3 p-5">
+                        <Skeleton className="h-4 w-24" />
+                        <Skeleton className="h-5 w-4/5" />
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-4 w-3/4" />
                       </div>
                     </div>
                   ))
                 : announcements.map((announcement) => (
-                    <div
+                    <button
+                      type="button"
                       key={announcement.id}
                       onClick={() =>
                         navigate(`/announcement/${announcement.id}`)
                       }
-                      className="group cursor-pointer bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1"
+                      className="group text-left"
                     >
-                      <div className="relative overflow-hidden">
-                        {announcement.image_url ? (
-                          <img
-                            src={announcement.image_url}
-                            alt={announcement.title}
-                            className="w-full h-44 sm:h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                          />
-                        ) : (
-                          <div className="flex items-center justify-center h-44 sm:h-48 bg-gradient-to-br from-blue-100 to-green-100">
-                            <div className="text-center">
-                              <div className="text-4xl mb-2">🏥</div>
-                              <p className="text-sm text-gray-500 font-medium">Health Advisory</p>
+                      <Card className="h-full overflow-hidden rounded-[1.5rem] border-slate-200/80 bg-white shadow-sm transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-xl group-focus-visible:-translate-y-1 group-focus-visible:shadow-xl group-focus-visible:outline-none group-focus-visible:ring-2 group-focus-visible:ring-emerald-500/30">
+                        <div className="relative aspect-[4/3] overflow-hidden bg-slate-100">
+                          {announcement.image_url ? (
+                            <img
+                              src={announcement.image_url}
+                              alt={announcement.title}
+                              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                            />
+                          ) : (
+                            <div className="flex h-full flex-col items-center justify-center bg-gradient-to-br from-emerald-50 via-white to-teal-50 text-slate-500 transition-colors duration-300 group-hover:from-emerald-100 group-hover:to-teal-100">
+                              <div className="mb-2 text-4xl" aria-hidden="true">🏥</div>
+                              <p className="text-sm font-medium">Health advisory</p>
                             </div>
-                          </div>
-                        )}
-                        <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full">
-                          <span className="text-xs font-medium text-gray-600">
+                          )}
+
+                          <div className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-xs font-medium text-slate-600 shadow-sm backdrop-blur-sm">
                             {format(new Date(announcement.created_at), "MMM d")}
-                          </span>
+                          </div>
+
+                          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/20 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                         </div>
-                      </div>
-                      
-                      <div className="p-4 sm:p-5">
-                        <h3 className="text-base sm:text-lg font-bold text-gray-800 leading-snug line-clamp-2 mb-2 group-hover:text-blue-600 transition-colors">
-                          {announcement.title}
-                        </h3>
-                        <p className="text-sm text-gray-600 line-clamp-3 mb-3 leading-relaxed">
-                          {announcement.content}
-                        </p>
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2 text-xs text-gray-500">
-                            <span>📅</span>
-                            <span className="font-medium">
+
+                        <CardContent className="space-y-4 p-5">
+                          <div className="space-y-2">
+                            <Badge className="w-fit border-emerald-200 bg-emerald-50 text-emerald-700 shadow-sm">
+                              Health advisory
+                            </Badge>
+                            <h3 className="line-clamp-2 text-lg font-semibold leading-snug tracking-tight text-slate-900 transition-colors duration-200 group-hover:text-emerald-700">
+                              {announcement.title}
+                            </h3>
+                          </div>
+
+                          <p className="line-clamp-3 text-sm leading-6 text-slate-600">
+                            {announcement.content}
+                          </p>
+                        </CardContent>
+
+                        <CardFooter className="flex items-center justify-between gap-3 border-t border-slate-100 px-5 py-4">
+                          <div className="flex items-center gap-2 text-xs font-medium text-slate-500">
+                            <span className="h-2 w-2 rounded-full bg-emerald-400" aria-hidden="true" />
+                            <span>
                               {format(
                                 new Date(announcement.created_at),
                                 "MMMM d, yyyy"
                               )}
                             </span>
                           </div>
-                          <div className="text-blue-500 group-hover:translate-x-1 transition-transform">
-                            <span className="text-sm">→</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                          <span className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">
+                            Open
+                          </span>
+                        </CardFooter>
+                      </Card>
+                    </button>
                   ))}
             </div>
 
             {/* Enhanced pagination */}
             {!loading && totalPages > 1 && (
-              <div className="mt-8 pt-6 border-t border-gray-200">
-                <div className="flex justify-center items-center gap-2 flex-wrap">
-                  <button
+              <div className="mt-8 border-t border-slate-200 pt-6">
+                <div className="flex flex-wrap items-center justify-center gap-2">
+                  <Button
+                    type="button"
                     disabled={page === 1}
                     onClick={() => setPage((p) => p - 1)}
-                    className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 shadow-sm"
+                    variant="outline"
+                    className="h-10 rounded-full border-slate-200 bg-white px-4 text-slate-700 shadow-sm hover:border-emerald-200 hover:bg-emerald-50"
                   >
-                    <span className="hidden sm:inline">← Previous</span>
-                    <span className="sm:hidden">←</span>
-                  </button>
+                    <span className="hidden sm:inline">Previous</span>
+                    <span className="sm:hidden">Prev</span>
+                  </Button>
 
                   <div className="flex items-center gap-1 mx-2">
                     {Array.from({ length: totalPages }, (_, i) => i + 1)
@@ -190,14 +216,14 @@ export default function AllAnnouncement() {
                       .map((num, idx, arr) => (
                         <div key={num} className="flex items-center">
                           {idx > 0 && arr[idx - 1] !== num - 1 && (
-                            <span className="px-2 text-gray-400">...</span>
+                            <span className="px-2 text-slate-400">...</span>
                           )}
                           <button
                             onClick={() => setPage(num)}
                             className={`w-10 h-10 rounded-lg font-medium transition-all duration-200 ${
                               num === page
-                                ? "bg-gradient-to-r from-blue-500 to-green-500 text-white shadow-lg"
-                                : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 shadow-sm"
+                                ? "bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-lg shadow-emerald-500/20"
+                                : "border border-slate-200 bg-white text-slate-700 shadow-sm hover:border-emerald-200 hover:bg-emerald-50"
                             }`}
                           >
                             {num}
@@ -206,19 +232,21 @@ export default function AllAnnouncement() {
                       ))}
                   </div>
 
-                  <button
+                  <Button
+                    type="button"
                     disabled={page === totalPages}
                     onClick={() => setPage((p) => p + 1)}
-                    className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 shadow-sm"
+                    variant="outline"
+                    className="h-10 rounded-full border-slate-200 bg-white px-4 text-slate-700 shadow-sm hover:border-emerald-200 hover:bg-emerald-50"
                   >
-                    <span className="hidden sm:inline">Next →</span>
-                    <span className="sm:hidden">→</span>
-                  </button>
+                    <span className="hidden sm:inline">Next</span>
+                    <span className="sm:hidden">Next</span>
+                  </Button>
                 </div>
                 
                 {/* Mobile page indicator */}
                 <div className="sm:hidden text-center mt-4">
-                  <span className="text-sm text-gray-600">
+                  <span className="text-sm text-slate-600">
                     Page {page} of {totalPages}
                   </span>
                 </div>
@@ -227,12 +255,12 @@ export default function AllAnnouncement() {
 
             {/* Empty state */}
             {!loading && announcements.length === 0 && (
-              <div className="text-center py-16">
-                <div className="text-6xl mb-4">🏥</div>
-                <h3 className="text-xl font-semibold text-gray-800 mb-2">
+              <div className="py-16 text-center">
+                <div className="mb-4 text-6xl" aria-hidden="true">🏥</div>
+                <h3 className="mb-2 text-xl font-semibold text-slate-800">
                   No announcements yet
                 </h3>
-                <p className="text-gray-600">
+                <p className="text-slate-600">
                   Check back later for health updates and advisories.
                 </p>
               </div>
@@ -241,13 +269,13 @@ export default function AllAnnouncement() {
         </div>
 
         {/* Enhanced footer */}
-        <footer className="mt-8 py-6 text-center">
-          <div className="max-w-md mx-auto px-6 py-4 bg-white/60 backdrop-blur-sm rounded-2xl shadow-lg">
-            <p className="text-sm text-gray-600">
+        <footer className="mt-2 py-6 text-center">
+          <div className="mx-auto max-w-md rounded-2xl border border-white/70 bg-white/70 px-6 py-4 shadow-sm backdrop-blur-sm">
+            <p className="text-sm text-slate-600">
               © {new Date().getFullYear()} Health Information System
             </p>
-            <p className="text-xs text-gray-500 mt-1">
-              Keeping you informed and healthy 💙
+            <p className="mt-1 text-xs text-slate-500">
+              Keeping you informed and healthy.
             </p>
           </div>
         </footer>

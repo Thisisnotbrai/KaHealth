@@ -3,14 +3,15 @@
 import { useState, useEffect } from "react";
 import { Navbar5 } from './Navbar/Navbar';
 import Header from './Header';
-import HeroSection from './HeroSection';
 import Announcement from './Announcement'; 
 import FeedbackForm from "./FeedbackForm";
-import PublicEvents from './PublicEvents';
 import News from './News';
 import Footer from './Footer';
 import RequestMedicineForm from "./RequestMedicineForm";
 import { Button } from "./Navbar/button";
+import { Badge } from "./badge";
+import { Card, CardContent } from "./card";
+import { ArrowRight, BellRing, ClipboardList, HeartHandshake, LockKeyhole, MessageSquareText, Newspaper, Pill, ShieldCheck, Sparkles, Users } from "lucide-react";
 
 const LandingPage = () => {
   const [showScrollTop, setShowScrollTop] = useState(false);
@@ -34,377 +35,395 @@ const LandingPage = () => {
     });
   };
 
+  const scrollToSection = (sectionId: string) => {
+    document.getElementById(sectionId)?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  };
+
   return (
-    <div className="bg-gradient-to-br from-emerald-50 via-teal-50/30 to-cyan-50 dark:bg-gradient-to-br dark:from-[#0f2027] dark:via-[#203a43] dark:to-[#2c5364] text-gray-900 dark:text-white min-h-screen transition-all duration-500 ease-in-out overflow-x-hidden">
-      {/* Enhanced Sticky Navbar with Health Theme */}
-      <header className="fixed top-0 left-0 right-0 z-50 shadow-lg backdrop-blur-md bg-white/95 dark:bg-[#162942]/95 transition-all duration-300 border-b border-emerald-200/50 dark:border-teal-500/20">
+    <div className="min-h-screen overflow-x-hidden bg-[radial-gradient(circle_at_top,rgba(16,185,129,0.16),transparent_28%),radial-gradient(circle_at_80%_10%,rgba(45,212,191,0.14),transparent_20%),linear-gradient(180deg,#f8fffd_0%,#eefcf7_100%)] text-slate-900 transition-all duration-500 ease-in-out dark:bg-[radial-gradient(circle_at_top,rgba(16,185,129,0.12),transparent_28%),radial-gradient(circle_at_80%_10%,rgba(45,212,191,0.1),transparent_20%),linear-gradient(180deg,#08141d_0%,#102433_100%)] dark:text-white">
+      <header className="fixed top-0 left-0 right-0 z-50 border-b border-emerald-200/50 bg-white/95 shadow-lg backdrop-blur-md transition-all duration-300 dark:border-teal-500/20 dark:bg-[#162942]/95">
         <Navbar5 />
       </header>
 
-      {/* Enhanced Hero / Header Section with Performance Optimizations */}
-      <div className="relative overflow-hidden will-change-transform pt-16 sm:pt-20">
-        {/* Optimized health-themed background pattern */}
-        <div className="absolute inset-0 opacity-3 dark:opacity-5 pointer-events-none" aria-hidden="true">
-          <div className="absolute top-10 left-10 w-24 h-24 sm:w-32 sm:h-32 bg-emerald-400/30 rounded-full blur-3xl transform-gpu"></div>
-          <div className="absolute top-40 right-10 sm:right-20 w-20 h-20 sm:w-24 sm:h-24 bg-teal-400/30 rounded-full blur-2xl transform-gpu"></div>
-          <div className="absolute bottom-20 left-1/4 sm:left-1/3 w-24 h-24 sm:w-28 sm:h-28 bg-cyan-400/30 rounded-full blur-3xl transform-gpu"></div>
+      <div className="relative overflow-hidden pt-16 sm:pt-20">
+        <div className="pointer-events-none absolute inset-0 opacity-70 dark:opacity-40" aria-hidden="true">
+          <div className="absolute left-8 top-8 h-24 w-24 rounded-full bg-emerald-300/25 blur-3xl" />
+          <div className="absolute right-10 top-32 h-20 w-20 rounded-full bg-teal-300/25 blur-2xl" />
+          <div className="absolute bottom-12 left-1/4 h-28 w-28 rounded-full bg-cyan-300/20 blur-3xl" />
         </div>
         <Header />
       </div>
 
-      <main className="relative space-y-6 sm:space-y-8 lg:space-y-12 xl:space-y-16 px-3 sm:px-4 lg:px-6 xl:px-8 py-4 sm:py-6 lg:py-8" role="main">
-        {/* Enhanced Hero Section with Performance */}
+      <main className="relative mx-auto max-w-7xl space-y-8 px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10 xl:space-y-12" role="main">
         <section
           id="hero"
-          className="rounded-xl sm:rounded-2xl lg:rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.005] bg-gradient-to-r from-white/90 to-emerald-50/80 dark:from-white/5 dark:to-emerald-900/20 backdrop-blur-sm border border-white/60 dark:border-emerald-500/20 will-change-transform"
+          className="overflow-hidden rounded-[2rem] border border-emerald-100 bg-white/85 shadow-[0_25px_80px_-35px_rgba(15,118,110,0.28)] backdrop-blur-xl transition-all duration-300 dark:border-emerald-500/20 dark:bg-white/5"
           role="banner"
           aria-label="Hero section"
         >
-          <HeroSection />
-        </section>
+          <div className="grid gap-8 p-6 sm:p-8 lg:grid-cols-[1.15fr_0.85fr] lg:p-10">
+            <div className="space-y-6">
+              <Badge className="w-fit border-emerald-200 bg-emerald-50 text-emerald-700 shadow-sm dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-200">
+                <Sparkles className="mr-2 h-3.5 w-3.5" />
+                Health portal
+              </Badge>
 
-        {/* Request Medicine Section */}
-<section className="space-y-3 sm:space-y-4 lg:space-y-6" role="region" aria-labelledby="request-medicine-heading">
-  <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 px-2">
-    <div className="flex items-center gap-2 sm:gap-3">
-      <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-teal-500 to-cyan-600 rounded-xl flex items-center justify-center shadow-lg group hover:scale-110 transition-transform duration-300 transform-gpu" role="img" aria-label="Medicine icon">
-        <div className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 bg-white/90 rounded-md flex items-center justify-center">
-          <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-teal-600 rounded-full"></div>
-        </div>
-      </div>
-      <div>
-        <h2 id="request-medicine-heading" className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold text-gray-900 dark:text-white leading-tight">
-          Request Medicine
-        </h2>
-        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1 hidden sm:block">
-          Submit a request for available medicines from our health center
-        </p>
-      </div>
-    </div>
-    <div className="hidden lg:flex flex-1 h-0.5 bg-gradient-to-r from-teal-500/50 via-cyan-300/30 to-transparent rounded-full ml-4" aria-hidden="true"></div>
-  </div>
-  
-  {/* Card with background image and centered button */}
-  <div 
-    className="relative bg-gradient-to-br from-white/95 to-teal-50/40 dark:from-white/5 dark:to-teal-900/10 p-12 sm:p-16 lg:p-20 xl:p-24 rounded-xl sm:rounded-2xl shadow-lg border border-white/60 dark:border-teal-500/20 backdrop-blur-sm hover:shadow-xl transition-all duration-300 overflow-hidden min-h-[280px] sm:min-h-[350px] lg:min-h-[400px] flex items-center justify-center"
-  >
-    {/* Background Image with Blur */}
-    <div 
-      className="absolute inset-0 bg-cover bg-center"
-      style={{
-        backgroundImage: `url('carousel/kalalake.jpg')`, // Replace with your actual image filename
-        filter: 'blur(.0px)',
-        transform: 'scale(1.05)'
-      }}
-      aria-hidden="true"
-    ></div>
-    
-    {/* Overlay for better contrast */}
-    <div className="absolute inset-0 bg-white/30 dark:bg-gray-900/30 backdrop-blur-sm"></div>
-    
-    {/* Centered Button */}
-    <Button
-      onClick={() => setShowMedicineForm(true)}
-      className="relative z-10 px-8 py-4 bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
-    >
-      Request Medicine
-    </Button>
-  </div>
-
-  {/* Medicine Request Form Dialog */}
-  <RequestMedicineForm open={showMedicineForm} setOpen={setShowMedicineForm} />
-</section>
-
-        {/* Enhanced Announcements Section */}
-        <section id="announcements" className="space-y-3 sm:space-y-4 lg:space-y-6" role="region" aria-labelledby="announcements-heading">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 px-2">
-            <div className="flex items-center gap-2 sm:gap-3">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-amber-500 to-orange-500 rounded-xl flex items-center justify-center shadow-lg group hover:scale-110 transition-transform duration-300 transform-gpu" role="img" aria-label="Announcements icon">
-                <div className="relative">
-                  <div className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 bg-white/90 rounded-md flex items-center justify-center">
-                    <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-amber-600 rounded-full"></div>
-                  </div>
-                  <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-                </div>
-              </div>
-              <div>
-                <h2 id="announcements-heading" className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold text-gray-900 dark:text-white leading-tight">
-                  Health Advisories & Announcements
-                </h2>
-                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1 hidden sm:block">
-                  Important health updates and community announcements
+              <div className="space-y-4">
+                <h1 className="max-w-3xl text-4xl font-semibold tracking-tight text-slate-900 sm:text-5xl lg:text-6xl dark:text-white">
+                  KaHealth brings community health updates and support into one place.
+                </h1>
+                <p className="max-w-2xl text-base leading-8 text-slate-600 sm:text-lg dark:text-slate-300">
+                  It is a barangay health portal for residents, caregivers, and local health staff who need trusted advisories, health news, and a simple way to act next.
                 </p>
               </div>
-            </div>
-            <div className="hidden lg:flex flex-1 h-0.5 bg-gradient-to-r from-amber-500/50 via-amber-300/30 to-transparent rounded-full ml-4" aria-hidden="true"></div>
-          </div>
-          <div className="bg-gradient-to-br from-white/95 to-amber-50/60 dark:from-white/5 dark:to-amber-900/10 p-3 sm:p-4 lg:p-6 xl:p-8 rounded-xl sm:rounded-2xl shadow-lg border border-white/60 dark:border-amber-500/20 backdrop-blur-sm hover:shadow-xl transition-all duration-300 will-change-transform">
-            <div className="min-h-[150px] sm:min-h-[200px] flex items-center justify-center">
-              <Announcement />
-            </div>
-          </div>
-        </section>
 
-
-        {/* Enhanced Latest News Section */}
-        <section id="latest-news" className="space-y-3 sm:space-y-4 lg:space-y-6" role="region" aria-labelledby="latest-news-heading">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 px-2">
-            <div className="flex items-center gap-2 sm:gap-3">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg group hover:scale-110 transition-transform duration-300 transform-gpu" role="img" aria-label="News icon">
-                <div className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 bg-white/90 rounded-md flex items-center justify-center">
-                  <div className="space-y-0.5">
-                    <div className="w-3 h-0.5 bg-blue-600 rounded-full"></div>
-                    <div className="w-2 h-0.5 bg-blue-600 rounded-full"></div>
-                    <div className="w-2.5 h-0.5 bg-blue-600 rounded-full"></div>
-                  </div>
-                </div>
-              </div>
-              <div>
-                <h2 id="latest-news-heading" className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold text-gray-900 dark:text-white leading-tight">
-                  Health News & Updates
-                </h2>
-                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1 hidden sm:block">
-                  Latest health information and medical developments
-                </p>
-              </div>
-            </div>
-            <div className="hidden lg:flex flex-1 h-0.5 bg-gradient-to-r from-blue-500/50 via-blue-300/30 to-transparent rounded-full ml-4" aria-hidden="true"></div>
-          </div>
-          <div className="bg-gradient-to-br from-white/95 to-blue-50/60 dark:from-white/5 dark:to-blue-900/10 p-3 sm:p-4 lg:p-6 xl:p-8 rounded-xl sm:rounded-2xl shadow-lg border border-white/60 dark:border-blue-500/20 backdrop-blur-sm hover:shadow-xl transition-all duration-300 will-change-transform">
-            <div className="relative">
-              {/* Optimized news-themed decorative elements */}
-              <div className="absolute top-2 right-2 w-16 h-16 sm:w-20 sm:h-20 bg-blue-500/5 rounded-full blur-2xl transform-gpu pointer-events-none" aria-hidden="true"></div>
-              <div className="min-h-[150px] sm:min-h-[200px] flex items-center justify-center">
-                <News />
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Enhanced Events Section */}
-        <section id="events" className="space-y-3 sm:space-y-4 lg:space-y-6" role="region" aria-labelledby="events-heading">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 px-2">
-            <div className="flex items-center gap-2 sm:gap-3">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center shadow-lg group hover:scale-110 transition-transform duration-300" role="img" aria-label="Events icon">
-                <div className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 bg-white/90 rounded-md flex items-center justify-center">
-                  <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-purple-600 rounded-sm"></div>
-                </div>
-              </div>
-              <div>
-                <h2 id="events-heading" className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold text-gray-900 dark:text-white leading-tight">
-                  Community Health Events
-                </h2>
-                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1 hidden sm:block">
-                  Stay updated with barangay health programs and activities
-                </p>
-              </div>
-            </div>
-            <div className="hidden lg:flex flex-1 h-0.5 bg-gradient-to-r from-purple-500/50 via-purple-300/30 to-transparent rounded-full ml-4" aria-hidden="true"></div>
-          </div>
-          <div className="bg-gradient-to-br from-white/95 to-purple-50/40 dark:from-white/5 dark:to-purple-900/10 p-3 sm:p-4 lg:p-6 xl:p-8 rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl border border-white/60 dark:border-purple-500/20 backdrop-blur-sm transition-all duration-300">
-            <PublicEvents />
-          </div>
-        </section>
-
-        {/* Enhanced Emergency Contact Section with Better Mobile Layout */}
-        <section id="emergency-contact" className="space-y-3 sm:space-y-4 lg:space-y-6" role="region" aria-labelledby="emergency-contact-heading">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 px-2">
-            <div className="flex items-center gap-2 sm:gap-3">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-red-500 to-pink-600 rounded-xl flex items-center justify-center shadow-lg animate-pulse transform-gpu" role="img" aria-label="Emergency icon">
-                <div className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 bg-white/90 rounded-md flex items-center justify-center">
-                  <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-red-600 rounded-full animate-ping"></div>
-                </div>
-              </div>
-              <div>
-                <h2 id="emergency-contact-heading" className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold text-gray-900 dark:text-white leading-tight">
-                  Emergency Health Contacts
-                </h2>
-                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1 hidden sm:block">
-                  Quick access to emergency medical services
-                </p>
-              </div>
-            </div>
-            <div className="hidden lg:flex flex-1 h-0.5 bg-gradient-to-r from-red-500/50 via-red-300/30 to-transparent rounded-full ml-4" aria-hidden="true"></div>
-          </div>
-          <div className="bg-gradient-to-br from-white/95 to-red-50/40 dark:from-white/5 dark:to-red-900/10 p-3 sm:p-4 lg:p-6 xl:p-8 rounded-xl sm:rounded-2xl shadow-lg border border-white/60 dark:border-red-500/20 backdrop-blur-sm">
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-6" role="list">
-              {[
-                { 
-                  service: "Emergency Hotline", 
-                  number: "911", 
-                  icon: "🚑", 
-                  description: "For life-threatening emergencies",
-                  color: "from-red-500 to-red-600"
-                },
-                { 
-                  service: "Barangay New Kalalake Health Office", 
-                  number: "639-5027", 
-                  icon: "🏥", 
-                  description: "Local health services & emergency health assistance",
-                  color: "from-blue-500 to-blue-600"
-                },
-                { 
-                  service: "COVID Helpline", 
-                  number: "1555", 
-                  icon: "😷", 
-                  description: "COVID-19 assistance & information",
-                  color: "from-yellow-500 to-yellow-600"
-                },
-                { 
-                  service: "Mental Health Crisis", 
-                  number: "0917-899-8727", 
-                  icon: "🧠", 
-                  description: "Mental health support & counseling",
-                  color: "from-purple-500 to-purple-600"
-                },
-              ].map((contact, index) => (
-                <article
-                  key={index}
-                  role="listitem"
-                  className="bg-white/90 dark:bg-white/5 p-4 sm:p-5 lg:p-6 rounded-xl sm:rounded-2xl shadow-md border border-gray-200/60 dark:border-gray-600/20 hover:shadow-lg focus-within:shadow-lg focus-within:ring-2 focus-within:ring-red-500/50 transition-all duration-300 text-center group will-change-transform hover:scale-105"
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <Button
+                  type="button"
+                  onClick={() => scrollToSection("announcements")}
+                  className="h-11 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 px-5 text-white shadow-lg shadow-emerald-500/20 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-emerald-500/25"
                 >
-                  <div className={`inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br ${contact.color} rounded-xl mb-3 sm:mb-4 group-hover:scale-110 transition-transform duration-300 transform-gpu shadow-lg`}>
-                    <span className="text-xl sm:text-2xl select-none" role="img" aria-label={`${contact.service} icon`}>
-                      {contact.icon}
-                    </span>
+                  Explore advisories
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => scrollToSection("latest-news")}
+                  className="h-11 rounded-full border-emerald-200 bg-white/90 px-5 text-emerald-700 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-emerald-300 hover:bg-emerald-50 dark:border-emerald-500/20 dark:bg-white/10 dark:text-emerald-200"
+                >
+                  Read health news
+                </Button>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-3">
+                {[
+                  {
+                    icon: Users,
+                    title: "Residents",
+                    description: "Check advisories, updates, and community services.",
+                  },
+                  {
+                    icon: ShieldCheck,
+                    title: "Caregivers",
+                    description: "Stay informed and respond quickly to important notices.",
+                  },
+                  {
+                    icon: ClipboardList,
+                    title: "Health staff",
+                    description: "Share information and manage requests in one flow.",
+                  },
+                ].map((item) => (
+                  <Card key={item.title} className="border-slate-200/80 bg-white/90 shadow-sm dark:border-white/10 dark:bg-white/5">
+                    <CardContent className="flex items-start gap-3 p-4">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-200">
+                        <item.icon className="h-5 w-5" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold text-slate-900 dark:text-white">{item.title}</p>
+                        <p className="mt-1 text-xs leading-5 text-slate-600 dark:text-slate-300">{item.description}</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-[1.75rem] border border-slate-200/80 bg-gradient-to-br from-slate-50 to-emerald-50 p-5 shadow-sm dark:border-white/10 dark:from-white/5 dark:to-emerald-500/10 sm:p-6">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-sm font-medium text-slate-500 dark:text-slate-300">Why use KaHealth</p>
+                  <h2 className="mt-1 text-xl font-semibold text-slate-900 dark:text-white">Trusted support, faster decisions</h2>
+                </div>
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white shadow-sm dark:bg-slate-900/50">
+                  <Pill className="h-5 w-5 text-emerald-600 dark:text-emerald-300" />
+                </div>
+              </div>
+
+              <div className="mt-6 space-y-3">
+                {[
+                  ["Trusted updates", "Announcements and news in a clear layout", "from-emerald-500 to-teal-500"],
+                  ["Simple actions", "Request medicine or explore resources quickly", "from-teal-500 to-cyan-500"],
+                  ["Easy to follow", "Readable text, clear spacing, and guided steps", "from-slate-500 to-slate-700"],
+                ].map(([title, description, tone]) => (
+                  <div key={title} className="flex items-center gap-3 rounded-2xl border border-white/70 bg-white/80 p-4 shadow-sm dark:border-white/10 dark:bg-slate-950/30">
+                    <div className={`h-10 w-10 shrink-0 rounded-xl bg-gradient-to-br ${tone} shadow-sm`} />
+                    <div>
+                      <p className="text-sm font-semibold text-slate-900 dark:text-white">{title}</p>
+                      <p className="text-xs text-slate-600 dark:text-slate-300">{description}</p>
+                    </div>
                   </div>
-                  <h3 className="font-bold text-gray-900 dark:text-white text-sm sm:text-base lg:text-lg mb-2 leading-tight">
-                    {contact.service}
-                  </h3>
-                  <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-3 sm:mb-4 min-h-[2.5rem] sm:min-h-[3rem] flex items-center justify-center leading-relaxed px-2">
-                    {contact.description}
-                  </p>
-                  <a
-                    href={`tel:${contact.number}`}
-                    className={`inline-flex items-center justify-center px-4 py-2 sm:py-3 bg-gradient-to-r ${contact.color} text-white font-bold text-sm sm:text-base lg:text-lg rounded-lg hover:shadow-lg focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-red-500/50 transition-all duration-200 group-hover:scale-105 transform-gpu min-w-[120px] sm:min-w-[140px]`}
-                    aria-label={`Call ${contact.service} at ${contact.number}`}
-                  >
-                    {contact.number}
-                  </a>
-                </article>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section
+          id="auth-promo"
+          className="overflow-hidden rounded-[2rem] border border-emerald-200/80 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 p-[1px] shadow-[0_20px_60px_-35px_rgba(15,118,110,0.5)]"
+          role="region"
+          aria-label="Login and register promotion"
+        >
+          <div className="grid gap-6 rounded-[calc(2rem-1px)] bg-white/95 p-6 backdrop-blur-xl dark:bg-slate-950/80 lg:grid-cols-[1.05fr_0.95fr] lg:p-8">
+            <div className="space-y-4">
+              <Badge className="w-fit border-emerald-200 bg-emerald-50 text-emerald-700 shadow-sm dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-200">
+                <HeartHandshake className="mr-2 h-3.5 w-3.5" />
+                Join KaHealth
+              </Badge>
+              <div className="space-y-3">
+                <h2 className="max-w-2xl text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl dark:text-white">
+                  Register or sign in to get the fastest access to advisories, medicine requests, and community support.
+                </h2>
+                <p className="max-w-2xl text-sm leading-7 text-slate-600 dark:text-slate-300">
+                  Make a free account to save your details, then use the same portal anytime to log in and continue where you left off.
+                </p>
+              </div>
+
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <Button
+                  type="button"
+                  onClick={() => window.location.href = "/login?tab=register"}
+                  className="h-11 rounded-full bg-white px-5 text-emerald-700 shadow-lg shadow-emerald-900/10 transition-all duration-300 hover:-translate-y-0.5 hover:bg-emerald-50"
+                >
+                  Register now
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+                <Button
+                  type="button"
+                  onClick={() => window.location.href = "/login?tab=login"}
+                  className="h-11 rounded-full border border-white/40 bg-white/10 px-5 text-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:bg-white/20"
+                >
+                  <LockKeyhole className="h-4 w-4" />
+                  Sign in
+                </Button>
+              </div>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              {[
+                {
+                  title: "Login for returning users",
+                  description: "Pick up your saved information and continue faster.",
+                },
+                {
+                  title: "Registration for new users",
+                  description: "Create your profile once and use the portal anytime.",
+                },
+                {
+                  title: "Safer support flow",
+                  description: "Keep requests and contact details in one account.",
+                },
+                {
+                  title: "Always accessible",
+                  description: "Open the portal from any device when you need it.",
+                },
+              ].map((item) => (
+                <Card key={item.title} className="border-white/60 bg-white/90 shadow-sm dark:border-white/10 dark:bg-white/5">
+                  <CardContent className="space-y-2 p-4">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-200">
+                      <ShieldCheck className="h-5 w-5" />
+                    </div>
+                    <p className="text-sm font-semibold text-slate-900 dark:text-white">{item.title}</p>
+                    <p className="text-xs leading-5 text-slate-600 dark:text-slate-300">{item.description}</p>
+                  </CardContent>
+                </Card>
               ))}
             </div>
           </div>
         </section>
 
-        {/* Enhanced Health Resources Section with Better Mobile Experience */}
-        <section id="health-resources" className="space-y-3 sm:space-y-4 lg:space-y-6" role="region" aria-labelledby="health-resources-heading">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 px-2">
-            <div className="flex items-center gap-2 sm:gap-3">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg group hover:scale-110 transition-transform duration-300 transform-gpu" role="img" aria-label="Resources icon">
-                <div className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 bg-white/90 rounded-md flex items-center justify-center">
-                  <div className="grid grid-cols-2 gap-0.5">
-                    <div className="w-1 h-1 bg-indigo-600 rounded-full"></div>
-                    <div className="w-1 h-1 bg-purple-600 rounded-full"></div>
-                    <div className="w-1 h-1 bg-purple-600 rounded-full"></div>
-                    <div className="w-1 h-1 bg-indigo-600 rounded-full"></div>
-                  </div>
-                </div>
-              </div>
-              <div>
-                <h2 id="health-resources-heading" className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold text-gray-900 dark:text-white leading-tight">
-                  Health Resources
-                </h2>
-                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1 hidden sm:block">
-                  Essential health information and community resources
-                </p>
-              </div>
+        <section
+          id="announcements"
+          className="space-y-4"
+          role="region"
+          aria-labelledby="announcements-heading"
+        >
+          <div className="flex items-end justify-between gap-4 px-1">
+            <div>
+              <Badge className="w-fit border-emerald-200 bg-emerald-50 text-emerald-700 shadow-sm dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-200">
+                What it does
+              </Badge>
+              <h2 id="announcements-heading" className="mt-3 text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl dark:text-white">
+                Latest advisories and community notices
+              </h2>
+              <p className="mt-2 max-w-2xl text-sm leading-7 text-slate-600 dark:text-slate-300">
+                Find the newest health notices first, with important updates highlighted for quick reading.
+              </p>
             </div>
-            <div className="hidden lg:flex flex-1 h-0.5 bg-gradient-to-r from-indigo-500/50 via-purple-300/30 to-transparent rounded-full ml-4" aria-hidden="true"></div>
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => scrollToSection("latest-news")}
+              className="hidden rounded-full px-4 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800 sm:inline-flex dark:text-emerald-200 dark:hover:bg-white/10"
+            >
+              Next section <ArrowRight className="h-4 w-4" />
+            </Button>
           </div>
-          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4 lg:gap-6" role="list">
+
+          <div className="rounded-[2rem] border border-amber-100 bg-white/90 p-4 shadow-[0_20px_60px_-35px_rgba(15,23,42,0.28)] backdrop-blur-xl sm:p-6 lg:p-8 dark:border-amber-500/20 dark:bg-white/5">
+            <Announcement />
+          </div>
+        </section>
+
+        <section
+          id="latest-news"
+          className="space-y-4"
+          role="region"
+          aria-labelledby="latest-news-heading"
+        >
+          <div className="flex items-end justify-between gap-4 px-1">
+            <div>
+              <Badge className="w-fit border-blue-200 bg-blue-50 text-blue-700 shadow-sm dark:border-blue-500/20 dark:bg-blue-500/10 dark:text-blue-200">
+                Local stories
+              </Badge>
+              <h2 id="latest-news-heading" className="mt-3 text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl dark:text-white">
+                Health news & updates
+              </h2>
+              <p className="mt-2 max-w-2xl text-sm leading-7 text-slate-600 dark:text-slate-300">
+                Read public health stories and updates that help people make informed choices.
+              </p>
+            </div>
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => scrollToSection("health-resources")}
+              className="hidden rounded-full px-4 text-blue-700 hover:bg-blue-50 hover:text-blue-800 sm:inline-flex dark:text-blue-200 dark:hover:bg-white/10"
+            >
+              Resources <ArrowRight className="h-4 w-4" />
+            </Button>
+          </div>
+
+          <div className="rounded-[2rem] border border-blue-100 bg-white/90 p-4 shadow-[0_20px_60px_-35px_rgba(37,99,235,0.24)] backdrop-blur-xl sm:p-6 lg:p-8 dark:border-blue-500/20 dark:bg-white/5">
+            <News />
+          </div>
+        </section>
+
+        <section
+          id="health-resources"
+          className="space-y-5"
+          role="region"
+          aria-labelledby="health-resources-heading"
+        >
+          <div className="px-1">
+            <Badge className="w-fit border-indigo-200 bg-indigo-50 text-indigo-700 shadow-sm dark:border-indigo-500/20 dark:bg-indigo-500/10 dark:text-indigo-200">
+              Next steps
+            </Badge>
+            <h2 id="health-resources-heading" className="mt-3 text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl dark:text-white">
+              What should you do next?
+            </h2>
+            <p className="mt-2 max-w-2xl text-sm leading-7 text-slate-600 dark:text-slate-300">
+              Choose a path below depending on whether you want updates, support, or a way to contact the team.
+            </p>
+          </div>
+
+          <div className="grid gap-4 lg:grid-cols-3">
             {[
               {
-                title: "Barangay Information",
-                description: "Official Barangay information and resources for our community's health and wellness programs",
-                icon: "📋",
-                color: "from-blue-500 to-cyan-600",
-                link: "/information"
+                title: "Read advisories",
+                description: "Open the latest announcements and important health notices.",
+                icon: BellRing,
+                tone: "from-blue-500 to-cyan-600",
+                buttonLabel: "View advisories",
+                action: () => scrollToSection("announcements"),
               },
               {
-                title: "Health Facilities",
-                description: "Find nearby hospitals, clinics, and healthcare facilities in your area with contact information",
-                icon: "🏥",
-                color: "from-purple-500 to-indigo-600",
-                link: "#facilities"
+                title: "Request medicine",
+                description: "Open the medicine request form and submit details when needed.",
+                icon: Newspaper,
+                tone: "from-emerald-500 to-teal-600",
+                buttonLabel: "Open form",
+                action: () => setShowMedicineForm(true),
               },
               {
-                title: "Request Medicine",
-                description: "Submit a request for medicine from our barangay health center with your prescription",
-                icon: "💊",
-                color: "from-teal-500 to-cyan-600",
-                link: "#",
-                onClick: () => setShowMedicineForm(true)
-              }
-            ].map((resource, index) => (
-              <article
-                key={index}
-                role="listitem"
-                className="bg-gradient-to-br from-white/95 to-gray-50/60 dark:from-white/5 dark:to-gray-800/20 p-4 sm:p-5 lg:p-6 xl:p-8 rounded-xl sm:rounded-2xl shadow-lg border border-white/60 dark:border-gray-600/20 backdrop-blur-sm hover:shadow-xl transition-all duration-300 transform hover:scale-105 group will-change-transform"
-              >
-                <div className="flex flex-col sm:flex-row items-start gap-4">
-                  <div className={`w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 bg-gradient-to-br ${resource.color} rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300 transform-gpu flex-shrink-0 mx-auto sm:mx-0`}>
-                    <span className="text-2xl sm:text-3xl lg:text-4xl select-none" aria-hidden="true">{resource.icon}</span>
+                title: "Send feedback",
+                description: "Share suggestions or questions so the service can improve.",
+                icon: MessageSquareText,
+                tone: "from-violet-500 to-fuchsia-600",
+                buttonLabel: "Leave feedback",
+                action: () => scrollToSection("feedback"),
+              },
+            ].map((resource) => (
+              <Card key={resource.title} className="overflow-hidden rounded-[1.75rem] border-slate-200/80 bg-white/90 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-white/10 dark:bg-white/5">
+                <CardContent className="space-y-5 p-5 sm:p-6">
+                  <div className={`h-1.5 w-20 rounded-full bg-gradient-to-r ${resource.tone}`} />
+                  <div className="flex items-start gap-4">
+                    <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br ${resource.tone} text-white shadow-lg`}>
+                      <resource.icon className="h-5 w-5" />
+                    </div>
+                    <div className="min-w-0">
+                      <h3 className="text-lg font-semibold tracking-tight text-slate-900 dark:text-white">
+                        {resource.title}
+                      </h3>
+                      <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
+                        {resource.description}
+                      </p>
+                    </div>
                   </div>
-                  <div className="flex-1 min-w-0 text-center sm:text-left">
-                    <h3 className="font-bold text-gray-900 dark:text-white text-lg sm:text-xl lg:text-2xl mb-2 sm:mb-3">
-                      {resource.title}
-                    </h3>
-                    <p className="text-gray-600 dark:text-gray-300 text-sm sm:text-base leading-relaxed mb-4 sm:mb-6">
-                      {resource.description}
-                    </p>
-                    <a
-                      href={resource.link}
-                      onClick={(e) => {
-                        if (resource.onClick) {
-                          e.preventDefault();
-                          resource.onClick();
-                        }
-                      }}
-                      className={`inline-flex items-center justify-center px-4 py-2 sm:px-6 sm:py-3 bg-gradient-to-r ${resource.color} text-white font-semibold text-sm sm:text-base rounded-lg hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all duration-200 group-hover:scale-105 transform-gpu min-w-[120px]`}
-                      aria-label={`Learn more about ${resource.title}`}
-                    >
-                      Learn More →
-                    </a>
-                  </div>
-                </div>
-              </article>
+
+                  <Button
+                    type="button"
+                    onClick={resource.action}
+                    className={`h-11 w-full rounded-full bg-gradient-to-r ${resource.tone} text-white shadow-lg shadow-black/10 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl`}
+                  >
+                    {resource.buttonLabel}
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </CardContent>
+              </Card>
             ))}
           </div>
         </section>
 
-        {/* Enhanced Feedback Section */}
-        <section id="feedback" className="space-y-3 sm:space-y-4 lg:space-y-6" role="region" aria-labelledby="feedback-heading">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 px-2">
-            <div className="flex items-center gap-2 sm:gap-3">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg group hover:scale-110 transition-transform duration-300" role="img" aria-label="Feedback icon">
-                <div className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 bg-white/90 rounded-md flex items-center justify-center">
-                  <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-green-600 rounded-full animate-pulse"></div>
-                </div>
+        <section
+          id="feedback"
+          className="grid gap-5 lg:grid-cols-[0.9fr_1.1fr]"
+          role="region"
+          aria-labelledby="feedback-heading"
+        >
+          <Card className="rounded-[2rem] border-emerald-100 bg-white/90 shadow-[0_20px_60px_-35px_rgba(15,118,110,0.24)] dark:border-white/10 dark:bg-white/5">
+            <CardContent className="space-y-4 p-6 sm:p-8">
+              <Badge className="w-fit border-green-200 bg-green-50 text-green-700 shadow-sm dark:border-green-500/20 dark:bg-green-500/10 dark:text-green-200">
+                Contact and feedback
+              </Badge>
+              <h2 id="feedback-heading" className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">
+                Questions, suggestions, or concerns?
+              </h2>
+              <p className="text-sm leading-7 text-slate-600 dark:text-slate-300">
+                Use this form to tell the team what you need, what is missing, or what should be easier to use.
+              </p>
+              <div className="space-y-3 pt-2 text-sm text-slate-600 dark:text-slate-300">
+                {[
+                  "A clearer next step",
+                  "A missed announcement",
+                  "A feature request",
+                ].map((item) => (
+                  <div key={item} className="flex items-center gap-3 rounded-2xl border border-slate-200/80 bg-slate-50 px-4 py-3 dark:border-white/10 dark:bg-white/5">
+                    <MessageSquareText className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-300" />
+                    <span>{item}</span>
+                  </div>
+                ))}
               </div>
-              <div>
-                <h2 id="feedback-heading" className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold text-gray-900 dark:text-white leading-tight">
-                  Community Feedback
-                </h2>
-                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1 hidden sm:block">
-                  Share your thoughts and help improve our health services
-                </p>
-              </div>
-            </div>
-            <div className="hidden lg:flex flex-1 h-0.5 bg-gradient-to-r from-green-500/50 via-emerald-300/30 to-transparent rounded-full ml-4" aria-hidden="true"></div>
-          </div>
-          <div className="bg-gradient-to-br from-white/95 to-green-50/40 dark:from-white/5 dark:to-green-900/10 p-3 sm:p-4 lg:p-6 xl:p-8 rounded-xl sm:rounded-2xl shadow-lg border border-white/60 dark:border-green-500/20 backdrop-blur-sm hover:shadow-xl transition-all duration-300">
+            </CardContent>
+          </Card>
+
+          <div className="rounded-[2rem] border border-slate-200/80 bg-white/90 p-4 shadow-[0_20px_60px_-35px_rgba(15,23,42,0.24)] backdrop-blur-xl dark:border-white/10 dark:bg-white/5 sm:p-6">
             <FeedbackForm />
           </div>
         </section>
       </main>
 
-      {/* Enhanced Footer with better performance */}
-      <footer className="mt-8 sm:mt-12 lg:mt-16 xl:mt-20 border-t border-emerald-200/50 dark:border-teal-500/20 bg-gradient-to-r from-white/60 to-emerald-50/40 dark:from-gray-900/60 dark:to-emerald-900/10 backdrop-blur-sm will-change-transform" role="contentinfo">
+      <footer className="border-t border-emerald-200/50 bg-gradient-to-r from-white/70 to-emerald-50/40 backdrop-blur-sm will-change-transform dark:border-teal-500/20 dark:from-gray-900/60 dark:to-emerald-900/10" role="contentinfo">
         <Footer />
       </footer>
 
-      {/* Enhanced Scroll to Top Button */}
+      {showMedicineForm && (
+        <RequestMedicineForm open={showMedicineForm} setOpen={setShowMedicineForm} />
+      )}
+
       {showScrollTop && (
         <button
           onClick={scrollToTop}

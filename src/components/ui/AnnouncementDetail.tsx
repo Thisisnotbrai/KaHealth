@@ -3,6 +3,9 @@ import { useParams, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/supabase-client";
 import { format } from "date-fns";
+import { Button } from "@/components/ui/Navbar/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
 
 export default function AnnouncementDetail() {
   const { id } = useParams();
@@ -38,14 +41,14 @@ export default function AnnouncementDetail() {
   if (loading) {
     return (
       <PageLayout>
-        <div className="min-h-[calc(100vh-4rem)] bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center">
+        <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center bg-gradient-to-br from-emerald-50 via-white to-teal-50 px-4">
           <div className="text-center">
-            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-green-500 rounded-2xl flex items-center justify-center mb-4 animate-pulse mx-auto">
-              <span className="text-2xl">🏥</span>
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-500 shadow-lg animate-pulse">
+              <span className="text-2xl" aria-hidden="true">🏥</span>
             </div>
-            <p className="text-lg font-medium text-gray-700">Loading health advisory...</p>
+            <p className="text-lg font-medium text-slate-700">Loading health advisory...</p>
             <div className="mt-4 flex justify-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+              <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-emerald-500" />
             </div>
           </div>
         </div>
@@ -56,18 +59,20 @@ export default function AnnouncementDetail() {
   if (error || !announcement) {
     return (
       <PageLayout>
-        <div className="min-h-[calc(100vh-4rem)] bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center">
-          <div className="text-center max-w-md mx-auto px-6">
-            <div className="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center mb-4 mx-auto">
-              <span className="text-2xl">❌</span>
+        <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center bg-gradient-to-br from-emerald-50 via-white to-teal-50 px-4">
+          <div className="mx-auto max-w-md rounded-[2rem] border border-slate-200/80 bg-white/90 px-6 py-8 text-center shadow-[0_25px_80px_-35px_rgba(15,23,42,0.35)] backdrop-blur-xl">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-red-100">
+              <span className="text-2xl" aria-hidden="true">❌</span>
             </div>
-            <h2 className="text-xl font-bold text-gray-800 mb-2">Announcement Not Found</h2>
-            <p className="text-gray-600 mb-6">The health advisory you're looking for doesn't exist or has been removed.</p>
-            <Link
-              to="/"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-green-600 text-white rounded-xl hover:from-blue-700 hover:to-green-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 font-medium"
-            >
-              🏠 Back to Home
+            <h2 className="mb-2 text-xl font-semibold text-slate-800">Announcement not found</h2>
+            <p className="mb-6 text-slate-600">The health advisory you're looking for doesn't exist or has been removed.</p>
+            <Link to="/">
+              <Button
+                type="button"
+                className="h-11 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 px-5 text-white shadow-lg shadow-emerald-500/20 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl"
+              >
+                Back to home
+              </Button>
             </Link>
           </div>
         </div>
@@ -77,143 +82,155 @@ export default function AnnouncementDetail() {
 
   return (
     <PageLayout>
-      <div className="min-h-[calc(100vh-4rem)] bg-gradient-to-br from-blue-50 via-white to-green-50">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          {/* Navigation Header */}
-          <div className="mb-6 sm:mb-8">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <Link
-                to="/"
-                className="inline-flex items-center gap-2 px-4 py-2 sm:px-6 sm:py-3 bg-gradient-to-r from-blue-600 to-green-600 text-white rounded-xl hover:from-blue-700 hover:to-green-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 font-medium text-sm sm:text-base"
+      <div className="min-h-[calc(100vh-4rem)] bg-gradient-to-br from-emerald-50 via-white to-teal-50">
+        <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+          <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <Link to="/">
+              <Button
+                type="button"
+                variant="outline"
+                className="h-11 rounded-full border-emerald-200 bg-white/90 px-5 text-emerald-700 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-emerald-300 hover:bg-emerald-50"
               >
-                ← Back to Home
-              </Link>
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <span>🏥</span>
-                <span className="font-medium">Health Advisory</span>
-              </div>
-            </div>
+                Back to home
+              </Button>
+            </Link>
+            <Badge className="w-fit border-emerald-200 bg-emerald-50 text-emerald-700 shadow-sm">
+              Health advisory
+            </Badge>
           </div>
 
-          {/* Main Content */}
-          <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 overflow-hidden">
-            {/* Header Section */}
-            <div className="bg-gradient-to-r from-blue-600 to-green-600 px-6 sm:px-8 py-6 sm:py-8 text-white">
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center flex-shrink-0">
-                  <span className="text-xl sm:text-2xl">📢</span>
+          <Card className="overflow-hidden rounded-[2rem] border-slate-200/80 bg-white/90 shadow-[0_25px_80px_-35px_rgba(15,23,42,0.35)] backdrop-blur-xl">
+            <div className="bg-gradient-to-r from-emerald-500 to-teal-500 px-6 py-6 text-white sm:px-8 sm:py-8 lg:px-10 lg:py-10">
+              <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:gap-6">
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white/15 shadow-sm backdrop-blur-sm">
+                  <span className="text-2xl" aria-hidden="true">📢</span>
                 </div>
-                <div className="flex-grow min-w-0">
-                  <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-3 sm:mb-4 leading-tight">
+                <div className="min-w-0 flex-1 space-y-4">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Badge className="border-white/20 bg-white/15 text-white shadow-sm backdrop-blur-sm">
+                      Published {format(new Date(announcement.created_at), "MMMM d, yyyy")}
+                    </Badge>
+                    <Badge className="border-white/20 bg-white/15 text-white shadow-sm backdrop-blur-sm">
+                      {format(new Date(announcement.created_at), "h:mm a")}
+                    </Badge>
+                  </div>
+                  <h1 className="text-2xl font-semibold leading-tight tracking-tight sm:text-3xl lg:text-4xl">
                     {announcement.title}
                   </h1>
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 text-white/90">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm">📅</span>
-                      <span className="text-sm sm:text-base font-medium">
-                        Published: {format(new Date(announcement.created_at), "MMMM d, yyyy")}
+                  <p className="max-w-3xl text-sm leading-7 text-white/85 sm:text-base">
+                    A clean announcement detail page with clearer hierarchy, calmer spacing, and better scanability.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <CardContent className="space-y-8 p-6 sm:p-8 lg:p-10">
+              {announcement.image_url && (
+                <div className="overflow-hidden rounded-[1.5rem] border border-slate-200 bg-slate-50 shadow-sm">
+                  <img
+                    src={announcement.image_url}
+                    alt={announcement.title}
+                    className="max-h-[68vh] w-full object-cover"
+                  />
+                </div>
+              )}
+
+              <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_280px] lg:items-start">
+                <div className="space-y-4">
+                  <Badge className="w-fit border-teal-200 bg-teal-50 text-teal-700 shadow-sm">
+                    Announcement details
+                  </Badge>
+                  <div className="prose prose-slate max-w-none prose-p:leading-8 prose-p:text-slate-700 prose-headings:tracking-tight">
+                    <div className="whitespace-pre-wrap text-base leading-8 text-slate-700 sm:text-lg">
+                      {announcement.content}
+                    </div>
+                  </div>
+                </div>
+
+                <aside className="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-5 shadow-sm">
+                  <p className="text-sm font-medium text-slate-500">Quick summary</p>
+                  <div className="mt-3 space-y-3 text-sm text-slate-600">
+                    <div className="flex items-center justify-between gap-3 border-b border-slate-200 pb-3">
+                      <span>Published</span>
+                      <span className="font-medium text-slate-800">
+                        {format(new Date(announcement.created_at), "MMM d, yyyy")}
                       </span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm">⏰</span>
-                      <span className="text-sm font-medium">
+                    <div className="flex items-center justify-between gap-3 border-b border-slate-200 pb-3">
+                      <span>Time</span>
+                      <span className="font-medium text-slate-800">
                         {format(new Date(announcement.created_at), "h:mm a")}
                       </span>
                     </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Image Section */}
-            {announcement.image_url && (
-              <div className="relative">
-                <div className="px-6 sm:px-8 py-6 sm:py-8 bg-gray-50">
-                  <div className="flex justify-center">
-                    <div className="relative group max-w-full">
-                      <img
-                        src={announcement.image_url}
-                        alt={announcement.title}
-                        className="max-w-full h-auto rounded-xl shadow-lg group-hover:shadow-2xl transition-shadow duration-300"
-                        style={{ maxHeight: "70vh" }}
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div className="flex items-center justify-between gap-3">
+                      <span>Type</span>
+                      <span className="font-medium text-slate-800">Health advisory</span>
                     </div>
                   </div>
-                </div>
-              </div>
-            )}
-
-            {/* Content Section */}
-            <div className="px-6 sm:px-8 py-6 sm:py-8">
-              {/* Content with better typography */}
-              <div className="prose prose-lg max-w-none">
-                <div className="text-gray-800 leading-relaxed text-base sm:text-lg whitespace-pre-wrap">
-                  {announcement.content}
-                </div>
+                </aside>
               </div>
 
-              {/* Important Notice Banner */}
-              <div className="mt-8 p-4 sm:p-6 bg-gradient-to-r from-blue-100 to-green-100 rounded-xl border-l-4 border-blue-500">
+              <div className="rounded-[1.5rem] border border-emerald-100 bg-gradient-to-r from-emerald-50 to-teal-50 p-5 sm:p-6">
                 <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <span className="text-white text-sm font-bold">ℹ️</span>
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-500 text-white shadow-sm">
+                    <span className="text-sm font-bold" aria-hidden="true">ℹ️</span>
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-800 mb-2">Important Health Information</h3>
-                    <p className="text-sm text-gray-700 leading-relaxed">
-                      This announcement contains important health-related information. 
-                      Please consult with healthcare professionals for personalized medical advice.
+                    <h3 className="mb-2 font-semibold text-slate-800">Important health information</h3>
+                    <p className="text-sm leading-7 text-slate-600">
+                      This announcement contains health-related information. Please consult healthcare professionals for personalized medical advice when needed.
                     </p>
                   </div>
                 </div>
               </div>
 
-              {/* Action Buttons */}
-              <div className="mt-8 pt-6 border-t border-gray-200">
-                <div className="flex flex-col sm:flex-row gap-4 sm:justify-between">
-                  <div className="flex flex-col sm:flex-row gap-3">
-                    <button 
-                      onClick={() => window.print()}
-                      className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200 shadow-sm text-sm font-medium"
-                    >
-                      🖨️ Print
-                    </button>
-                    <button 
-                      onClick={() => {
-                        if (navigator.share) {
-                          navigator.share({
-                            title: announcement.title,
-                            url: window.location.href
-                          });
-                        }
-                      }}
-                      className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200 shadow-sm text-sm font-medium"
-                    >
-                      📤 Share
-                    </button>
-                  </div>
-                  
-                  <Link
-                    to="/announcements"
-                    className="px-4 py-2 bg-gradient-to-r from-blue-500 to-green-500 text-white rounded-lg hover:from-blue-600 hover:to-green-600 transition-all duration-200 shadow-sm text-sm font-medium text-center"
+              <div className="flex flex-col gap-3 border-t border-slate-200 pt-6 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex flex-col gap-3 sm:flex-row">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => window.print()}
+                    className="h-11 rounded-full border-slate-200 bg-white px-5 text-slate-700 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-emerald-200 hover:bg-emerald-50"
                   >
-                    📋 View All Announcements
-                  </Link>
+                    Print
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      if (navigator.share) {
+                        void navigator.share({
+                          title: announcement.title,
+                          url: window.location.href,
+                        });
+                      }
+                    }}
+                    className="h-11 rounded-full border-slate-200 bg-white px-5 text-slate-700 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-emerald-200 hover:bg-emerald-50"
+                  >
+                    Share
+                  </Button>
                 </div>
+
+                <Link to="/announcements">
+                  <Button
+                    type="button"
+                    className="h-11 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 px-5 text-white shadow-lg shadow-emerald-500/20 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl"
+                  >
+                    View all announcements
+                  </Button>
+                </Link>
               </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         </div>
 
-        {/* Enhanced Footer */}
-        <footer className="mt-12 py-6 text-center">
-          <div className="max-w-md mx-auto px-6 py-4 bg-white/60 backdrop-blur-sm rounded-2xl shadow-lg">
-            <p className="text-sm text-gray-600">
+        <footer className="py-6 text-center">
+          <div className="mx-auto max-w-md rounded-2xl border border-white/70 bg-white/70 px-6 py-4 shadow-sm backdrop-blur-sm">
+            <p className="text-sm text-slate-600">
               © {new Date().getFullYear()} KaHealth
             </p>
-            <p className="text-xs text-gray-500 mt-1">
-              Your trusted health information partner 💙
+            <p className="mt-1 text-xs text-slate-500">
+              Your trusted health information partner.
             </p>
           </div>
         </footer>

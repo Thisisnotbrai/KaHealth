@@ -66,17 +66,22 @@ export default function FeedbackForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="w-full max-w-md mx-auto bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg space-y-4"
+      className="w-full space-y-4"
     >
-      <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-        Share Your Feedback
-      </h2>
+      <div className="space-y-1">
+        <h2 className="text-xl font-semibold text-slate-900 dark:text-gray-100">
+          Share your feedback
+        </h2>
+        <p className="text-sm leading-6 text-slate-600 dark:text-gray-400">
+          Tell us what should be clearer, faster, or easier to use.
+        </p>
+      </div>
 
       <Textarea
         placeholder="Type your feedback here..."
         value={message}
         onChange={(e) => setMessage(e.target.value)}
-        className="min-h-[100px]"
+        className="min-h-[140px] rounded-2xl border-slate-200 bg-white/90 px-4 py-3 shadow-sm focus-visible:ring-emerald-500 dark:border-white/10 dark:bg-white/5"
       />
 
       {/* Honeypot (hidden field, should stay empty) */}
@@ -92,7 +97,7 @@ export default function FeedbackForm() {
       <Button
         type="submit"
         disabled={loading}
-        className="w-full hover:scale-105 transition-transform"
+        className="h-11 w-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-lg shadow-emerald-500/20 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-emerald-500/25 disabled:translate-y-0"
       >
         {loading ? "Submitting..." : "Submit Feedback"}
       </Button>

@@ -1,5 +1,6 @@
 import { Route, Routes, Navigate } from "react-router-dom";
 import AdminLogin from "./components/ui/Admin/AdminLogin";
+import AuthPage from "./components/ui/user/AuthPage";
 import LandingPage from "./components/ui/LandingPage";
 import AdminDashboard from "./components/ui/Admin/AdminDashboard";
 import IntroAnimation from "./components/ui/IntroAnimation";
@@ -87,9 +88,11 @@ function App() {
           {/* Public routes */}
           <Route path="/" element={<LandingPage />} />
           <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/login" element={<AuthPage />} />
           <Route path="/announcement/:id" element={<AnnouncementDetail />} />
           <Route path="/announcements" element={<AllAnnouncements />} />
           <Route path="/information" element={<Information />} />
+
           {/* ✅ Protected Admin Routes */}
           <Route
             path="/admin/dashboard"
