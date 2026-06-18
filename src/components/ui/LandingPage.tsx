@@ -3,15 +3,13 @@
 import { useState, useEffect } from "react";
 import { Navbar5 } from './Navbar/Navbar';
 import Header from './Header';
-import Announcement from './Announcement'; 
-import FeedbackForm from "./FeedbackForm";
 import News from './News';
 import Footer from './Footer';
 import RequestMedicineForm from "./RequestMedicineForm";
 import { Button } from "./Navbar/button";
 import { Badge } from "./badge";
 import { Card, CardContent } from "./card";
-import { ArrowRight, BellRing, ClipboardList, HeartHandshake, LockKeyhole, MessageSquareText, Newspaper, Pill, ShieldCheck, Sparkles, Users } from "lucide-react";
+import { ArrowRight, HeartHandshake, LockKeyhole, Newspaper, Pill, ShieldCheck, Sparkles} from "lucide-react";
 
 const LandingPage = () => {
   const [showScrollTop, setShowScrollTop] = useState(false);
@@ -98,38 +96,6 @@ const LandingPage = () => {
                   Read health news
                 </Button>
               </div>
-
-              <div className="grid gap-3 sm:grid-cols-3">
-                {[
-                  {
-                    icon: Users,
-                    title: "Residents",
-                    description: "Check advisories, updates, and community services.",
-                  },
-                  {
-                    icon: ShieldCheck,
-                    title: "Caregivers",
-                    description: "Stay informed and respond quickly to important notices.",
-                  },
-                  {
-                    icon: ClipboardList,
-                    title: "Health staff",
-                    description: "Share information and manage requests in one flow.",
-                  },
-                ].map((item) => (
-                  <Card key={item.title} className="border-slate-200/80 bg-white/90 shadow-sm dark:border-white/10 dark:bg-white/5">
-                    <CardContent className="flex items-start gap-3 p-4">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-200">
-                        <item.icon className="h-5 w-5" />
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-sm font-semibold text-slate-900 dark:text-white">{item.title}</p>
-                        <p className="mt-1 text-xs leading-5 text-slate-600 dark:text-slate-300">{item.description}</p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
             </div>
 
             <div className="rounded-[1.75rem] border border-slate-200/80 bg-gradient-to-br from-slate-50 to-emerald-50 p-5 shadow-sm dark:border-white/10 dark:from-white/5 dark:to-emerald-500/10 sm:p-6">
@@ -144,19 +110,25 @@ const LandingPage = () => {
               </div>
 
               <div className="mt-6 space-y-3">
-                {[
-                  ["Trusted updates", "Announcements and news in a clear layout", "from-emerald-500 to-teal-500"],
-                  ["Simple actions", "Request medicine or explore resources quickly", "from-teal-500 to-cyan-500"],
-                  ["Easy to follow", "Readable text, clear spacing, and guided steps", "from-slate-500 to-slate-700"],
-                ].map(([title, description, tone]) => (
-                  <div key={title} className="flex items-center gap-3 rounded-2xl border border-white/70 bg-white/80 p-4 shadow-sm dark:border-white/10 dark:bg-slate-950/30">
-                    <div className={`h-10 w-10 shrink-0 rounded-xl bg-gradient-to-br ${tone} shadow-sm`} />
-                    <div>
-                      <p className="text-sm font-semibold text-slate-900 dark:text-white">{title}</p>
-                      <p className="text-xs text-slate-600 dark:text-slate-300">{description}</p>
+                {(() => {
+                  const features: { title: string; description: string; tone: string; Icon: React.ComponentType<any> }[] = [
+                    { title: "Trusted updates", description: "Announcements and news in a clear layout", tone: "from-emerald-500 to-teal-500", Icon: Newspaper },
+                    { title: "Simple actions", description: "Request medicine or explore resources quickly", tone: "from-teal-500 to-cyan-500", Icon: Pill },
+                    { title: "Easy to follow", description: "Readable text, clear spacing, and guided steps", tone: "from-slate-500 to-slate-700", Icon: Sparkles },
+                  ];
+
+                  return features.map(({ title, description, tone, Icon }) => (
+                    <div key={title} className="flex items-center gap-3 rounded-2xl border border-white/70 bg-white/80 p-4 shadow-sm dark:border-white/10 dark:bg-slate-950/30">
+                      <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${tone} shadow-sm`}>
+                        <Icon className="h-5 w-5 text-white" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-slate-900 dark:text-white">{title}</p>
+                        <p className="text-xs text-slate-600 dark:text-slate-300">{description}</p>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ));
+                })()}
               </div>
             </div>
           </div>
@@ -236,38 +208,6 @@ const LandingPage = () => {
           </div>
         </section>
 
-        <section
-          id="announcements"
-          className="space-y-4"
-          role="region"
-          aria-labelledby="announcements-heading"
-        >
-          <div className="flex items-end justify-between gap-4 px-1">
-            <div>
-              <Badge className="w-fit border-emerald-200 bg-emerald-50 text-emerald-700 shadow-sm dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-200">
-                What it does
-              </Badge>
-              <h2 id="announcements-heading" className="mt-3 text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl dark:text-white">
-                Latest advisories and community notices
-              </h2>
-              <p className="mt-2 max-w-2xl text-sm leading-7 text-slate-600 dark:text-slate-300">
-                Find the newest health notices first, with important updates highlighted for quick reading.
-              </p>
-            </div>
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={() => scrollToSection("latest-news")}
-              className="hidden rounded-full px-4 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800 sm:inline-flex dark:text-emerald-200 dark:hover:bg-white/10"
-            >
-              Next section <ArrowRight className="h-4 w-4" />
-            </Button>
-          </div>
-
-          <div className="rounded-[2rem] border border-amber-100 bg-white/90 p-4 shadow-[0_20px_60px_-35px_rgba(15,23,42,0.28)] backdrop-blur-xl sm:p-6 lg:p-8 dark:border-amber-500/20 dark:bg-white/5">
-            <Announcement />
-          </div>
-        </section>
 
         <section
           id="latest-news"
@@ -302,118 +242,6 @@ const LandingPage = () => {
           </div>
         </section>
 
-        <section
-          id="health-resources"
-          className="space-y-5"
-          role="region"
-          aria-labelledby="health-resources-heading"
-        >
-          <div className="px-1">
-            <Badge className="w-fit border-indigo-200 bg-indigo-50 text-indigo-700 shadow-sm dark:border-indigo-500/20 dark:bg-indigo-500/10 dark:text-indigo-200">
-              Next steps
-            </Badge>
-            <h2 id="health-resources-heading" className="mt-3 text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl dark:text-white">
-              What should you do next?
-            </h2>
-            <p className="mt-2 max-w-2xl text-sm leading-7 text-slate-600 dark:text-slate-300">
-              Choose a path below depending on whether you want updates, support, or a way to contact the team.
-            </p>
-          </div>
-
-          <div className="grid gap-4 lg:grid-cols-3">
-            {[
-              {
-                title: "Read advisories",
-                description: "Open the latest announcements and important health notices.",
-                icon: BellRing,
-                tone: "from-blue-500 to-cyan-600",
-                buttonLabel: "View advisories",
-                action: () => scrollToSection("announcements"),
-              },
-              {
-                title: "Request medicine",
-                description: "Open the medicine request form and submit details when needed.",
-                icon: Newspaper,
-                tone: "from-emerald-500 to-teal-600",
-                buttonLabel: "Open form",
-                action: () => setShowMedicineForm(true),
-              },
-              {
-                title: "Send feedback",
-                description: "Share suggestions or questions so the service can improve.",
-                icon: MessageSquareText,
-                tone: "from-violet-500 to-fuchsia-600",
-                buttonLabel: "Leave feedback",
-                action: () => scrollToSection("feedback"),
-              },
-            ].map((resource) => (
-              <Card key={resource.title} className="overflow-hidden rounded-[1.75rem] border-slate-200/80 bg-white/90 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-white/10 dark:bg-white/5">
-                <CardContent className="space-y-5 p-5 sm:p-6">
-                  <div className={`h-1.5 w-20 rounded-full bg-gradient-to-r ${resource.tone}`} />
-                  <div className="flex items-start gap-4">
-                    <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br ${resource.tone} text-white shadow-lg`}>
-                      <resource.icon className="h-5 w-5" />
-                    </div>
-                    <div className="min-w-0">
-                      <h3 className="text-lg font-semibold tracking-tight text-slate-900 dark:text-white">
-                        {resource.title}
-                      </h3>
-                      <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
-                        {resource.description}
-                      </p>
-                    </div>
-                  </div>
-
-                  <Button
-                    type="button"
-                    onClick={resource.action}
-                    className={`h-11 w-full rounded-full bg-gradient-to-r ${resource.tone} text-white shadow-lg shadow-black/10 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl`}
-                  >
-                    {resource.buttonLabel}
-                    <ArrowRight className="h-4 w-4" />
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </section>
-
-        <section
-          id="feedback"
-          className="grid gap-5 lg:grid-cols-[0.9fr_1.1fr]"
-          role="region"
-          aria-labelledby="feedback-heading"
-        >
-          <Card className="rounded-[2rem] border-emerald-100 bg-white/90 shadow-[0_20px_60px_-35px_rgba(15,118,110,0.24)] dark:border-white/10 dark:bg-white/5">
-            <CardContent className="space-y-4 p-6 sm:p-8">
-              <Badge className="w-fit border-green-200 bg-green-50 text-green-700 shadow-sm dark:border-green-500/20 dark:bg-green-500/10 dark:text-green-200">
-                Contact and feedback
-              </Badge>
-              <h2 id="feedback-heading" className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">
-                Questions, suggestions, or concerns?
-              </h2>
-              <p className="text-sm leading-7 text-slate-600 dark:text-slate-300">
-                Use this form to tell the team what you need, what is missing, or what should be easier to use.
-              </p>
-              <div className="space-y-3 pt-2 text-sm text-slate-600 dark:text-slate-300">
-                {[
-                  "A clearer next step",
-                  "A missed announcement",
-                  "A feature request",
-                ].map((item) => (
-                  <div key={item} className="flex items-center gap-3 rounded-2xl border border-slate-200/80 bg-slate-50 px-4 py-3 dark:border-white/10 dark:bg-white/5">
-                    <MessageSquareText className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-300" />
-                    <span>{item}</span>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          <div className="rounded-[2rem] border border-slate-200/80 bg-white/90 p-4 shadow-[0_20px_60px_-35px_rgba(15,23,42,0.24)] backdrop-blur-xl dark:border-white/10 dark:bg-white/5 sm:p-6">
-            <FeedbackForm />
-          </div>
-        </section>
       </main>
 
       <footer className="border-t border-emerald-200/50 bg-gradient-to-r from-white/70 to-emerald-50/40 backdrop-blur-sm will-change-transform dark:border-teal-500/20 dark:from-gray-900/60 dark:to-emerald-900/10" role="contentinfo">
