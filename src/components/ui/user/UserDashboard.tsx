@@ -16,7 +16,6 @@ import {
   Clock,
   Heart,
   Shield,
-  TrendingUp,
   Search,
   Plus,
   ChevronLeft,
