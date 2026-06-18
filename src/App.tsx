@@ -1,6 +1,6 @@
 import { Route, Routes, Navigate } from "react-router-dom";
 import AdminLogin from "./components/ui/Admin/AdminLogin";
-import AuthPage from "./components/ui/user/AuthPage";
+import UserDashboard from "./components/ui/user/UserDashboard";
 import LandingPage from "./components/ui/LandingPage";
 import AdminDashboard from "./components/ui/Admin/AdminDashboard";
 import IntroAnimation from "./components/ui/IntroAnimation";
@@ -78,7 +78,7 @@ function App() {
   };
 
   return (
-    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+    <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
       <Toaster richColors position="top-right" />
 
       {showIntro ? (
@@ -87,8 +87,9 @@ function App() {
         <Routes>
           {/* Public routes */}
           <Route path="/" element={<LandingPage />} />
-          <Route path="/admin/login" element={<AdminLogin />} />
-          <Route path="/login" element={<AuthPage />} />
+          <Route path="/dashboard" element={<UserDashboard />} />
+          <Route path="/login" element={
+            <div className="light"> <AdminLogin /> </div> } />
           <Route path="/announcement/:id" element={<AnnouncementDetail />} />
           <Route path="/announcements" element={<AllAnnouncements />} />
           <Route path="/information" element={<Information />} />
