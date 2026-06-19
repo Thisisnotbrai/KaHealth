@@ -74,7 +74,7 @@ const AdminLogin = () => {
     if (profile.role === "admin") {
       navigate("/admin/dashboard");
     } else {
-      navigate("/login");
+      navigate("/dashboard");
     }
 
     setLoading(false);
