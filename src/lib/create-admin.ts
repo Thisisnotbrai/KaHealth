@@ -1,4 +1,4 @@
-// create-admin.ts
+// create-chief-admin.ts
 import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(
@@ -8,11 +8,11 @@ const supabase = createClient(
 
 (async () => {
   const { data, error } = await supabase.auth.admin.createUser({
-    email: "admin@kahealth.com",
-    password: "KabruAdmin123",
+    email: "chiefadmin@kahealth.com",
+    password: "KabruChief123",
     email_confirm: true,
   });
 
   if (error) console.error("Failed to create user:", error.message);
-  else console.log("✅ Admin created:", data.user);
+  else console.log("Admin created:", data.user);
 })();

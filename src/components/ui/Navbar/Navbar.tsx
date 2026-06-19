@@ -89,7 +89,7 @@ const Navbar5 = () => {
                 variant="outline"
                 size="icon"
                 className="border-green-200 dark:border-emerald-800 hover:bg-green-50 dark:hover:bg-emerald-950/40 hover:border-green-300 dark:hover:border-emerald-600 transition-all duration-200"
-                onClick={() => window.location.href = "/admin/login"}
+                onClick={() => window.location.href = "/login"}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
