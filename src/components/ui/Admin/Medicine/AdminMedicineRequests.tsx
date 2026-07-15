@@ -31,7 +31,10 @@ import {
   Pill,
   Users,
   CheckCircle2,
+  ScrollText,
+  PlusCircle,
 } from "lucide-react";
+import { getCurrentAdminIdentity } from "@/lib/adminIdentity";
 
 /**
  * AdminMedicineRequests
@@ -73,6 +76,7 @@ export function AdminNavbar() {
     { to: "/admin/archive", label: "Archives", icon: <Archive size={20} /> },
     { to: "/admin/medicine-inventory", label: "Medicine Inventory", icon: <Shield size={20} /> },
     { to: "/admin/medicine-requests", label: "Medicine Requests", icon: <Heart size={20} /> },
+    { to: "/admin/logs", label: "Logs", icon: <ScrollText size={20} /> },
   ];
 
   return (
@@ -177,6 +181,7 @@ export function AdminNavbar() {
 export default function AdminMedicineRequests() {
   const [requests, setRequests] = useState<RequestRow[]>([]);
   const [, setLoading] = useState(false);
+  const [creatingTestRequest, setCreatingTestRequest] = useState(false);
   const [q, setQ] = useState("");
   const [selected, setSelected] = useState<RequestRow | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
@@ -289,6 +294,50 @@ export default function AdminMedicineRequests() {
     fetchRequests();
   };
 
+  const handleCreateTestRequest = async () => {
+    setCreatingTestRequest(true);
+
+    const { data: medicine, error: medicineError } = await supabase
+      .from("medicines")
+      .select("id, name")
+      .order("name", { ascending: true })
+      .limit(1)
+      .maybeSingle();
+
+    if (medicineError || !medicine) {
+      console.error(medicineError);
+      toast.error("No medicine is available for a test request.");
+      setCreatingTestRequest(false);
+      return;
+    }
+
+    const stamp = new Date().toLocaleTimeString();
+
+    const { error } = await supabase.from("medicine_requests").insert({
+      requester_name: `Activity Log Test ${stamp}`,
+      age: 30,
+      sex: "Male",
+      contact: "09170000000",
+      address: "KaHealth test queue",
+      medicine_id: medicine.id,
+      quantity: 1,
+      reason: "Temporary request created to verify approval activity logging.",
+      file_url: null,
+      status: "pending",
+    });
+
+    if (error) {
+      console.error(error);
+      toast.error("Failed to create a test request.");
+      setCreatingTestRequest(false);
+      return;
+    }
+
+    toast.success(`Created a test request for ${medicine.name}. Approve it to verify the activity log.`);
+    fetchRequests();
+    setCreatingTestRequest(false);
+  };
+
   const handleApprove = async (req: RequestRow) => {
     if (!req.medicine_id) {
       toast.error("No medicine selected for this request.");
@@ -334,13 +383,41 @@ export default function AdminMedicineRequests() {
       return;
     }
 
-    await supabase.from("claims_history").insert({
-      request_id: req.id,
-      medicine_id: req.medicine_id,
-      delivered_by: null,
-      admin_id: null,
-      notes: `Approved and reserved ${req.quantity}.`,
-    });
+    const admin = await getCurrentAdminIdentity();
+    const { data: existingHistory } = await supabase
+      .from("claims_history")
+      .select("id")
+      .eq("request_id", req.id)
+      .maybeSingle();
+
+    if (existingHistory?.id) {
+      const { error: historyError } = await supabase
+        .from("claims_history")
+        .update({
+          medicine_id: req.medicine_id,
+          admin_id: admin?.id || null,
+          notes: `Approved and reserved ${req.quantity}.`,
+        })
+        .eq("id", existingHistory.id);
+
+      if (historyError) {
+        console.error(historyError);
+        toast.error("Approved, but failed to save the activity log.");
+      }
+    } else {
+      const { error: historyError } = await supabase.from("claims_history").insert({
+        request_id: req.id,
+        medicine_id: req.medicine_id,
+        admin_id: admin?.id || null,
+        delivered_by: null,
+        notes: `Approved and reserved ${req.quantity}.`,
+      });
+
+      if (historyError) {
+        console.error(historyError);
+        toast.error("Approved, but failed to save the activity log.");
+      }
+    }
 
     toast.success("Request approved and stock updated.");
     fetchRequests();
@@ -365,6 +442,7 @@ export default function AdminMedicineRequests() {
   };
 
   const handleComplete = async (req: RequestRow) => {
+    const admin = await getCurrentAdminIdentity();
     const { error } = await supabase
       .from("medicine_requests")
       .update({ status: "claimed" })
@@ -376,9 +454,39 @@ export default function AdminMedicineRequests() {
       return;
     }
 
-    await supabase
+    const { data: existingHistory } = await supabase
       .from("claims_history")
-      .insert({ request_id: req.id, medicine_id: req.medicine_id, claimed_at: new Date() });
+      .select("id")
+      .eq("request_id", req.id)
+      .maybeSingle();
+
+    if (existingHistory?.id) {
+      const { error: historyError } = await supabase
+        .from("claims_history")
+        .update({
+          delivered_by: admin?.id || null,
+          claimed_at: new Date().toISOString(),
+          medicine_id: req.medicine_id,
+        })
+        .eq("id", existingHistory.id);
+
+      if (historyError) {
+        console.error(historyError);
+        toast.error("Completed, but failed to save the activity log.");
+      }
+    } else {
+      const { error: historyError } = await supabase.from("claims_history").insert({
+        request_id: req.id,
+        medicine_id: req.medicine_id,
+        delivered_by: admin?.id || null,
+        claimed_at: new Date().toISOString(),
+      });
+
+      if (historyError) {
+        console.error(historyError);
+        toast.error("Completed, but failed to save the activity log.");
+      }
+    }
 
     toast.success("Request marked as claimed/completed.");
     fetchRequests();
@@ -499,6 +607,14 @@ export default function AdminMedicineRequests() {
                 onChange={(e: any) => setQ(e.target.value)}
                 className="w-full sm:w-64 px-4 py-2 bg-white/70 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 transition-all"
               />
+              <Button 
+                onClick={handleCreateTestRequest}
+                disabled={creatingTestRequest}
+                className="px-4 sm:px-6 py-2 bg-white text-emerald-700 border border-emerald-200 hover:bg-emerald-50 font-semibold rounded-xl shadow-sm"
+              >
+                <PlusCircle size={18} className="mr-2" />
+                {creatingTestRequest ? "Creating..." : "Add Test Request"}
+              </Button>
               <Button 
                 onClick={() => fetchRequests()}
                 className="px-4 sm:px-6 py-2 bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"

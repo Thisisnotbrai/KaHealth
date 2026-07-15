@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "../../../supabase-client";
 import { Input } from "../Input";
 import { Button } from "../Navbar/button";
+import { isKnownAdminEmail } from "@/lib/adminIdentity";
 
 type Tab = "login" | "register";
 type RegStep = 1 | 2;
@@ -60,20 +61,17 @@ const AdminLogin = () => {
       return;
     }
 
-    // Check role from profiles table
-    const { data: profile, error: profileError } = await supabase
+    // Fetch profile data when available, but do not block login if it is missing.
+    const { data: profile } = await supabase
       .from("profiles")
-      .select("role")
+      .select("full_name, email")
       .eq("id", signInData.user.id)
-      .single();
+      .maybeSingle();
 
-    if (profileError || !profile) {
-      setError("Could not retrieve user role. Please contact support.");
-      setLoading(false);
-      return;
-    }
+    const resolvedEmail = profile?.email || signInData.user.email || email;
+    const isAdmin = isKnownAdminEmail(resolvedEmail);
 
-    if (profile.role === "admin") {
+    if (isAdmin) {
       navigate("/admin/dashboard");
     } else {
       navigate("/dashboard");

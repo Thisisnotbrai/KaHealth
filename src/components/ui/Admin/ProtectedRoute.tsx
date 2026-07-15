@@ -1,6 +1,7 @@
 import { Navigate, useLocation } from "react-router-dom";
 import { useEffect, useState, type JSX } from "react";
 import { supabase } from "@/supabase-client";
+import { isKnownAdminEmail } from "@/lib/adminIdentity";
 
 type Status = "checking" | "allowed" | "denied";
 
@@ -21,15 +22,17 @@ export default function ProtectedRoute({ children }: { children: JSX.Element }) 
       }
 
 
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from("profiles")
-        .select("role")
+        .select("email")
         .eq("id", session.user.id)
-        .single();
+        .maybeSingle();
 
       if (cancelled) return;
 
-      if (error || !data || data.role !== "admin") {
+      const email = data?.email || session.user.email;
+
+      if (!isKnownAdminEmail(email)) {
         setStatus("denied");
       } else {
         setStatus("allowed");

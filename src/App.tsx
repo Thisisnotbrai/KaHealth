@@ -13,15 +13,19 @@ import ArchivePage from "./components/ui/Admin/ArchivePage";
 import MedicineInventory from "./components/ui/Admin/Medicine/MedicineInventory";
 import AdminMedicineRequests from "./components/ui/Admin/Medicine/AdminMedicineRequests";
 import Analytics from "./components/ui/Admin/Analytics";
+import AdminLogs from "./components/ui/Admin/Logs";
 import { ThemeProvider } from "./components/ui/Darkmode/theme-provider";
-import { useEffect, useState, type JSX } from "react";
+import { useEffect, useRef, useState, type JSX } from "react";
 import { Toaster } from "sonner";
 import { supabase } from "@/supabase-client";
+import { getAdminDisplayName, isKnownAdminEmail } from "@/lib/adminIdentity";
+import { logAdminLogin } from "@/lib/adminAudit";
 
 function App() {
   const [showIntro, setShowIntro] = useState(false);
   const [loadingRole, setLoadingRole] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  const lastLoggedAdminId = useRef<string | null>(null);
 
   useEffect(() => {
     const hasVisited = sessionStorage.getItem("hasVisited");
@@ -32,33 +36,52 @@ function App() {
         setShowIntro(false);
       }, 2500);
     }
-    const checkRole = async () => {
+    const checkRole = async (event?: string, sessionUserId?: string | null) => {
       const {
         data: { session },
       } = await supabase.auth.getSession();
 
-      if (session?.user?.id) {
-        const { data, error } = await supabase
-          .from("profiles")
-          .select("role")
-          .eq("id", session.user.id)
-          .single();
+      const user = session?.user;
 
-        if (!error && data?.role === "admin") {
-          setIsAdmin(true);
-        } else {
-          setIsAdmin(false);
+      if (user?.id) {
+        const { data } = await supabase
+          .from("profiles")
+          .select("email")
+          .eq("id", user.id)
+          .maybeSingle();
+
+        const email = data?.email || user.email;
+        const admin = isKnownAdminEmail(email);
+        setIsAdmin(admin);
+
+        if (admin && event === "SIGNED_IN" && sessionUserId && lastLoggedAdminId.current !== sessionUserId) {
+          lastLoggedAdminId.current = sessionUserId;
+
+          try {
+            await logAdminLogin({
+              adminId: user.id,
+              adminName: getAdminDisplayName(email, data?.full_name || user.user_metadata?.full_name) || email || "Admin",
+              adminEmail: email || user.email || "",
+            });
+          } catch (error) {
+            console.error("Failed to record admin login:", error);
+          }
         }
       } else {
         setIsAdmin(false);
+        lastLoggedAdminId.current = null;
       }
       setLoadingRole(false);
     };
 
     checkRole();
-    supabase.auth.onAuthStateChange(() => {
-      checkRole();
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      checkRole(event, session?.user?.id || null);
     });
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
   }, []);
 
   if (loadingRole) {
@@ -149,6 +172,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <Analytics />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/logs"
+            element={
+              <ProtectedRoute>
+                <AdminLogs />
               </ProtectedRoute>
             }
           />

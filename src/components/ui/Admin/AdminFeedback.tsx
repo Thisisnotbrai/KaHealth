@@ -25,6 +25,7 @@ import {
   Filter,
   Shield,
   Archive,
+  ScrollText,
 } from "lucide-react";
 
 // Admin Navbar Component
@@ -41,6 +42,7 @@ export function AdminNavbar() {
     { to: "/admin/archive", label: "Archives", icon: <Archive size={20} /> },
     { to: "/admin/medicine-inventory", label: "Medicine Inventory", icon: <Shield size={20} /> },
     { to: "/admin/medicine-requests", label: "Medicine Requests", icon: <Heart size={20} /> },
+    { to: "/admin/logs", label: "Logs", icon: <ScrollText size={20} /> },
   ];
 
   return (

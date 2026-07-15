@@ -11,6 +11,7 @@ import {
   Menu,
   Megaphone,
   MessageSquare,
+  ScrollText,
   Shield,
 } from "lucide-react";
 import { supabase } from "@/supabase-client";
@@ -23,6 +24,7 @@ const navItems = [
   { label: "Archives", href: "/admin/archive", icon: Archive },
   { label: "Medicine Inventory", href: "/admin/medicine-inventory", icon: Shield },
   { label: "Medicine Requests", href: "/admin/medicine-requests", icon: Heart },
+  { label: "Logs", href: "/admin/logs", icon: ScrollText },
 ];
 
 function SidebarContent() {

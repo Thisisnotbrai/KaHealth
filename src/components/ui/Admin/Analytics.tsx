@@ -24,6 +24,7 @@ import {
   CheckCircle2,
   XCircle,
   Download,
+  ScrollText,
 } from "lucide-react";
 import { LineChart, Line, PieChart as RePieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 
@@ -41,6 +42,7 @@ export function AdminNavbar() {
     { to: "/admin/archive", label: "Archives", icon: <Archive size={20} /> },
     { to: "/admin/medicine-inventory", label: "Medicine Inventory", icon: <Shield size={20} /> },
     { to: "/admin/medicine-requests", label: "Medicine Requests", icon: <Heart size={20} /> },
+    { to: "/admin/logs", label: "Logs", icon: <ScrollText size={20} /> },
   ];
 
   return (
