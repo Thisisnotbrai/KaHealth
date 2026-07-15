@@ -65,8 +65,8 @@ export default function AdminLogs() {
         supabase
           .from("claims_history")
           .select("id, request_id, medicine_id, admin_id, delivered_by, notes, claimed_at, created_at")
-          .order("claimed_at", { ascending: false, nullsFirst: false })
-          .order("created_at", { ascending: false, nullsFirst: false }),
+          .order("created_at", { ascending: false, nullsFirst: false })
+          .order("claimed_at", { ascending: false, nullsFirst: false }),
         supabase
           .from("admin_login_logs")
           .select("id, admin_id, admin_name, admin_email, logged_in_at")
