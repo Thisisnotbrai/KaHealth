@@ -32,7 +32,7 @@ type RequestRow = {
 type ProfileRow = {
   id: string;
   full_name?: string | null;
-  email?: string | null;
+  role?: string | null;
 };
 
 type AdminLoginRow = {
@@ -102,7 +102,7 @@ export default function AdminLogs() {
               .in("id", requestIds)
           : Promise.resolve({ data: [], error: null }),
         actorIds.length
-          ? supabase.from("profiles").select("id, full_name, email").in("id", actorIds)
+          ? supabase.from("profiles").select("id, full_name, role").in("id", actorIds)
           : Promise.resolve({ data: [], error: null }),
       ]);
 
@@ -143,8 +143,8 @@ export default function AdminLogs() {
     return logs.filter((log) => {
       const requester = log.request?.requester_name || "";
       const medicine = log.request?.medicines?.name || "";
-      const approvedBy = log.approvedBy?.full_name || log.approvedBy?.email || "";
-      const deliveredBy = log.deliveredBy?.full_name || log.deliveredBy?.email || "";
+      const approvedBy = log.approvedBy?.full_name || log.admin_id || "—";
+      const deliveredBy = log.deliveredBy?.full_name || log.delivered_by || "—";
 
       return [requester, medicine, approvedBy, deliveredBy, log.notes || "", log.request?.status || ""]
         .join(" ")
@@ -328,8 +328,8 @@ export default function AdminLogs() {
                   {!loading && filteredLogs.map((log) => {
                     const requester = log.request?.requester_name || "Unknown requester";
                     const medicineName = log.request?.medicines?.name || "Unknown medicine";
-                    const approvedBy = log.approvedBy?.full_name || log.approvedBy?.email || log.admin_id || "—";
-                    const deliveredBy = log.deliveredBy?.full_name || log.deliveredBy?.email || log.delivered_by || "—";
+                    const approvedBy = log.approvedBy?.full_name || "";
+                    const deliveredBy = log.deliveredBy?.full_name || "";
 
                     return (
                       <TableRow key={log.id} className="hover:bg-emerald-50/50 transition-colors">
