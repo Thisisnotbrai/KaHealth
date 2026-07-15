@@ -46,7 +46,8 @@ function App() {
       if (user?.id) {
         const { data } = await supabase
           .from("profiles")
-          .select("email")
+          // include full_name so we can read it from the returned row
+          .select("email, full_name")
           .eq("id", user.id)
           .maybeSingle();
 

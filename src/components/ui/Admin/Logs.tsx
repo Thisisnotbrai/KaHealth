@@ -124,7 +124,7 @@ export default function AdminLogs() {
       setLogs(
         claims.map((row) => ({
           ...row,
-          request: requestMap.get(row.request_id) || null,
+          request: row.request_id ? requestMap.get(row.request_id) || null : null,
           approvedBy: row.admin_id ? profileMap.get(row.admin_id) || null : null,
           deliveredBy: row.delivered_by ? profileMap.get(row.delivered_by) || null : null,
         }))
