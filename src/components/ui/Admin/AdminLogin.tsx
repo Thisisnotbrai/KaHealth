@@ -12,6 +12,8 @@ const AdminLogin = () => {
   const [tab, setTab] = useState<Tab>("login");
   const [regStep, setRegStep] = useState<RegStep>(1);
 
+  const digitsOnly = (value: string) => value.replace(/\D/g, "");
+
   // ── Login
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -387,10 +389,12 @@ const AdminLogin = () => {
                     <div>
                       <label className="text-sm font-semibold text-gray-700 mb-1.5 block">Age</label>
                       <Input
-                        type="number"
+                        type="text"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
                         placeholder="e.g. 32"
                         value={age}
-                        onChange={(e) => setAge(e.target.value)}
+                        onChange={(e) => setAge(digitsOnly(e.target.value))}
                         min={0}
                         max={120}
                         className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-sm text-gray-900 bg-white placeholder:text-gray-400"
@@ -415,9 +419,11 @@ const AdminLogin = () => {
                     </label>
                     <Input
                       type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
                       placeholder="e.g. 09XX-XXX-XXXX"
                       value={contact}
-                      onChange={(e) => setContact(e.target.value)}
+                      onChange={(e) => setContact(digitsOnly(e.target.value))}
                       required
                       className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-sm text-gray-900 bg-white placeholder:text-gray-400"
                     />
