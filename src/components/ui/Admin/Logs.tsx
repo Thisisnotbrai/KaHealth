@@ -8,7 +8,7 @@ import { Button } from "../Navbar/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { supabase } from "@/supabase-client";
 import { getAdminDisplayName, getCurrentAdminIdentity, type AdminIdentity } from "@/lib/adminIdentity";
-import { Clock, History, Pill, Search, Shield, UserCircle2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Clock, History, Pill, Search, Shield, UserCircle2 } from "lucide-react";
 
 type ClaimHistoryRow = {
   id: string;
@@ -55,6 +55,11 @@ export default function AdminLogs() {
   const [currentAdmin, setCurrentAdmin] = useState<AdminIdentity | null>(null);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
+  const [activityPage, setActivityPage] = useState(1);
+  const [loginPage, setLoginPage] = useState(1);
+
+  const activityLogsPerPage = 8;
+  const loginLogsPerPage = 8;
 
   useEffect(() => {
     const loadLogs = async () => {
@@ -136,6 +141,10 @@ export default function AdminLogs() {
     loadLogs();
   }, []);
 
+  useEffect(() => {
+    setActivityPage(1);
+  }, [query]);
+
   const filteredLogs = useMemo(() => {
     const lower = query.trim().toLowerCase();
     if (!lower) return logs;
@@ -152,6 +161,16 @@ export default function AdminLogs() {
         .includes(lower);
     });
   }, [logs, query]);
+
+  const activityTotalPages = Math.max(1, Math.ceil(filteredLogs.length / activityLogsPerPage));
+  const loginTotalPages = Math.max(1, Math.ceil(loginLogs.length / loginLogsPerPage));
+
+  const paginatedActivityLogs = filteredLogs.slice(
+    (activityPage - 1) * activityLogsPerPage,
+    activityPage * activityLogsPerPage
+  );
+
+  const paginatedLoginLogs = loginLogs.slice((loginPage - 1) * loginLogsPerPage, loginPage * loginLogsPerPage);
 
   const logCount = logs.length;
   const approvedCount = logs.filter((log) => log.admin_id).length;
@@ -245,7 +264,7 @@ export default function AdminLogs() {
                     </TableRow>
                   )}
 
-                  {!loading && loginLogs.map((entry) => (
+                  {!loading && paginatedLoginLogs.map((entry) => (
                     <TableRow key={entry.id} className="hover:bg-slate-50/70 transition-colors">
                       <TableCell className="font-medium text-gray-900">
                         {getAdminDisplayName(entry.admin_email, entry.admin_name) || "Unknown admin"}
@@ -258,6 +277,40 @@ export default function AdminLogs() {
                 </TableBody>
               </Table>
             </div>
+
+            {!loading && loginLogs.length > loginLogsPerPage && (
+              <div className="flex justify-center items-center gap-2 mt-6 sm:mt-8 pt-6 sm:pt-8 border-t border-gray-200">
+                <button
+                  onClick={() => setLoginPage((page) => Math.max(1, page - 1))}
+                  disabled={loginPage === 1}
+                  className="p-2.5 rounded-xl border-2 border-gray-200 text-gray-600 hover:bg-emerald-50 hover:border-emerald-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                >
+                  <ChevronLeft size={18} />
+                </button>
+                <div className="flex gap-1 sm:gap-2 overflow-x-auto pb-2 max-w-full">
+                  {Array.from({ length: loginTotalPages }, (_, i) => i + 1).map((page) => (
+                    <button
+                      key={page}
+                      onClick={() => setLoginPage(page)}
+                      className={`w-10 h-10 rounded-xl font-semibold text-sm transition-all duration-200 flex-shrink-0 ${
+                        page === loginPage
+                          ? "bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg"
+                          : "bg-white/80 text-gray-600 border-2 border-gray-200 hover:border-emerald-300 hover:bg-emerald-50"
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  ))}
+                </div>
+                <button
+                  onClick={() => setLoginPage((page) => Math.min(loginTotalPages, page + 1))}
+                  disabled={loginPage === loginTotalPages}
+                  className="p-2.5 rounded-xl border-2 border-gray-200 text-gray-600 hover:bg-emerald-50 hover:border-emerald-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                >
+                  <ChevronRight size={18} />
+                </button>
+              </div>
+            )}
 
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
               <div className="flex items-center gap-3">
@@ -325,7 +378,7 @@ export default function AdminLogs() {
                     </TableRow>
                   )}
 
-                  {!loading && filteredLogs.map((log) => {
+                  {!loading && paginatedActivityLogs.map((log) => {
                     const requester = log.request?.requester_name || "Unknown requester";
                     const medicineName = log.request?.medicines?.name || "Unknown medicine";
                     const approvedBy = log.approvedBy?.full_name || "";
@@ -371,6 +424,40 @@ export default function AdminLogs() {
                 </TableBody>
               </Table>
             </div>
+
+            {!loading && filteredLogs.length > activityLogsPerPage && (
+              <div className="flex justify-center items-center gap-2 mt-6 sm:mt-8 pt-6 sm:pt-8 border-t border-gray-200">
+                <button
+                  onClick={() => setActivityPage((page) => Math.max(1, page - 1))}
+                  disabled={activityPage === 1}
+                  className="p-2.5 rounded-xl border-2 border-gray-200 text-gray-600 hover:bg-emerald-50 hover:border-emerald-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                >
+                  <ChevronLeft size={18} />
+                </button>
+                <div className="flex gap-1 sm:gap-2 overflow-x-auto pb-2 max-w-full">
+                  {Array.from({ length: activityTotalPages }, (_, i) => i + 1).map((page) => (
+                    <button
+                      key={page}
+                      onClick={() => setActivityPage(page)}
+                      className={`w-10 h-10 rounded-xl font-semibold text-sm transition-all duration-200 flex-shrink-0 ${
+                        page === activityPage
+                          ? "bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg"
+                          : "bg-white/80 text-gray-600 border-2 border-gray-200 hover:border-emerald-300 hover:bg-emerald-50"
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  ))}
+                </div>
+                <button
+                  onClick={() => setActivityPage((page) => Math.min(activityTotalPages, page + 1))}
+                  disabled={activityPage === activityTotalPages}
+                  className="p-2.5 rounded-xl border-2 border-gray-200 text-gray-600 hover:bg-emerald-50 hover:border-emerald-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                >
+                  <ChevronRight size={18} />
+                </button>
+              </div>
+            )}
           </div>
         </main>
       </div>
