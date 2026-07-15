@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { supabase } from "@/supabase-client";
+import AdminLayout from "../AdminLayout";
 import {
   LayoutDashboard,
   LogOut,
@@ -27,7 +28,7 @@ import {
 import { LineChart, Line, PieChart as RePieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 
 // Admin Navbar Component
-function AdminNavbar() {
+export function AdminNavbar() {
   const location = useLocation();
   const pathname = location.pathname;
   const [menuOpen, setMenuOpen] = useState(false);
@@ -396,6 +397,7 @@ export default function Analytics() {
   }
 
   return (
+    <AdminLayout>
     <div className="bg-gradient-to-br from-emerald-50 via-teal-50/30 to-cyan-50 min-h-screen">
       {/* Print Styles */}
       <style>{`
@@ -440,8 +442,6 @@ export default function Analytics() {
           </div>
         </div>
       </div>
-
-      <AdminNavbar />
 
       <main className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6 lg:space-y-8">
         {/* Header with Print Button */}
@@ -1185,5 +1185,6 @@ export default function Analytics() {
         </div>
       )}
     </div>
+    </AdminLayout>
   );
 }

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { supabase } from "@/supabase-client";
+import AdminLayout from "../../AdminLayout";
 import { Button } from "../../Navbar/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -30,7 +31,7 @@ import EditMedicineModal from "./EditMedicineModal";
 import ArchiveMedicineDialog from "./ArchiveMedicineDialog";
 
 // Admin Navbar Component
-function AdminNavbar() {
+export function AdminNavbar() {
   const location = useLocation();
   const pathname = location.pathname;
   const [menuOpen, setMenuOpen] = useState(false);
@@ -184,16 +185,19 @@ export default function MedicineInventory() {
 
   if (loading) {
     return (
+      <AdminLayout>
       <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50/30 to-cyan-50">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-emerald-200 border-t-emerald-600 rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-600 font-medium">Loading medicines...</p>
         </div>
       </div>
+      </AdminLayout>
     );
   }
 
   return (
+    <AdminLayout>
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50/30 to-cyan-50">
       {/* Philippine Standard Time top bar */}
       <div className="bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 text-white shadow-lg">
@@ -226,8 +230,6 @@ export default function MedicineInventory() {
           </div>
         </div>
       </div>
-
-      <AdminNavbar />
 
       <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
         {/* Header Section */}
@@ -442,5 +444,6 @@ export default function MedicineInventory() {
         onArchived={fetchMedicines}
       />
     </div>
+    </AdminLayout>
   );
 }

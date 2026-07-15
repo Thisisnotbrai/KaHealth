@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { supabase } from "@/supabase-client";
+import AdminLayout from "../../AdminLayout";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "../../Navbar/button";
 import { Input } from "../../Input";
@@ -59,7 +60,7 @@ type RequestRow = {
 };
 
 // Admin Navbar Component
-function AdminNavbar() {
+export function AdminNavbar() {
   const location = useLocation();
   const pathname = location.pathname;
   const [menuOpen, setMenuOpen] = useState(false);
@@ -405,6 +406,7 @@ export default function AdminMedicineRequests() {
   const claimedCount = requests.filter(r => r.status === "claimed").length;
 
   return (
+    <AdminLayout>
     <div className="bg-gradient-to-br from-emerald-50 via-teal-50/30 to-cyan-50 min-h-screen">
       {/* Enhanced Philippine Standard Time top bar */}
       <div className="bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 text-white shadow-lg">
@@ -425,8 +427,6 @@ export default function AdminMedicineRequests() {
           </div>
         </div>
       </div>
-
-      <AdminNavbar />
 
       <main className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6 lg:space-y-8">
         {/* Enhanced Stats Cards */}
@@ -637,5 +637,6 @@ export default function AdminMedicineRequests() {
         <RequestDetailModal open={detailOpen} setOpen={setDetailOpen} request={selected} refresh={fetchRequests} />
       )}
     </div>
+    </AdminLayout>
   );
 }
