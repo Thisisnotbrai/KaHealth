@@ -384,39 +384,20 @@ export default function AdminMedicineRequests() {
     }
 
     const admin = await getCurrentAdminIdentity();
-    const { data: existingHistory } = await supabase
-      .from("claims_history")
-      .select("id")
-      .eq("request_id", req.id)
-      .maybeSingle();
+    const { error: historyError } = await supabase.from("claims_history").upsert({
+      request_id: req.id,
+      medicine_id: req.medicine_id,
+      admin_id: admin?.id || null,
+      delivered_by: null,
+      claimed_at: null,
+      notes: `Approved and reserved ${req.quantity}.`,
+    }, {
+      onConflict: "request_id",
+    });
 
-    if (existingHistory?.id) {
-      const { error: historyError } = await supabase
-        .from("claims_history")
-        .update({
-          medicine_id: req.medicine_id,
-          admin_id: admin?.id || null,
-          notes: `Approved and reserved ${req.quantity}.`,
-        })
-        .eq("id", existingHistory.id);
-
-      if (historyError) {
-        console.error(historyError);
-        toast.error("Approved, but failed to save the activity log.");
-      }
-    } else {
-      const { error: historyError } = await supabase.from("claims_history").insert({
-        request_id: req.id,
-        medicine_id: req.medicine_id,
-        admin_id: admin?.id || null,
-        delivered_by: null,
-        notes: `Approved and reserved ${req.quantity}.`,
-      });
-
-      if (historyError) {
-        console.error(historyError);
-        toast.error("Approved, but failed to save the activity log.");
-      }
+    if (historyError) {
+      console.error(historyError);
+      toast.error("Approved, but failed to save the activity log.");
     }
 
     toast.success("Request approved and stock updated.");
@@ -437,6 +418,23 @@ export default function AdminMedicineRequests() {
       return;
     }
 
+    const admin = await getCurrentAdminIdentity();
+    const { error: historyError } = await supabase.from("claims_history").upsert({
+      request_id: req.id,
+      medicine_id: req.medicine_id || null,
+      admin_id: admin?.id || null,
+      delivered_by: null,
+      claimed_at: null,
+      notes: reason ? `Declined request. Reason: ${reason}` : "Declined request.",
+    }, {
+      onConflict: "request_id",
+    });
+
+    if (historyError) {
+      console.error(historyError);
+      toast.error("Denied, but failed to save the activity log.");
+    }
+
     toast.success("Request denied.");
     fetchRequests();
   };
@@ -454,38 +452,19 @@ export default function AdminMedicineRequests() {
       return;
     }
 
-    const { data: existingHistory } = await supabase
-      .from("claims_history")
-      .select("id")
-      .eq("request_id", req.id)
-      .maybeSingle();
+    const { error: historyError } = await supabase.from("claims_history").upsert({
+      request_id: req.id,
+      medicine_id: req.medicine_id,
+      delivered_by: admin?.id || null,
+      claimed_at: new Date().toISOString(),
+      notes: "Marked as claimed/completed.",
+    }, {
+      onConflict: "request_id",
+    });
 
-    if (existingHistory?.id) {
-      const { error: historyError } = await supabase
-        .from("claims_history")
-        .update({
-          delivered_by: admin?.id || null,
-          claimed_at: new Date().toISOString(),
-          medicine_id: req.medicine_id,
-        })
-        .eq("id", existingHistory.id);
-
-      if (historyError) {
-        console.error(historyError);
-        toast.error("Completed, but failed to save the activity log.");
-      }
-    } else {
-      const { error: historyError } = await supabase.from("claims_history").insert({
-        request_id: req.id,
-        medicine_id: req.medicine_id,
-        delivered_by: admin?.id || null,
-        claimed_at: new Date().toISOString(),
-      });
-
-      if (historyError) {
-        console.error(historyError);
-        toast.error("Completed, but failed to save the activity log.");
-      }
+    if (historyError) {
+      console.error(historyError);
+      toast.error("Completed, but failed to save the activity log.");
     }
 
     toast.success("Request marked as claimed/completed.");

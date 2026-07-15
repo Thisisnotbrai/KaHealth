@@ -12,7 +12,7 @@ import { Clock, History, Pill, Search, Shield, UserCircle2 } from "lucide-react"
 
 type ClaimHistoryRow = {
   id: string;
-  request_id: string;
+  request_id: string | null;
   medicine_id?: string | null;
   admin_id?: string | null;
   delivered_by?: string | null;
@@ -85,7 +85,7 @@ export default function AdminLogs() {
       }
 
       const claims = (claimsRes.data || []) as ClaimHistoryRow[];
-      const requestIds = [...new Set(claims.map((row) => row.request_id).filter(Boolean))];
+      const requestIds = [...new Set(claims.map((row) => row.request_id).filter((value): value is string => Boolean(value)))];
       const actorIds = [
         ...new Set(
           claims
