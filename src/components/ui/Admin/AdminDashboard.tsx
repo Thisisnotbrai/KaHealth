@@ -51,36 +51,36 @@ export function AdminNavbar() {
   ];
 
   return (
-    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md shadow-sm border-b border-emerald-100">
+    <header className="sticky top-0 z-50 bg-white shadow-sm border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 lg:py-4">
         <div className="flex items-center justify-between">
-          {/* Enhanced Logo / Title */}
+          {/* Logo / Title */}
           <div className="flex items-center gap-3 lg:gap-4">
             <div className="relative">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center shadow-lg">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-teal-600 rounded-xl flex items-center justify-center shadow-sm">
                 <Heart className="text-white" size={18} />
               </div>
-              <div className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 bg-green-400 rounded-full border-2 border-white animate-pulse"></div>
+              <div className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 bg-teal-400 rounded-full border-2 border-white"></div>
             </div>
             <div className="hidden sm:block">
               <h1 className="text-lg sm:text-xl font-bold text-gray-900">KaHealth Admin</h1>
-              <p className="text-xs sm:text-sm text-emerald-600">Community Wellness System</p>
+              <p className="text-xs sm:text-sm text-gray-500">Community Wellness System</p>
             </div>
             <div className="sm:hidden">
               <h1 className="text-base font-bold text-gray-900">Health Admin</h1>
             </div>
           </div>
 
-          {/* Enhanced Desktop Menu */}
-          <nav className="hidden lg:flex items-center gap-2">
+          {/* Desktop Menu */}
+          <nav className="hidden lg:flex items-center gap-1">
             {navLinks.map((link) => (
               <Link
                 key={link.to}
                 to={link.to}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium transition-all duration-200 hover:scale-105 text-sm whitespace-nowrap ${
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium transition-colors text-sm whitespace-nowrap ${
                   pathname === link.to
-                    ? "bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-200"
-                    : "text-gray-600 hover:bg-emerald-50 hover:text-emerald-700"
+                    ? "bg-teal-600 text-white"
+                    : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
                 }`}
               >
                 {link.icon}
@@ -93,7 +93,7 @@ export function AdminNavbar() {
                   await supabase.auth.signOut();
                   window.location.href = "/admin/login";
                 }}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-red-600 hover:bg-red-50 hover:text-red-700 transition-all duration-200 font-medium text-sm whitespace-nowrap"
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-colors font-medium text-sm whitespace-nowrap"
               >
                 <LogOut size={20} />
                 <span>Logout</span>
@@ -101,41 +101,41 @@ export function AdminNavbar() {
             </div>
           </nav>
 
-          {/* Enhanced Mobile Menu Button */}
+          {/* Mobile Menu Button */}
           <button
             onClick={() => setMenuOpen(!menuOpen)}
-            className="lg:hidden p-2 sm:p-3 rounded-xl text-gray-600 hover:bg-emerald-50 transition-colors"
+            className="lg:hidden p-2 sm:p-3 rounded-xl text-gray-600 hover:bg-gray-100 transition-colors"
           >
             {menuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
 
-        {/* Enhanced Mobile Menu */}
+        {/* Mobile Menu */}
         {menuOpen && (
-          <div className="lg:hidden mt-4 py-4 border-t border-emerald-100">
-            <div className="space-y-2">
+          <div className="lg:hidden mt-4 py-4 border-t border-gray-200">
+            <div className="space-y-1">
               {navLinks.map((link) => (
                 <Link
                   key={link.to}
                   to={link.to}
                   onClick={() => setMenuOpen(false)}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-sm sm:text-base ${
+                  className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors text-sm sm:text-base ${
                     pathname === link.to
-                      ? "bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg"
-                      : "text-gray-600 hover:bg-emerald-50"
+                      ? "bg-teal-600 text-white"
+                      : "text-gray-600 hover:bg-gray-100"
                   }`}
                 >
                   {link.icon}
                   <span className="font-medium">{link.label}</span>
                 </Link>
               ))}
-              <div className="pt-2 mt-2 border-t border-emerald-100">
+              <div className="pt-2 mt-2 border-t border-gray-200">
                 <button
                   onClick={async () => {
                     await supabase.auth.signOut();
                     window.location.href = "/admin/login";
                   }}
-                  className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-red-600 hover:bg-red-50 font-medium text-sm sm:text-base"
+                  className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-gray-500 hover:bg-gray-100 font-medium text-sm sm:text-base"
                 >
                   <LogOut size={20} />
                   <span>Logout</span>
@@ -147,6 +147,31 @@ export function AdminNavbar() {
       </div>
     </header>
   );
+}
+
+// Isolated clock: ticks every second on its own, so the rest of the
+// dashboard doesn't have to re-render just because a second passed.
+function LiveClock() {
+  const [now, setNow] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const formatted = now.toLocaleString("en-PH", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "2-digit",
+    hour: "numeric",
+    minute: "numeric",
+    second: "numeric",
+    hour12: true,
+    timeZone: "Asia/Manila",
+  });
+
+  return <div className="text-lg sm:text-xl font-bold">{formatted}</div>;
 }
 
 export default function AdminDashboard() {
@@ -168,8 +193,6 @@ export default function AdminDashboard() {
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [selectAll, setSelectAll] = useState(false);
 
-  const [currentTime, setCurrentTime] = useState(new Date());
-
   const indexOfLast = currentPage * announcementsPerPage;
   const indexOfFirst = indexOfLast - announcementsPerPage;
   const currentAnnouncements = announcements.slice(indexOfFirst, indexOfLast);
@@ -177,12 +200,6 @@ export default function AdminDashboard() {
     1,
     Math.ceil(announcements.length / announcementsPerPage)
   );
-
-  // Timer effect for live clock
-  useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
-    return () => clearInterval(timer);
-  }, []);
 
   useEffect(() => {
     if (currentAnnouncements.length === 0) {
@@ -239,26 +256,26 @@ export default function AdminDashboard() {
       const toArchive = announcements.filter((a) => selectedIds.includes(a.id));
 
       // 1️⃣ Archive selected announcements
-const archiveData = toArchive.map((announcement) => ({
-  original_announcement_id: announcement.id,
-  title: announcement.title,
-  content: announcement.content,
-}));
+      const archiveData = toArchive.map((announcement) => ({
+        original_announcement_id: announcement.id,
+        title: announcement.title,
+        content: announcement.content,
+      }));
 
-const { error: archiveError } = await supabase
-  .from("archive_announcements")
-  .insert(archiveData);
+      const { error: archiveError } = await supabase
+        .from("archive_announcements")
+        .insert(archiveData);
 
-if (archiveError) throw archiveError;
+      if (archiveError) throw archiveError;
 
-// 2️⃣ Delete them from the main table
-const idsToDelete = toArchive.map((a) => a.id);
-const { error: deleteError } = await supabase
-  .from("announcements")
-  .delete()
-  .in("id", idsToDelete);
+      // 2️⃣ Delete them from the main table
+      const idsToDelete = toArchive.map((a) => a.id);
+      const { error: deleteError } = await supabase
+        .from("announcements")
+        .delete()
+        .in("id", idsToDelete);
 
-if (deleteError) throw deleteError;
+      if (deleteError) throw deleteError;
 
       toast.success(`${selectedIds.length} announcement(s) archived successfully.`);
       setSelectedIds([]);
@@ -345,97 +362,85 @@ if (deleteError) throw deleteError;
     }
   }
 
-  const formattedTime = currentTime.toLocaleString("en-PH", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "2-digit",
-    hour: "numeric",
-    minute: "numeric",
-    second: "numeric",
-    hour12: true,
-    timeZone: "Asia/Manila",
-  });
-
   useEffect(() => {
     fetchAnnouncements();
   }, []);
 
   return (
     <AdminLayout>
-    <div className="bg-gradient-to-br from-emerald-50 via-teal-50/30 to-cyan-50 min-h-screen">
-      {/* Enhanced Philippine Standard Time top bar */}
-      <div className="bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 text-white shadow-lg">
+    <div className="bg-gray-50 min-h-screen">
+      {/* Philippine Standard Time top bar */}
+      <div className="bg-teal-700 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 lg:py-4">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-0">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
+              <div className="p-2 bg-white/15 rounded-lg">
                 <Clock size={18} className="text-white" />
               </div>
               <div>
                 <span className="font-semibold text-base sm:text-lg">Philippine Standard Time</span>
-                <div className="text-emerald-100 text-xs sm:text-sm">Community Health Dashboard</div>
+                <div className="text-teal-100 text-xs sm:text-sm">Community Health Dashboard</div>
               </div>
             </div>
             <div className="text-left sm:text-right">
-              <div className="text-lg sm:text-xl font-bold">{formattedTime}</div>
+              <LiveClock />
             </div>
           </div>
         </div>
       </div>
 
       <main className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6 lg:space-y-8">
-        {/* Enhanced Stats Cards */}
+        {/* Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 lg:mb-8">
-          <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-4 sm:p-6 shadow-lg border border-white/50 hover:shadow-xl transition-all duration-300">
+          <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-200">
             <div className="flex items-center gap-3 sm:gap-4">
-              <div className="p-2 sm:p-3 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl shadow-lg">
-                <Heart className="text-white" size={24} />
+              <div className="p-2 sm:p-3 bg-teal-50 rounded-xl">
+                <Heart className="text-teal-600" size={24} />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-xs sm:text-sm font-medium text-gray-600 uppercase tracking-wide truncate">Health Announcements</p>
+                <p className="text-xs sm:text-sm font-medium text-gray-500 uppercase tracking-wide truncate">Health Announcements</p>
                 <p className="text-2xl sm:text-3xl font-bold text-gray-900">{announcements.length}</p>
               </div>
             </div>
           </div>
-          
-          <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-4 sm:p-6 shadow-lg border border-white/50 hover:shadow-xl transition-all duration-300">
+
+          <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-200">
             <div className="flex items-center gap-3 sm:gap-4">
-              <div className="p-2 sm:p-3 bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl shadow-lg">
-                <Shield className="text-white" size={24} />
+              <div className="p-2 sm:p-3 bg-teal-50 rounded-xl">
+                <Shield className="text-teal-600" size={24} />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-xs sm:text-sm font-medium text-gray-600 uppercase tracking-wide truncate">Active Wellness Posts</p>
+                <p className="text-xs sm:text-sm font-medium text-gray-500 uppercase tracking-wide truncate">Active Wellness Posts</p>
                 <p className="text-2xl sm:text-3xl font-bold text-gray-900">{announcements.length}</p>
               </div>
             </div>
           </div>
-          
-          <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-4 sm:p-6 shadow-lg border border-white/50 hover:shadow-xl transition-all duration-300">
+
+          <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-200">
             <div className="flex items-center gap-3 sm:gap-4">
-              <div className="p-2 sm:p-3 bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-xl shadow-lg">
-                <TrendingUp className="text-white" size={24} />
+              <div className="p-2 sm:p-3 bg-teal-50 rounded-xl">
+                <TrendingUp className="text-teal-600" size={24} />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-xs sm:text-sm font-medium text-gray-600 uppercase tracking-wide truncate">This Month</p>
+                <p className="text-xs sm:text-sm font-medium text-gray-500 uppercase tracking-wide truncate">This Month</p>
                 <p className="text-2xl sm:text-3xl font-bold text-gray-900">{announcements.filter(a => new Date(a.created_at).getMonth() === new Date().getMonth()).length}</p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Enhanced Post Form */}
-        <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl border border-white/50 p-4 sm:p-6 lg:p-8">
+        {/* Post Form */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6 lg:p-8">
           <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-6 lg:mb-8">
-            <div className="p-3 bg-gradient-to-br from-emerald-600 to-teal-700 rounded-xl shadow-lg">
+            <div className="p-3 bg-teal-600 rounded-xl">
               <Plus className="text-white w-5 h-5 sm:w-6 sm:h-6" />
             </div>
             <div className="min-w-0 flex-1">
               <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Create Health Announcement</h2>
-              <p className="text-sm sm:text-base text-gray-600 mt-1">Share important health updates with your barangay community</p>
+              <p className="text-sm sm:text-base text-gray-500 mt-1">Share important health updates with your barangay community</p>
             </div>
           </div>
-          
+
           <div className="space-y-4 sm:space-y-6">
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2 sm:mb-3">Health Announcement Title</label>
@@ -443,29 +448,29 @@ if (deleteError) throw deleteError;
                 placeholder="e.g., COVID-19 Vaccination Schedule, Health Screening Program..."
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="w-full px-4 py-3 bg-white/70 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 transition-all text-base sm:text-lg text-gray-900 placeholder:text-gray-500"
+                className="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl focus:border-teal-500 focus:ring-2 focus:ring-teal-100 transition-colors text-base sm:text-lg text-gray-900 placeholder:text-gray-400"
               />
             </div>
-            
+
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2 sm:mb-3">Health Information Content</label>
               <Textarea
                 placeholder="Provide detailed health information, guidelines, schedules, or important announcements for the community..."
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
-                className="w-full px-4 py-3 bg-white/70 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 transition-all min-h-32 text-sm sm:text-base leading-relaxed text-gray-900 placeholder:text-gray-500"
+                className="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl focus:border-teal-500 focus:ring-2 focus:ring-teal-100 transition-colors min-h-32 text-sm sm:text-base leading-relaxed text-gray-900 placeholder:text-gray-400"
               />
             </div>
-            
+
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2 sm:mb-3">
                 Health Image (Optional)
-                <span className="text-gray-500 font-normal ml-2 text-xs sm:text-sm">- Add relevant health imagery</span>
+                <span className="text-gray-400 font-normal ml-2 text-xs sm:text-sm">- Add relevant health imagery</span>
               </label>
               <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
                 <label
                   htmlFor="post-image"
-                  className="flex items-center justify-center gap-3 px-6 py-3 bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 border-2 border-gray-300 rounded-xl cursor-pointer hover:from-gray-200 hover:to-gray-300 transition-all font-medium shadow-sm"
+                  className="flex items-center justify-center gap-3 px-6 py-3 bg-gray-100 text-gray-700 border border-gray-300 rounded-xl cursor-pointer hover:bg-gray-200 transition-colors font-medium"
                 >
                   <Plus size={20} />
                   Choose Health Image
@@ -482,11 +487,11 @@ if (deleteError) throw deleteError;
                     <img
                       src={URL.createObjectURL(image)}
                       alt="Health image preview"
-                      className="w-20 h-20 object-cover rounded-xl border-2 border-gray-200 shadow-lg"
+                      className="w-20 h-20 object-cover rounded-xl border border-gray-200"
                     />
                     <button
                       onClick={() => setImage(null)}
-                      className="absolute -top-2 -right-2 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-lg hover:bg-red-600"
+                      className="absolute -top-2 -right-2 p-1 bg-gray-700 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-gray-900"
                     >
                       <X size={14} />
                     </button>
@@ -494,12 +499,12 @@ if (deleteError) throw deleteError;
                 )}
               </div>
             </div>
-            
+
             <div className="pt-4">
               <Button
                 onClick={handlePost}
                 disabled={loading}
-                className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-base sm:text-lg"
+                className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-teal-600 hover:bg-teal-700 text-white font-semibold rounded-xl shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-base sm:text-lg"
               >
                 {loading ? (
                   <div className="flex items-center gap-2">
@@ -517,35 +522,35 @@ if (deleteError) throw deleteError;
           </div>
         </div>
 
-        {/* Enhanced Announcements Header */}
-        <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 p-4 sm:p-6">
+        {/* Announcements Header */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
             <div>
               <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Recent Health Announcements</h2>
-              <p className="text-sm sm:text-base text-gray-600 mt-1">Manage your community health updates</p>
+              <p className="text-sm sm:text-base text-gray-500 mt-1">Manage your community health updates</p>
             </div>
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
               {currentAnnouncements.length > 0 && (
-                <div className="flex items-center gap-3 bg-emerald-50 px-4 py-2 rounded-xl">
+                <div className="flex items-center gap-3 bg-gray-100 px-4 py-2 rounded-xl">
                   <input
                     type="checkbox"
                     checked={selectAll}
                     onChange={toggleSelectAll}
-                    className="w-5 h-5 text-emerald-600 border-2 border-gray-300 rounded focus:ring-emerald-500 focus:ring-2"
+                    className="w-5 h-5 text-teal-600 border-2 border-gray-300 rounded focus:ring-teal-500 focus:ring-2"
                   />
-                  <span className="text-sm font-medium text-emerald-700">Select All</span>
+                  <span className="text-sm font-medium text-gray-700">Select All</span>
                 </div>
               )}
               {selectedIds.length > 0 && (
                 <div className="flex items-center gap-3">
-                  <div className="bg-emerald-100 px-3 py-2 rounded-lg">
-                    <span className="text-sm font-semibold text-emerald-800">
+                  <div className="bg-teal-50 px-3 py-2 rounded-lg">
+                    <span className="text-sm font-semibold text-teal-700">
                       {selectedIds.length} selected
                     </span>
                   </div>
                   <Button
                     onClick={handleArchiveSelected}
-                    className="px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2 text-sm"
+                    className="px-4 py-2 bg-gray-700 hover:bg-gray-800 text-white font-semibold rounded-xl shadow-sm transition-colors flex items-center gap-2 text-sm"
                   >
                     <Archive size={16} />
                     Archive Selected
@@ -555,11 +560,11 @@ if (deleteError) throw deleteError;
             </div>
           </div>
 
-          {/* Enhanced Announcements List */}
+          {/* Announcements List */}
           {announcements.length === 0 ? (
             <div className="text-center py-12 sm:py-16">
-              <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <Heart className="text-emerald-400 w-8 h-8 sm:w-10 sm:h-10" />
+              <div className="w-20 h-20 sm:w-24 sm:h-24 bg-teal-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <Heart className="text-teal-400 w-8 h-8 sm:w-10 sm:h-10" />
               </div>
               <h3 className="text-lg sm:text-xl font-semibold text-gray-600 mb-2">No health announcements yet</h3>
               <p className="text-sm sm:text-base text-gray-500">Create your first health announcement to get started</p>
@@ -569,10 +574,10 @@ if (deleteError) throw deleteError;
               {currentAnnouncements.map((a) => (
                 <div
                   key={a.id}
-                  className={`relative bg-white/90 backdrop-blur-sm border-2 rounded-2xl shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-[1.02] w-full ${
+                  className={`relative bg-white border rounded-2xl shadow-sm transition-colors w-full ${
                     selectedIds.includes(a.id)
-                      ? "border-emerald-400 ring-4 ring-emerald-100 shadow-emerald-200"
-                      : "border-gray-200 hover:border-emerald-300"
+                      ? "border-teal-400 ring-2 ring-teal-100"
+                      : "border-gray-200 hover:border-teal-200"
                   }`}
                 >
                   <div className="absolute top-4 left-4 z-10">
@@ -580,10 +585,10 @@ if (deleteError) throw deleteError;
                       type="checkbox"
                       checked={selectedIds.includes(a.id)}
                       onChange={() => toggleSelect(a.id)}
-                      className="w-5 h-5 text-emerald-600 border-2 border-gray-300 rounded focus:ring-emerald-500 focus:ring-2 bg-white"
+                      className="w-5 h-5 text-teal-600 border-2 border-gray-300 rounded focus:ring-teal-500 focus:ring-2 bg-white"
                     />
                   </div>
-                  
+
                   {a.image_url ? (
                     <img
                       src={a.image_url}
@@ -591,11 +596,11 @@ if (deleteError) throw deleteError;
                       className="w-full h-40 sm:h-48 object-cover rounded-t-2xl"
                     />
                   ) : (
-                    <div className="flex items-center justify-center w-full h-40 sm:h-48 bg-gradient-to-br from-emerald-100 to-teal-100 text-emerald-400 rounded-t-2xl">
+                    <div className="flex items-center justify-center w-full h-40 sm:h-48 bg-teal-50 text-teal-300 rounded-t-2xl">
                       <Heart className="w-12 h-12 sm:w-14 sm:h-14" />
                     </div>
                   )}
-                  
+
                   <div className="p-4 sm:p-6">
                     <h3 className="font-bold text-gray-900 text-lg sm:text-xl mb-3 line-clamp-2 leading-tight">
                       {a.title}
@@ -603,7 +608,7 @@ if (deleteError) throw deleteError;
                     <p className="text-gray-600 text-sm mb-4 line-clamp-3 leading-relaxed">
                       {a.content}
                     </p>
-                    
+
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0 pt-4 border-t border-gray-100">
                       <div className="flex items-center gap-2 text-xs text-gray-500">
                         <Clock size={14} />
@@ -615,7 +620,7 @@ if (deleteError) throw deleteError;
                       </div>
                       <Button
                         size="sm"
-                        className="w-full sm:w-auto px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
+                        className="w-full sm:w-auto px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white font-semibold rounded-lg shadow-sm transition-colors flex items-center justify-center gap-2"
                         onClick={() => openEditModal(a)}
                       >
                         <Edit3 size={14} />
@@ -628,7 +633,7 @@ if (deleteError) throw deleteError;
             </div>
           )}
 
-          {/* Enhanced Pagination */}
+          {/* Pagination */}
           {totalPages > 1 && (
             <div className="flex justify-center items-center gap-2 mt-6 sm:mt-8 pt-6 sm:pt-8 border-t border-gray-200">
               <div className="flex gap-1 sm:gap-2 overflow-x-auto pb-2">
@@ -637,10 +642,10 @@ if (deleteError) throw deleteError;
                     key={page}
                     variant={page === currentPage ? "default" : "outline"}
                     onClick={() => setCurrentPage(page)}
-                    className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl font-semibold transition-all duration-300 flex-shrink-0 text-sm sm:text-base ${
+                    className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl font-semibold transition-colors flex-shrink-0 text-sm sm:text-base ${
                       page === currentPage
-                        ? "bg-gradient-to-r from-emerald-600 to-teal-700 text-white shadow-lg hover:shadow-xl"
-                        : "bg-white/80 text-gray-700 border-2 border-gray-200 hover:border-emerald-300 hover:bg-emerald-50"
+                        ? "bg-teal-600 text-white shadow-sm"
+                        : "bg-white text-gray-700 border border-gray-200 hover:border-teal-300 hover:bg-teal-50"
                     }`}
                   >
                     {page}
@@ -651,14 +656,14 @@ if (deleteError) throw deleteError;
           )}
         </div>
 
-        {/* Enhanced Edit Modal */}
+        {/* Edit Modal */}
         {editDialogOpen && (
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-white/95 backdrop-blur-md rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl border border-white/50">
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-xl border border-gray-200">
               <div className="p-6 sm:p-8">
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-3">
-                    <div className="p-2 bg-gradient-to-br from-emerald-600 to-teal-700 rounded-xl">
+                    <div className="p-2 bg-teal-600 rounded-xl">
                       <Edit3 className="text-white" size={20} />
                     </div>
                     <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Edit Health Announcement</h2>
@@ -670,7 +675,7 @@ if (deleteError) throw deleteError;
                     <X size={24} />
                   </button>
                 </div>
-                
+
                 <div className="space-y-4 sm:space-y-6">
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">Health Announcement Title</label>
@@ -678,26 +683,26 @@ if (deleteError) throw deleteError;
                       placeholder="Enter health announcement title..."
                       value={editTitle}
                       onChange={(e) => setEditTitle(e.target.value)}
-                      className="w-full px-4 py-3 bg-white/70 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 transition-all text-gray-900 placeholder:text-gray-500"
+                      className="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl focus:border-teal-500 focus:ring-2 focus:ring-teal-100 transition-colors text-gray-900 placeholder:text-gray-400"
                     />
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">Health Information Content</label>
                     <Textarea
                       placeholder="Enter detailed health information..."
                       value={editContent}
                       onChange={(e) => setEditContent(e.target.value)}
-                      className="w-full px-4 py-3 bg-white/70 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 transition-all min-h-24 text-gray-900 placeholder:text-gray-500"
+                      className="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl focus:border-teal-500 focus:ring-2 focus:ring-teal-100 transition-colors min-h-24 text-gray-900 placeholder:text-gray-400"
                     />
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-3">Health Image</label>
                     <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                       <label
                         htmlFor="edit-image"
-                        className="flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 border-2 border-gray-300 rounded-xl cursor-pointer hover:from-gray-200 hover:to-gray-300 transition-all font-medium"
+                        className="flex items-center justify-center gap-2 px-4 py-3 bg-gray-100 text-gray-700 border border-gray-300 rounded-xl cursor-pointer hover:bg-gray-200 transition-colors font-medium"
                       >
                         <Plus size={16} />
                         Choose Health Image
@@ -714,11 +719,11 @@ if (deleteError) throw deleteError;
                           <img
                             src={URL.createObjectURL(editImage)}
                             alt="Health image preview"
-                            className="w-16 h-16 object-cover rounded-xl border-2 border-gray-200 shadow-lg"
+                            className="w-16 h-16 object-cover rounded-xl border border-gray-200"
                           />
                           <button
                             onClick={() => setEditImage(null)}
-                            className="absolute -top-2 -right-2 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-lg hover:bg-red-600"
+                            className="absolute -top-2 -right-2 p-1 bg-gray-700 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-gray-900"
                           >
                             <X size={12} />
                           </button>
@@ -727,17 +732,17 @@ if (deleteError) throw deleteError;
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-6 sm:mt-8 pt-6 border-t border-gray-200">
                   <Button
                     onClick={() => setEditDialogOpen(false)}
-                    className="flex-1 px-6 py-3 bg-gray-100 text-gray-700 hover:bg-gray-200 border-2 border-gray-200 hover:border-gray-300 rounded-xl font-semibold transition-all duration-300"
+                    className="flex-1 px-6 py-3 bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-200 rounded-xl font-semibold transition-colors"
                   >
                     Cancel
                   </Button>
                   <Button
                     onClick={handleEditSave}
-                    className="flex-1 px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                    className="flex-1 px-6 py-3 bg-teal-600 hover:bg-teal-700 text-white font-semibold rounded-xl shadow-sm transition-colors"
                   >
                     Save Health Update
                   </Button>
