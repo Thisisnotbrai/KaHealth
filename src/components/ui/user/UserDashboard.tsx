@@ -55,12 +55,18 @@ interface Announcement {
 }
 interface MedicineRequest {
   id: number;
-  user_id: string;
-  medicine_name: string;
+  requester_name: string;
+  age?: number;
+  sex?: string;
+  contact: string;
+  address: string;
+  medicine_id: string;
   quantity: number;
+  reason?: string;
+  file_url?: string;
   status: "pending" | "approved" | "denied";
-  notes?: string;
   created_at: string;
+  medicines?: { id: string; name: string; dosage?: string; form?: string; stock?: number };
 }
 interface CommunityEvent {
   id: number;
@@ -96,9 +102,8 @@ function UserSidebar({
   ];
   return (
     <aside
-      className={`hidden lg:flex flex-col fixed left-0 top-0 h-screen z-40 bg-white/95 backdrop-blur-xl border-r border-emerald-100 shadow-xl transition-all duration-300 ${
-        collapsed ? "w-20" : "w-72"
-      }`}
+      className={`hidden lg:flex flex-col fixed left-0 top-0 h-screen z-40 bg-white/95 backdrop-blur-xl border-r border-emerald-100 shadow-xl transition-all duration-300 ${collapsed ? "w-20" : "w-72"
+        }`}
     >
       {/* Logo / Brand */}
       <div className="flex items-center gap-3 px-5 py-6 border-b border-emerald-100">
@@ -129,11 +134,11 @@ function UserSidebar({
             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-white font-bold text-sm shadow-md shrink-0">
               {profile.full_name
                 ? profile.full_name
-                    .split(" ")
-                    .map((n) => n[0])
-                    .join("")
-                    .toUpperCase()
-                    .slice(0, 2)
+                  .split(" ")
+                  .map((n) => n[0])
+                  .join("")
+                  .toUpperCase()
+                  .slice(0, 2)
                 : "U"}
             </div>
             <div className="min-w-0">
@@ -151,11 +156,10 @@ function UserSidebar({
           <button
             key={link.key}
             onClick={() => onNavigate(link.key)}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all duration-200 group ${
-              activeSection === link.key
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all duration-200 group ${activeSection === link.key
                 ? "bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-200/50"
                 : "text-gray-600 hover:bg-emerald-50 hover:text-emerald-700"
-            } ${collapsed ? "justify-center px-3" : ""}`}
+              } ${collapsed ? "justify-center px-3" : ""}`}
             title={collapsed ? link.label : undefined}
           >
             <span className={`shrink-0 transition-transform duration-200 ${activeSection !== link.key ? "group-hover:scale-110" : ""}`}>
@@ -169,9 +173,8 @@ function UserSidebar({
       <div className="px-3 py-4 border-t border-emerald-100">
         <button
           onClick={onLogout}
-          className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-500 hover:bg-red-50 hover:text-red-600 font-medium transition-all duration-200 ${
-            collapsed ? "justify-center px-3" : ""
-          }`}
+          className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-500 hover:bg-red-50 hover:text-red-600 font-medium transition-all duration-200 ${collapsed ? "justify-center px-3" : ""
+            }`}
           title={collapsed ? "Logout" : undefined}
         >
           <LogOut size={22} />
@@ -203,11 +206,10 @@ function UserBottomNav({
           <button
             key={tab.key}
             onClick={() => onNavigate(tab.key)}
-            className={`flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all duration-200 min-w-[60px] ${
-              activeSection === tab.key
+            className={`flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all duration-200 min-w-[60px] ${activeSection === tab.key
                 ? "text-emerald-600 bg-emerald-50 scale-105"
                 : "text-gray-400 hover:text-gray-600"
-            }`}
+              }`}
           >
             {tab.icon}
             <span className="text-[10px] font-semibold tracking-wide">{tab.label}</span>
@@ -536,7 +538,7 @@ function DashboardHome({
                     key={req.id}
                     className="border-b border-gray-50 last:border-0 hover:bg-gray-50/50 transition-colors"
                   >
-                    <td className="py-3 px-4 font-medium text-gray-900">{req.medicine_name}</td>
+                    <td className="py-3 px-4 font-medium text-gray-900">{req.medicines?.name || "Unknown"}</td>
                     <td className="py-3 px-4 text-gray-600">{req.quantity}</td>
                     <td className="py-3 px-4">
                       <StatusBadge status={req.status} />
@@ -631,9 +633,8 @@ function AnnouncementsFeed({ announcements }: { announcements: Announcement[] })
                   {a.title}
                 </h3>
                 <p
-                  className={`text-gray-600 text-sm leading-relaxed ${
-                    expandedId === a.id ? "" : "line-clamp-3"
-                  }`}
+                  className={`text-gray-600 text-sm leading-relaxed ${expandedId === a.id ? "" : "line-clamp-3"
+                    }`}
                 >
                   {a.content}
                 </p>
@@ -671,11 +672,10 @@ function AnnouncementsFeed({ announcements }: { announcements: Announcement[] })
             <button
               key={page}
               onClick={() => setCurrentPage(page)}
-              className={`w-10 h-10 rounded-xl font-semibold text-sm transition-all duration-200 ${
-                page === currentPage
+              className={`w-10 h-10 rounded-xl font-semibold text-sm transition-all duration-200 ${page === currentPage
                   ? "bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg"
                   : "bg-white/80 text-gray-600 border-2 border-gray-200 hover:border-emerald-300 hover:bg-emerald-50"
-              }`}
+                }`}
             >
               {page}
             </button>
@@ -696,33 +696,56 @@ function AnnouncementsFeed({ announcements }: { announcements: Announcement[] })
 function MedicineRequests({
   requests,
   onSubmitRequest,
+  profile,
 }: {
   requests: MedicineRequest[];
-  onSubmitRequest: (name: string, qty: number, notes: string) => Promise<void>;
+  onSubmitRequest: (data: { medicine_id: string; quantity: number; reason: string }) => Promise<void>;
+  profile: Profile | null;
 }) {
-  const [medicineName, setMedicineName] = useState("");
+  const [medicines, setMedicines] = useState<{ id: string; name: string; dosage?: string; form?: string; stock?: number }[]>([]);
+  const [selectedMedicineId, setSelectedMedicineId] = useState("");
   const [quantity, setQuantity] = useState("");
-  const [notes, setNotes] = useState("");
+  const [reason, setReason] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [filterStatus, setFilterStatus] = useState<"all" | "pending" | "approved" | "denied">(
     "all"
   );
+
+  useEffect(() => {
+    async function fetchMedicines() {
+      const { data } = await supabase
+        .from("medicines")
+        .select("id, name, dosage, form, stock")
+        .order("name");
+      if (data) setMedicines(data);
+    }
+    fetchMedicines();
+  }, []);
+
+  const selectedMedicine = medicines.find((m) => m.id === selectedMedicineId);
   const filtered = filterStatus === "all" ? requests : requests.filter((r) => r.status === filterStatus);
+
   async function handleSubmit() {
-    if (!medicineName.trim() || !quantity.trim()) {
-      return toast.error("Please provide medicine name and quantity.");
+    if (!selectedMedicineId) {
+      return toast.error("Please select a medicine.");
+    }
+    if (!quantity.trim()) {
+      return toast.error("Please provide a quantity.");
     }
     const qty = parseInt(quantity, 10);
     if (isNaN(qty) || qty < 1) {
       return toast.error("Please enter a valid quantity.");
     }
+    if (selectedMedicine && qty > (selectedMedicine.stock || 0)) {
+      return toast.error(`Insufficient stock. Available: ${selectedMedicine.stock}`);
+    }
     setSubmitting(true);
     try {
-      await onSubmitRequest(medicineName.trim(), qty, notes.trim());
-      setMedicineName("");
+      await onSubmitRequest({ medicine_id: selectedMedicineId, quantity: qty, reason: reason.trim() });
+      setSelectedMedicineId("");
       setQuantity("");
-      setNotes("");
+      setReason("");
       setShowForm(false);
       toast.success("Medicine request submitted successfully!");
     } catch {
@@ -764,43 +787,72 @@ function MedicineRequests({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Medicine Name
+                Select Medicine <span className="text-red-500">*</span>
               </label>
-              <Input
-                placeholder="e.g., Paracetamol, Amoxicillin..."
-                value={medicineName}
-                onChange={(e) => setMedicineName(e.target.value)}
-                className="w-full px-4 py-3 bg-white/70 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 transition-all text-sm"
-              />
+              <select
+                value={selectedMedicineId}
+                onChange={(e) => setSelectedMedicineId(e.target.value)}
+                className="w-full px-4 py-3 bg-white/70 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 transition-all text-sm text-gray-900 font-medium"
+              >
+                <option value="">-- Select Medicine --</option>
+                {medicines.map((m) => (
+                  <option key={m.id} value={m.id}>
+                    {m.name} {m.dosage ? `- ${m.dosage}` : ""} {m.form ? `(${m.form})` : ""} - Stock: {m.stock ?? 0}
+                  </option>
+                ))}
+              </select>
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Quantity</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Quantity <span className="text-red-500">*</span>
+              </label>
               <Input
                 type="number"
                 min="1"
+                max={selectedMedicine?.stock || 999}
                 placeholder="e.g., 10"
                 value={quantity}
                 onChange={(e) => setQuantity(e.target.value)}
                 className="w-full px-4 py-3 bg-white/70 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 transition-all text-sm"
               />
+              {selectedMedicine && quantity && Number(quantity) > (selectedMedicine.stock || 0) && (
+                <p className="text-red-600 text-sm mt-1 font-medium">
+                  ⚠️ Quantity exceeds available stock!
+                </p>
+              )}
             </div>
           </div>
+          {selectedMedicine && (
+            <div className="mt-3 bg-emerald-50 rounded-lg p-3 border border-emerald-200">
+              <p className="text-sm text-gray-700">
+                <span className="font-semibold">Selected:</span> {selectedMedicine.name}
+                {selectedMedicine.dosage && <> | <span className="font-semibold">Dosage:</span> {selectedMedicine.dosage}</>}
+                {selectedMedicine.form && <> | <span className="font-semibold">Form:</span> {selectedMedicine.form}</>}
+              </p>
+              <p className="text-sm text-gray-600">
+                <span className="font-semibold">Available Stock:</span>{" "}
+                <span className={(selectedMedicine.stock || 0) < 10 ? "text-red-600 font-bold" : "text-green-600 font-bold"}>
+                  {selectedMedicine.stock ?? 0} units
+                </span>
+              </p>
+            </div>
+          )}
           <div className="mt-4">
             <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Notes{" "}
+              Reason{" "}
               <span className="text-gray-400 font-normal text-xs">(optional)</span>
             </label>
             <Textarea
-              placeholder="Any additional details or instructions..."
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
+              placeholder="Please describe why you need this medicine..."
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
               className="w-full px-4 py-3 bg-white/70 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 transition-all min-h-20 text-sm"
             />
           </div>
           <div className="mt-5 flex justify-end">
             <Button
               onClick={handleSubmit}
-              disabled={submitting}
+              disabled={submitting || !selectedMedicineId || !quantity}
               className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
             >
               {submitting ? (
@@ -824,13 +876,12 @@ function MedicineRequests({
           <button
             key={status}
             onClick={() => setFilterStatus(status)}
-            className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 capitalize ${
-              filterStatus === status
+            className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 capitalize ${filterStatus === status
                 ? "bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg"
                 : "bg-white/80 text-gray-600 border-2 border-gray-200 hover:border-emerald-300 hover:bg-emerald-50"
-            }`}
+              }`}
           >
-            {status === "all" ? `All (${requests.length})` : `${status} (${requests.filter((r) => r.status === status).length})`}
+            {status === "all" ? `All (${requests.length})` : `${status} (${requests.filter((r) => r.status === filterStatus).length})`}
           </button>
         ))}
       </div>
@@ -863,7 +914,7 @@ function MedicineRequests({
                     Status
                   </th>
                   <th className="text-left py-4 px-5 text-xs font-semibold text-gray-500 uppercase tracking-wider hidden md:table-cell">
-                    Notes
+                    Reason
                   </th>
                   <th className="text-left py-4 px-5 text-xs font-semibold text-gray-500 uppercase tracking-wider hidden sm:table-cell">
                     Submitted
@@ -881,7 +932,7 @@ function MedicineRequests({
                         <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-emerald-100 to-teal-100 flex items-center justify-center shrink-0">
                           <Pill className="text-emerald-600" size={16} />
                         </div>
-                        <span className="font-semibold text-gray-900">{req.medicine_name}</span>
+                        <span className="font-semibold text-gray-900">{req.medicines?.name || "Unknown"}</span>
                       </div>
                     </td>
                     <td className="py-4 px-5 text-gray-700 font-medium">{req.quantity}</td>
@@ -889,7 +940,7 @@ function MedicineRequests({
                       <StatusBadge status={req.status} />
                     </td>
                     <td className="py-4 px-5 text-gray-500 hidden md:table-cell max-w-[200px] truncate">
-                      {req.notes || "—"}
+                      {req.reason || "—"}
                     </td>
                     <td className="py-4 px-5 text-gray-500 hidden sm:table-cell text-xs">
                       {formatDistanceToNow(new Date(req.created_at), { addSuffix: true })}
@@ -917,18 +968,16 @@ function EventsSection({ events }: { events: CommunityEvent[] }) {
     const d = new Date(evt.event_date);
     return (
       <div
-        className={`bg-white/95 backdrop-blur-sm border-2 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden ${
-          isPast ? "border-gray-200 opacity-75" : "border-gray-100 hover:border-teal-200"
-        }`}
+        className={`bg-white/95 backdrop-blur-sm border-2 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden ${isPast ? "border-gray-200 opacity-75" : "border-gray-100 hover:border-teal-200"
+          }`}
       >
         <div className="flex flex-col sm:flex-row">
           {/* Date Side */}
           <div
-            className={`sm:w-28 p-4 sm:p-5 flex sm:flex-col items-center justify-center gap-2 sm:gap-1 ${
-              isPast
+            className={`sm:w-28 p-4 sm:p-5 flex sm:flex-col items-center justify-center gap-2 sm:gap-1 ${isPast
                 ? "bg-gradient-to-br from-gray-200 to-gray-300"
                 : "bg-gradient-to-br from-teal-500 to-cyan-600"
-            }`}
+              }`}
           >
             <span className="text-xs uppercase font-bold text-white/80">
               {d.toLocaleDateString("en-PH", { month: "short" })}
@@ -1067,11 +1116,11 @@ function ProfileSection({
   }
   const initials = profile?.full_name
     ? profile.full_name
-        .split(" ")
-        .map((n) => n[0])
-        .join("")
-        .toUpperCase()
-        .slice(0, 2)
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2)
     : "U";
   return (
     <div className="space-y-6">
@@ -1121,11 +1170,10 @@ function ProfileSection({
             <Button
               onClick={() => (editing ? handleSave() : setEditing(true))}
               disabled={saving}
-              className={`flex items-center gap-2 px-5 py-2.5 font-semibold rounded-xl shadow-lg transition-all duration-300 text-sm ${
-                editing
+              className={`flex items-center gap-2 px-5 py-2.5 font-semibold rounded-xl shadow-lg transition-all duration-300 text-sm ${editing
                   ? "bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white"
                   : "bg-white border-2 border-gray-200 text-gray-700 hover:border-emerald-300 hover:bg-emerald-50"
-              }`}
+                }`}
             >
               {saving ? (
                 <>
@@ -1232,10 +1280,10 @@ function ProfileSection({
                 <p className="px-4 py-3 bg-gray-50 rounded-xl text-sm text-gray-900 font-medium border border-gray-100">
                   {profile?.date_of_birth
                     ? new Date(profile.date_of_birth).toLocaleDateString("en-PH", {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                      })
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })
                     : "—"}
                 </p>
               )}
@@ -1249,10 +1297,10 @@ function ProfileSection({
               <p className="px-4 py-3 bg-gray-50 rounded-xl text-sm text-gray-900 font-medium border border-gray-100">
                 {profile?.created_at
                   ? new Date(profile.created_at).toLocaleDateString("en-PH", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })
                   : "—"}
               </p>
             </div>
@@ -1335,14 +1383,14 @@ export default function UserDashboard() {
     if (data) setAnnouncements(data);
   }, []);
   const fetchMedicineRequests = useCallback(async () => {
-    if (!userId) return;
+    if (!userId || !profile) return;
     const { data } = await supabase
       .from("medicine_requests")
-      .select("*")
-      .eq("user_id", userId)
+      .select(`*, medicines:medicine_id ( id, name, dosage, form, stock )`)
+      .eq("requester_name", profile.full_name)
       .order("created_at", { ascending: false });
-    if (data) setMedicineRequests(data);
-  }, [userId]);
+    if (data) setMedicineRequests(data as MedicineRequest[]);
+  }, [userId, profile]);
   const fetchEvents = useCallback(async () => {
     const { data } = await supabase
       .from("events")
@@ -1358,14 +1406,16 @@ export default function UserDashboard() {
     fetchEvents();
   }, [userId, fetchProfile, fetchAnnouncements, fetchMedicineRequests, fetchEvents]);
   // ── Handlers ────────────────────────────────────────────────────────────────
-  async function handleSubmitMedicineRequest(name: string, qty: number, notes: string) {
-    if (!userId) return;
+  async function handleSubmitMedicineRequest(data: { medicine_id: string; quantity: number; reason: string }) {
+    if (!userId || !profile) return;
     const { error } = await supabase.from("medicine_requests").insert([
       {
-        user_id: userId,
-        medicine_name: name,
-        quantity: qty,
-        notes: notes || null,
+        requester_name: profile.full_name || "Unknown",
+        contact: profile.phone || "N/A",
+        address: profile.barangay || "N/A",
+        medicine_id: data.medicine_id,
+        quantity: data.quantity,
+        reason: data.reason || null,
         status: "pending",
       },
     ]);
@@ -1420,6 +1470,7 @@ export default function UserDashboard() {
           <MedicineRequests
             requests={medicineRequests}
             onSubmitRequest={handleSubmitMedicineRequest}
+            profile={profile}
           />
         );
       case "events":
@@ -1443,9 +1494,8 @@ export default function UserDashboard() {
       <UserBottomNav activeSection={activeSection} onNavigate={setActiveSection} />
       {/* Main Content */}
       <main
-        className={`transition-all duration-300 ${
-          sidebarCollapsed ? "lg:ml-20" : "lg:ml-72"
-        } pb-24 lg:pb-8`}
+        className={`transition-all duration-300 ${sidebarCollapsed ? "lg:ml-20" : "lg:ml-72"
+          } pb-24 lg:pb-8`}
       >
         {/* Mobile Header */}
         <div className="lg:hidden sticky top-0 z-30 bg-white/95 backdrop-blur-xl border-b border-emerald-100 shadow-sm px-4 py-3">
