@@ -28,8 +28,8 @@ import {
   Shield,
   Phone,
   MapPinned,
-    Hash,
-    ScrollText
+  Hash,
+  ScrollText
 } from "lucide-react";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns/formatDistanceToNow";
@@ -94,7 +94,7 @@ export function AdminNavbar() {
               <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center shadow-lg">
                 <Heart className="text-white" size={18} />
               </div>
-              <div className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 bg-green-400 rounded-full border-2 border-white animate-pulse"></div>
+              <div className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 bg-emerald-400 rounded-full border-2 border-white animate-pulse"></div>
             </div>
             <div className="hidden sm:block">
               <h1 className="text-lg sm:text-xl font-bold text-gray-900">KaHealth Admin</h1>
@@ -126,7 +126,7 @@ export function AdminNavbar() {
                   await supabase.auth.signOut();
                   window.location.href = "/admin/login";
                 }}
-                className="flex items-center gap-2 px-3 xl:px-4 py-2.5 rounded-xl text-red-600 hover:bg-red-50 hover:text-red-700 transition-all duration-200 font-medium text-sm xl:text-base"
+                className="flex items-center gap-2 px-3 xl:px-4 py-2.5 rounded-xl text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-all duration-200 font-medium text-sm xl:text-base"
               >
                 <LogOut size={20} />
                 <span className="hidden xl:inline">Logout</span>
@@ -166,7 +166,7 @@ export function AdminNavbar() {
                     await supabase.auth.signOut();
                     window.location.href = "/admin/login";
                   }}
-                  className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-red-600 hover:bg-red-50 font-medium text-sm sm:text-base"
+                  className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-slate-500 hover:bg-slate-100 font-medium text-sm sm:text-base"
                 >
                   <LogOut size={20} />
                   <span>Logout</span>
@@ -247,13 +247,15 @@ export default function ArchivePage() {
     return daysLeft > 0 ? daysLeft : 0;
   };
 
+  // Unified cool-toned palette: every category badge lives in the emerald/teal/cyan/slate
+  // family so the page reads as one coherent system instead of a rainbow of unrelated hues.
   const typeBadge = (type: string) => {
     const badges: Record<string, JSX.Element> = {
-      archive_events: <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5"><CalendarDays size={14} /> Event</span>,
-      archive_feedback: <span className="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5"><MessageSquare size={14} /> Feedback</span>,
-      archive_announcements: <span className="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5"><Megaphone size={14} /> Announcement</span>,
-      archive_medicines: <span className="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5"><Pill size={14} /> Medicine</span>,
-      archive_medicine_requests: <span className="bg-rose-100 text-rose-700 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5"><Package size={14} /> Request</span>
+      archive_events: <span className="bg-teal-50 text-teal-700 border border-teal-200 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5"><CalendarDays size={14} /> Event</span>,
+      archive_feedback: <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5"><MessageSquare size={14} /> Feedback</span>,
+      archive_announcements: <span className="bg-cyan-50 text-cyan-700 border border-cyan-200 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5"><Megaphone size={14} /> Announcement</span>,
+      archive_medicines: <span className="bg-slate-50 text-slate-700 border border-slate-200 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5"><Pill size={14} /> Medicine</span>,
+      archive_medicine_requests: <span className="bg-sky-50 text-sky-700 border border-sky-200 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5"><Package size={14} /> Request</span>
     };
     return badges[type] || null;
   };
@@ -345,18 +347,25 @@ export default function ArchivePage() {
     toast.success("Item successfully unarchived!");
   };
 
+  // Reason badges now use only three semantic tones: neutral (slate), caution (amber),
+  // and critical (red) — instead of a different color per reason.
   const getReasonBadge = (reason: string) => {
     const reasons: Record<string, { label: string; color: string }> = {
-      expired: { label: "🗓️ Expired", color: "bg-red-100 text-red-700" },
-      out_of_stock: { label: "📦 Out of Stock", color: "bg-orange-100 text-orange-700" },
-      discontinued: { label: "🚫 Discontinued", color: "bg-gray-100 text-gray-700" },
-      damaged: { label: "⚠️ Damaged", color: "bg-yellow-100 text-yellow-700" },
-      recalled: { label: "🔄 Recalled", color: "bg-purple-100 text-purple-700" },
-      manual_archive: { label: "📋 Manual Archive", color: "bg-blue-100 text-blue-700" }
+      expired: { label: "🗓️ Expired", color: "bg-red-50 text-red-700 border border-red-200" },
+      out_of_stock: { label: "📦 Out of Stock", color: "bg-amber-50 text-amber-700 border border-amber-200" },
+      discontinued: { label: "🚫 Discontinued", color: "bg-slate-100 text-slate-600 border border-slate-200" },
+      damaged: { label: "⚠️ Damaged", color: "bg-amber-50 text-amber-700 border border-amber-200" },
+      recalled: { label: "🔄 Recalled", color: "bg-red-50 text-red-700 border border-red-200" },
+      manual_archive: { label: "📋 Manual Archive", color: "bg-slate-100 text-slate-600 border border-slate-200" }
     };
-    const reasonData = reasons[reason] || { label: reason, color: "bg-gray-100 text-gray-700" };
+    const reasonData = reasons[reason] || { label: reason, color: "bg-slate-100 text-slate-600 border border-slate-200" };
     return <span className={`${reasonData.color} px-2 py-1 rounded-lg text-xs font-medium`}>{reasonData.label}</span>;
   };
+
+  // Every detail row across categories now uses the same emerald icon-chip treatment,
+  // so the card body reads as one system rather than a different color per section.
+  const detailIconClass = "p-2 bg-emerald-50 rounded-lg flex-shrink-0";
+  const detailIconColor = "text-emerald-600";
 
   return (
     <AdminLayout>
@@ -379,16 +388,16 @@ export default function ArchivePage() {
       <main className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6 lg:space-y-8">
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-6 mb-6 lg:mb-8">
           {[
-            { icon: Archive, label: "Total", count: totalArchives, color: "purple" },
-            { icon: CalendarDays, label: "Events", count: eventsCount, color: "blue" },
-            { icon: MessageSquare, label: "Feedback", count: feedbackCount, color: "emerald" },
-            { icon: Megaphone, label: "Announces", count: announcementsCount, color: "amber" },
-            { icon: Pill, label: "Medicines", count: medicinesCount, color: "purple" },
-            { icon: Package, label: "Requests", count: requestsCount, color: "rose" }
+            { icon: Archive, label: "Total", count: totalArchives },
+            { icon: CalendarDays, label: "Events", count: eventsCount },
+            { icon: MessageSquare, label: "Feedback", count: feedbackCount },
+            { icon: Megaphone, label: "Announces", count: announcementsCount },
+            { icon: Pill, label: "Medicines", count: medicinesCount },
+            { icon: Package, label: "Requests", count: requestsCount }
           ].map((stat, idx) => (
             <div key={idx} className="bg-white/90 backdrop-blur-sm rounded-2xl p-4 sm:p-6 shadow-lg border border-white/50 hover:shadow-xl transition-all duration-300">
               <div className="flex flex-col items-center gap-2 text-center">
-                <div className={`p-2 sm:p-3 bg-gradient-to-br from-${stat.color}-500 to-${stat.color}-600 rounded-xl shadow-lg`}>
+                <div className="p-2 sm:p-3 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl shadow-lg">
                   <stat.icon className="text-white" size={20} />
                 </div>
                 <div className="min-w-0 flex-1">
@@ -447,7 +456,7 @@ export default function ArchivePage() {
               {currentArchives.map((item) => {
                 const archiveDate = new Date(item.created_at);
                 return (
-                  <div key={item.id} className="relative bg-white/90 backdrop-blur-sm border-2 border-gray-200 hover:border-gray-300 rounded-2xl shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-[1.02]">
+                  <div key={item.id} className="relative bg-white/90 backdrop-blur-sm border-2 border-gray-200 hover:border-emerald-300 rounded-2xl shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-[1.02]">
                     <div className="absolute top-4 right-4">{typeBadge(item.type)}</div>
                     
                     <div className="p-4 sm:p-6 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-gray-100 rounded-t-2xl">
@@ -469,21 +478,21 @@ export default function ArchivePage() {
                       {item.type === "archive_medicine_requests" && (
                         <>
                           <div className="flex items-start gap-3 text-sm">
-                            <div className="p-2 bg-rose-100 rounded-lg flex-shrink-0"><User size={16} className="text-rose-600" /></div>
+                            <div className={detailIconClass}><User size={16} className={detailIconColor} /></div>
                             <div className="min-w-0 flex-1">
                               <p className="font-medium text-gray-900">{item.requester_name || "Unknown"}</p>
                               <p className="text-xs text-gray-500">{item.age ? `${item.age} yrs • ${item.sex || ""}` : item.sex || "N/A"}</p>
                             </div>
                           </div>
                           <div className="flex items-start gap-3 text-sm">
-                            <div className="p-2 bg-rose-100 rounded-lg flex-shrink-0"><Pill size={16} className="text-rose-600" /></div>
+                            <div className={detailIconClass}><Pill size={16} className={detailIconColor} /></div>
                             <div className="min-w-0 flex-1">
                               <p className="font-medium text-gray-900">{item.medicine_name || "N/A"}</p>
                               <p className="text-xs text-gray-500">{item.medicine_dosage || ""} {item.medicine_form || ""}</p>
                             </div>
                           </div>
                           <div className="flex items-start gap-3 text-sm">
-                            <div className="p-2 bg-rose-100 rounded-lg flex-shrink-0"><Hash size={16} className="text-rose-600" /></div>
+                            <div className={detailIconClass}><Hash size={16} className={detailIconColor} /></div>
                             <div className="min-w-0 flex-1">
                               <p className="font-medium text-gray-900">{item.quantity || 0} units</p>
                               <p className="text-xs text-gray-500">Quantity Requested</p>
@@ -491,7 +500,7 @@ export default function ArchivePage() {
                           </div>
                           {item.contact && (
                             <div className="flex items-start gap-3 text-sm">
-                              <div className="p-2 bg-rose-100 rounded-lg flex-shrink-0"><Phone size={16} className="text-rose-600" /></div>
+                              <div className={detailIconClass}><Phone size={16} className={detailIconColor} /></div>
                               <div className="min-w-0 flex-1">
                                 <p className="font-medium text-gray-900">{item.contact}</p>
                                 <p className="text-xs text-gray-500">Contact</p>
@@ -500,7 +509,7 @@ export default function ArchivePage() {
                           )}
                           {item.address && (
                             <div className="flex items-start gap-3 text-sm">
-                              <div className="p-2 bg-rose-100 rounded-lg flex-shrink-0"><MapPinned size={16} className="text-rose-600" /></div>
+                              <div className={detailIconClass}><MapPinned size={16} className={detailIconColor} /></div>
                               <div className="min-w-0 flex-1">
                                 <p className="text-gray-700 line-clamp-2">{item.address}</p>
                                 <p className="text-xs text-gray-500 mt-1">Address</p>
@@ -509,13 +518,13 @@ export default function ArchivePage() {
                           )}
                           {item.status && (
                             <div className="flex items-start gap-3 text-sm">
-                              <div className="p-2 bg-rose-100 rounded-lg flex-shrink-0"><FileText size={16} className="text-rose-600" /></div>
+                              <div className={detailIconClass}><FileText size={16} className={detailIconColor} /></div>
                               <div className="min-w-0 flex-1">
-                                <span className={`px-2 py-1 rounded-lg text-xs font-medium capitalize ${
-                                  item.status === 'approved' ? 'bg-green-100 text-green-700' :
-                                  item.status === 'denied' ? 'bg-red-100 text-red-700' :
-                                  item.status === 'claimed' ? 'bg-blue-100 text-blue-700' :
-                                  'bg-gray-100 text-gray-700'
+                                <span className={`px-2 py-1 rounded-lg text-xs font-medium capitalize border ${
+                                  item.status === 'approved' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+                                  item.status === 'denied' ? 'bg-red-50 text-red-700 border-red-200' :
+                                  item.status === 'claimed' ? 'bg-teal-50 text-teal-700 border-teal-200' :
+                                  'bg-slate-100 text-slate-600 border-slate-200'
                                 }`}>{item.status}</span>
                                 <p className="text-xs text-gray-500 mt-1">Request Status</p>
                               </div>
@@ -523,7 +532,7 @@ export default function ArchivePage() {
                           )}
                           {item.archive_reason && (
                             <div className="flex items-start gap-3 text-sm">
-                              <div className="p-2 bg-rose-100 rounded-lg flex-shrink-0"><AlertTriangle size={16} className="text-rose-600" /></div>
+                              <div className={detailIconClass}><AlertTriangle size={16} className={detailIconColor} /></div>
                               <div className="min-w-0 flex-1">
                                 {getReasonBadge(item.archive_reason)}
                                 <p className="text-xs text-gray-500 mt-1">Archive Reason</p>
@@ -532,7 +541,7 @@ export default function ArchivePage() {
                           )}
                           {item.notes && (
                             <div className="flex items-start gap-3 text-sm">
-                              <div className="p-2 bg-rose-100 rounded-lg flex-shrink-0"><FileText size={16} className="text-rose-600" /></div>
+                              <div className={detailIconClass}><FileText size={16} className={detailIconColor} /></div>
                               <div className="min-w-0 flex-1">
                                 <p className="text-gray-700 line-clamp-3">{item.notes}</p>
                                 <p className="text-xs text-gray-500 mt-1">Additional Notes</p>
@@ -545,21 +554,21 @@ export default function ArchivePage() {
                       {item.type === "archive_medicines" && (
                         <>
                           <div className="flex items-start gap-3 text-sm">
-                            <div className="p-2 bg-purple-100 rounded-lg flex-shrink-0"><Pill size={16} className="text-purple-600" /></div>
+                            <div className={detailIconClass}><Pill size={16} className={detailIconColor} /></div>
                             <div className="min-w-0 flex-1">
                               <p className="font-medium text-gray-900">{item.dosage || "N/A"}</p>
                               <p className="text-xs text-gray-500">Dosage</p>
                             </div>
                           </div>
                           <div className="flex items-start gap-3 text-sm">
-                            <div className="p-2 bg-purple-100 rounded-lg flex-shrink-0"><FileText size={16} className="text-purple-600" /></div>
+                            <div className={detailIconClass}><FileText size={16} className={detailIconColor} /></div>
                             <div className="min-w-0 flex-1">
                               <p className="font-medium text-gray-900">{item.form || "N/A"}</p>
                               <p className="text-xs text-gray-500">Form</p>
                             </div>
                           </div>
                           <div className="flex items-start gap-3 text-sm">
-                            <div className="p-2 bg-purple-100 rounded-lg flex-shrink-0"><Package size={16} className="text-purple-600" /></div>
+                            <div className={detailIconClass}><Package size={16} className={detailIconColor} /></div>
                             <div className="min-w-0 flex-1">
                               <p className="font-medium text-gray-900">{item.last_stock || 0} units</p>
                               <p className="text-xs text-gray-500">Last Stock</p>
@@ -567,7 +576,7 @@ export default function ArchivePage() {
                           </div>
                           {item.expiry_date && (
                             <div className="flex items-start gap-3 text-sm">
-                              <div className="p-2 bg-purple-100 rounded-lg flex-shrink-0"><CalendarDays size={16} className="text-purple-600" /></div>
+                              <div className={detailIconClass}><CalendarDays size={16} className={detailIconColor} /></div>
                               <div className="min-w-0 flex-1">
                                 <p className="font-medium text-gray-900">{new Date(item.expiry_date).toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
                                 <p className="text-xs text-gray-500">Expiry Date</p>
@@ -576,7 +585,7 @@ export default function ArchivePage() {
                           )}
                           {item.reason && (
                             <div className="flex items-start gap-3 text-sm">
-                              <div className="p-2 bg-purple-100 rounded-lg flex-shrink-0"><AlertTriangle size={16} className="text-purple-600" /></div>
+                              <div className={detailIconClass}><AlertTriangle size={16} className={detailIconColor} /></div>
                               <div className="min-w-0 flex-1">
                                 {getReasonBadge(item.reason)}
                                 <p className="text-xs text-gray-500 mt-1">Archive Reason</p>
@@ -585,7 +594,7 @@ export default function ArchivePage() {
                           )}
                           {item.notes && (
                             <div className="flex items-start gap-3 text-sm">
-                              <div className="p-2 bg-purple-100 rounded-lg flex-shrink-0"><FileText size={16} className="text-purple-600" /></div>
+                              <div className={detailIconClass}><FileText size={16} className={detailIconColor} /></div>
                               <div className="min-w-0 flex-1">
                                 <p className="text-gray-700 line-clamp-3">{item.notes}</p>
                                 <p className="text-xs text-gray-500 mt-1">Additional Notes</p>
@@ -599,7 +608,7 @@ export default function ArchivePage() {
                         <>
                           {item.data?.date && (
                             <div className="flex items-start gap-3 text-sm">
-                              <div className="p-2 bg-blue-100 rounded-lg flex-shrink-0"><CalendarDays size={16} className="text-blue-600" /></div>
+                              <div className={detailIconClass}><CalendarDays size={16} className={detailIconColor} /></div>
                               <div className="min-w-0 flex-1">
                                 <p className="font-medium text-gray-900">
                                   {new Date(item.data.date).toLocaleDateString('en-PH', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
@@ -611,7 +620,7 @@ export default function ArchivePage() {
                           )}
                           {item.data?.location && (
                             <div className="flex items-start gap-3 text-sm">
-                              <div className="p-2 bg-blue-100 rounded-lg flex-shrink-0"><MapPin size={16} className="text-blue-600" /></div>
+                              <div className={detailIconClass}><MapPin size={16} className={detailIconColor} /></div>
                               <div className="min-w-0 flex-1">
                                 <p className="font-medium text-gray-900 line-clamp-2">{item.data.location}</p>
                                 <p className="text-xs text-gray-500">Location</p>
@@ -620,7 +629,7 @@ export default function ArchivePage() {
                           )}
                           {item.data?.description && (
                             <div className="flex items-start gap-3 text-sm">
-                              <div className="p-2 bg-blue-100 rounded-lg flex-shrink-0"><FileText size={16} className="text-blue-600" /></div>
+                              <div className={detailIconClass}><FileText size={16} className={detailIconColor} /></div>
                               <div className="min-w-0 flex-1">
                                 <p className="text-gray-700 line-clamp-3">{item.data.description}</p>
                                 <p className="text-xs text-gray-500 mt-1">Description</p>
@@ -633,7 +642,7 @@ export default function ArchivePage() {
                       {item.type === "archive_feedback" && (
                         <>
                           <div className="flex items-start gap-3 text-sm">
-                            <div className="p-2 bg-emerald-100 rounded-lg flex-shrink-0"><User size={16} className="text-emerald-600" /></div>
+                            <div className={detailIconClass}><User size={16} className={detailIconColor} /></div>
                             <div className="min-w-0 flex-1">
                               <p className="font-medium text-gray-900">{item.data?.name || "Anonymous"}</p>
                               <p className="text-xs text-gray-500">Name</p>
@@ -641,7 +650,7 @@ export default function ArchivePage() {
                           </div>
                           {item.data?.email && (
                             <div className="flex items-start gap-3 text-sm">
-                              <div className="p-2 bg-emerald-100 rounded-lg flex-shrink-0"><Mail size={16} className="text-emerald-600" /></div>
+                              <div className={detailIconClass}><Mail size={16} className={detailIconColor} /></div>
                               <div className="min-w-0 flex-1">
                                 <p className="font-medium text-gray-900 break-all">{item.data.email}</p>
                                 <p className="text-xs text-gray-500">Email</p>
@@ -650,7 +659,7 @@ export default function ArchivePage() {
                           )}
                           {item.data?.message && (
                             <div className="flex items-start gap-3 text-sm">
-                              <div className="p-2 bg-emerald-100 rounded-lg flex-shrink-0"><MessageSquare size={16} className="text-emerald-600" /></div>
+                              <div className={detailIconClass}><MessageSquare size={16} className={detailIconColor} /></div>
                               <div className="min-w-0 flex-1">
                                 <p className="text-gray-700 line-clamp-4">{item.data.message}</p>
                                 <p className="text-xs text-gray-500 mt-1">Message</p>
@@ -664,7 +673,7 @@ export default function ArchivePage() {
                         <>
                           {item.data?.date && (
                             <div className="flex items-start gap-3 text-sm">
-                              <div className="p-2 bg-amber-100 rounded-lg flex-shrink-0"><CalendarDays size={16} className="text-amber-600" /></div>
+                              <div className={detailIconClass}><CalendarDays size={16} className={detailIconColor} /></div>
                               <div className="min-w-0 flex-1">
                                 <p className="font-medium text-gray-900">{new Date(item.data.date).toLocaleDateString('en-PH', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
                                 <p className="text-xs text-gray-500">Announcement date</p>
@@ -673,7 +682,7 @@ export default function ArchivePage() {
                           )}
                           {(item.content || item.data?.description) && (
                             <div className="flex items-start gap-3 text-sm">
-                              <div className="p-2 bg-amber-100 rounded-lg flex-shrink-0"><FileText size={16} className="text-amber-600" /></div>
+                              <div className={detailIconClass}><FileText size={16} className={detailIconColor} /></div>
                               <div className="min-w-0 flex-1">
                                 <p className="text-gray-700 line-clamp-4">{item.content || item.data?.description}</p>
                                 <p className="text-xs text-gray-500 mt-1">Content</p>
@@ -689,7 +698,7 @@ export default function ArchivePage() {
                         🕒 Will be permanently deleted in{" "}
                         <span className={`font-semibold ${
                           daysUntilDeletion(item.created_at) <= 10 ? "text-red-600" : 
-                          daysUntilDeletion(item.created_at) <= 20 ? "text-orange-500" : "text-green-600"
+                          daysUntilDeletion(item.created_at) <= 20 ? "text-amber-600" : "text-emerald-600"
                         }`}>
                           {daysUntilDeletion(item.created_at)}
                         </span>{" "}days
@@ -701,7 +710,7 @@ export default function ArchivePage() {
                           <Archive size={16} />Unarchive
                         </Button>
                         <Button onClick={() => deleteArchive(item.id, item.type)}
-                          className="w-1/2 px-4 py-2.5 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-2 text-sm">
+                          className="w-1/2 px-4 py-2.5 bg-white border-2 border-red-200 hover:bg-red-50 text-red-600 font-semibold rounded-xl shadow-sm hover:shadow-md transition-all duration-300 flex items-center justify-center gap-2 text-sm">
                           <Trash2 size={16} />Delete Permanently
                         </Button>
                       </div>
@@ -729,9 +738,9 @@ export default function ArchivePage() {
           )}
         </div>
 
-        <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-2xl shadow-lg border border-blue-200 p-4 sm:p-6">
+        <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg border border-emerald-100 p-4 sm:p-6">
           <div className="flex items-start gap-4">
-            <div className="p-3 bg-blue-500 rounded-xl shadow-lg flex-shrink-0">
+            <div className="p-3 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl shadow-lg flex-shrink-0">
               <Archive className="text-white" size={24} />
             </div>
             <div className="flex-1">
@@ -740,7 +749,7 @@ export default function ArchivePage() {
                 Archived items are automatically deleted after 30 days to maintain system performance. 
                 You can manually delete items at any time by clicking the "Delete Permanently" button on each card.
               </p>
-              <div className="flex items-center gap-2 text-xs text-blue-700 bg-blue-100 rounded-lg px-3 py-2 inline-flex">
+              <div className="flex items-center gap-2 text-xs text-emerald-700 bg-emerald-50 rounded-lg px-3 py-2 inline-flex border border-emerald-100">
                 <Clock size={14} />
                 <span className="font-medium">Auto-cleanup runs automatically every session</span>
               </div>
