@@ -25,7 +25,6 @@ import {
   XCircle,
   AlertCircle,
   Send,
-  Camera,
   Phone,
   Mail,
   Cake,
@@ -34,16 +33,18 @@ import {
   Activity,
   X,
   Eye,
+  Trash2,
 } from "lucide-react";
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Profile {
   id: string;
-  full_name: string;
-  email: string;
-  avatar_url?: string;
-  barangay?: string;
-  phone?: string;
-  date_of_birth?: string;
+  full_name: string;      // from profiles
+  role: string;            // from profiles
+  email: string;            // from auth.users
+  age?: number;             // from end_user
+  sex?: string;             // from end_user
+  contact?: string;         // from end_user (phone)
+  address?: string;         // from end_user
   created_at: string;
 }
 interface Announcement {
@@ -72,9 +73,11 @@ interface CommunityEvent {
   id: number;
   title: string;
   description: string;
-  event_date: string;
+  date: string;
+  time: string;
   location: string;
   created_at: string;
+  is_archived?: boolean;
 }
 type Section = "home" | "announcements" | "medicine" | "events" | "profile";
 // ─── Sidebar (Desktop) ───────────────────────────────────────────────────────
@@ -285,7 +288,7 @@ function DashboardHome({
     timeZone: "Asia/Manila",
   });
   const pendingRequests = medicineRequests.filter((r) => r.status === "pending").length;
-  const upcomingEvents = events.filter((e) => new Date(e.event_date) >= new Date()).length;
+  const upcomingEvents = events.filter((e) => new Date(`${e.date}T${e.time}`) >= new Date()).length;
   const greeting = (() => {
     const hour = currentTime.getHours();
     if (hour < 12) return "Good Morning";
@@ -448,7 +451,7 @@ function DashboardHome({
               View All
             </button>
           </div>
-          {events.filter((e) => new Date(e.event_date) >= new Date()).length === 0 ? (
+          {events.filter((e) => new Date(`${e.date}T${e.time}`) >= new Date()).length === 0 ? (
             <div className="text-center py-8">
               <div className="w-14 h-14 bg-teal-100 rounded-xl flex items-center justify-center mx-auto mb-3">
                 <CalendarDays className="text-teal-400" size={24} />
@@ -458,11 +461,11 @@ function DashboardHome({
           ) : (
             <div className="space-y-3">
               {events
-                .filter((e) => new Date(e.event_date) >= new Date())
-                .sort((a, b) => new Date(a.event_date).getTime() - new Date(b.event_date).getTime())
+                .filter((e) => new Date(`${e.date}T${e.time}`) >= new Date())
+                .sort((a, b) => new Date(`${a.date}T${a.time}`).getTime() - new Date(`${b.date}T${b.time}`).getTime())
                 .slice(0, 3)
                 .map((evt) => {
-                  const d = new Date(evt.event_date);
+                  const d = new Date(`${evt.date}T${evt.time}`);
                   return (
                     <div
                       key={evt.id}
@@ -553,6 +556,130 @@ function DashboardHome({
           </div>
         )}
       </div>
+    </div>
+  );
+}
+// ─── Events Section ───────────────────────────────────────────────────────────
+function EventsSection({ events }: { events: CommunityEvent[] }) {
+  const now = new Date();
+  const upcoming = events
+    .filter((e) => new Date(`${e.date}T${e.time}`) >= now)
+    .sort((a, b) => new Date(`${a.date}T${a.time}`).getTime() - new Date(`${b.date}T${b.time}`).getTime());
+  const past = events
+    .filter((e) => new Date(`${e.date}T${e.time}`) < now)
+    .sort((a, b) => new Date(`${b.date}T${b.time}`).getTime() - new Date(`${a.date}T${a.time}`).getTime());
+
+  function EventCard({ evt, isPast }: { evt: CommunityEvent; isPast?: boolean }) {
+    const d = new Date(`${evt.date}T${evt.time}`);
+    return (
+      <div
+        className={`bg-white/95 backdrop-blur-sm border-2 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden ${
+          isPast ? "border-gray-200 opacity-75" : "border-gray-100 hover:border-teal-200"
+        }`}
+      >
+        <div className="flex flex-col sm:flex-row">
+          {/* Date Side */}
+          <div
+            className={`sm:w-28 p-4 sm:p-5 flex sm:flex-col items-center justify-center gap-2 sm:gap-1 ${
+              isPast
+                ? "bg-gradient-to-br from-gray-200 to-gray-300"
+                : "bg-gradient-to-br from-teal-500 to-cyan-600"
+            }`}
+          >
+            <span className="text-xs uppercase font-bold text-white/80">
+              {d.toLocaleDateString("en-PH", { month: "short" })}
+            </span>
+            <span className="text-3xl sm:text-4xl font-bold text-white leading-none">
+              {d.getDate()}
+            </span>
+            <span className="text-[11px] text-white/70 font-medium">
+              {d.toLocaleDateString("en-PH", { weekday: "short" })}
+            </span>
+          </div>
+          {/* Content */}
+          <div className="flex-1 p-5">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0 flex-1">
+                <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-1.5">{evt.title}</h3>
+                <p className="text-sm text-gray-600 line-clamp-2 leading-relaxed">
+                  {evt.description}
+                </p>
+              </div>
+              {!isPast && (
+                <span className="shrink-0 px-3 py-1 bg-emerald-100 text-emerald-700 text-[11px] font-bold rounded-full uppercase tracking-wide">
+                  Upcoming
+                </span>
+              )}
+            </div>
+            <div className="flex flex-wrap items-center gap-4 mt-4 pt-3 border-t border-gray-100">
+              <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                <MapPin size={14} className="text-teal-500" />
+                <span className="font-medium">{evt.location}</span>
+              </div>
+              <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                <Clock size={14} className="text-teal-500" />
+                <span className="font-medium">
+                  {d.toLocaleTimeString("en-PH", {
+                    hour: "numeric",
+                    minute: "2-digit",
+                    hour12: true,
+                  })}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Community Events</h2>
+        <p className="text-sm text-gray-500 mt-1">
+          Health programs and wellness activities in your barangay
+        </p>
+      </div>
+      {events.length === 0 ? (
+        <div className="text-center py-16 bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50">
+          <div className="w-20 h-20 bg-teal-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <CalendarDays className="text-teal-400" size={32} />
+          </div>
+          <h3 className="text-lg font-semibold text-gray-600 mb-2">No events scheduled</h3>
+          <p className="text-sm text-gray-500">Check back later for community health events</p>
+        </div>
+      ) : (
+        <>
+          {/* Upcoming */}
+          {upcoming.length > 0 && (
+            <div>
+              <h3 className="text-sm font-semibold text-emerald-700 uppercase tracking-wider mb-4 flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                Upcoming Events ({upcoming.length})
+              </h3>
+              <div className="space-y-4">
+                {upcoming.map((evt) => (
+                  <EventCard key={evt.id} evt={evt} />
+                ))}
+              </div>
+            </div>
+          )}
+          {/* Past */}
+          {past.length > 0 && (
+            <div className="mt-8">
+              <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">
+                Past Events ({past.length})
+              </h3>
+              <div className="space-y-4">
+                {past.slice(0, 5).map((evt) => (
+                  <EventCard key={evt.id} evt={evt} isPast />
+                ))}
+              </div>
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 }
@@ -696,11 +823,11 @@ function AnnouncementsFeed({ announcements }: { announcements: Announcement[] })
 function MedicineRequests({
   requests,
   onSubmitRequest,
-  profile,
+  onDeleteRequests,
 }: {
   requests: MedicineRequest[];
   onSubmitRequest: (data: { medicine_id: string; quantity: number; reason: string }) => Promise<void>;
-  profile: Profile | null;
+  onDeleteRequests: (ids: number[]) => Promise<void>;
 }) {
   const [medicines, setMedicines] = useState<{ id: string; name: string; dosage?: string; form?: string; stock?: number }[]>([]);
   const [selectedMedicineId, setSelectedMedicineId] = useState("");
@@ -708,9 +835,15 @@ function MedicineRequests({
   const [reason, setReason] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [showForm, setShowForm] = useState(false);
-  const [filterStatus, setFilterStatus] = useState<"all" | "pending" | "approved" | "denied">(
-    "all"
-  );
+  const [filterStatus, setFilterStatus] = useState<"all" | "pending" | "approved" | "denied">("all");
+
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const perPage = 5;
+
+  // Selection / delete
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     async function fetchMedicines() {
@@ -725,6 +858,14 @@ function MedicineRequests({
 
   const selectedMedicine = medicines.find((m) => m.id === selectedMedicineId);
   const filtered = filterStatus === "all" ? requests : requests.filter((r) => r.status === filterStatus);
+  const totalPages = Math.max(1, Math.ceil(filtered.length / perPage));
+  const paged = filtered.slice((currentPage - 1) * perPage, currentPage * perPage);
+
+  // Reset to page 1 whenever the filter changes, and clear stale selections
+  useEffect(() => {
+    setCurrentPage(1);
+    setSelectedIds(new Set());
+  }, [filterStatus]);
 
   async function handleSubmit() {
     if (!selectedMedicineId) {
@@ -754,6 +895,66 @@ function MedicineRequests({
       setSubmitting(false);
     }
   }
+
+  function toggleSelect(id: number) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function toggleSelectAllOnPage() {
+    const pageIds = paged.map((r) => r.id);
+    const allSelected = pageIds.every((id) => selectedIds.has(id));
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (allSelected) {
+        pageIds.forEach((id) => next.delete(id));
+      } else {
+        pageIds.forEach((id) => next.add(id));
+      }
+      return next;
+    });
+  }
+
+  async function handleDeleteSingle(id: number) {
+    if (!confirm("Delete this medicine request? This cannot be undone.")) return;
+    setDeleting(true);
+    try {
+      await onDeleteRequests([id]);
+      setSelectedIds((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+      toast.success("Request deleted.");
+    } catch {
+      toast.error("Error deleting request.");
+    } finally {
+      setDeleting(false);
+    }
+  }
+
+  async function handleDeleteSelected() {
+    if (selectedIds.size === 0) return;
+    if (!confirm(`Delete ${selectedIds.size} selected request(s)? This cannot be undone.`)) return;
+    setDeleting(true);
+    try {
+      await onDeleteRequests(Array.from(selectedIds));
+      setSelectedIds(new Set());
+      toast.success("Selected requests deleted.");
+    } catch {
+      toast.error("Error deleting selected requests.");
+    } finally {
+      setDeleting(false);
+    }
+  }
+
+  const pageIds = paged.map((r) => r.id);
+  const allOnPageSelected = pageIds.length > 0 && pageIds.every((id) => selectedIds.has(id));
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -772,6 +973,7 @@ function MedicineRequests({
           {showForm ? "Cancel" : "New Request"}
         </Button>
       </div>
+
       {/* New Request Form */}
       {showForm && (
         <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl border border-emerald-100 p-5 sm:p-7 animate-in slide-in-from-top-2">
@@ -870,21 +1072,37 @@ function MedicineRequests({
           </div>
         </div>
       )}
-      {/* Filter Tabs */}
-      <div className="flex items-center gap-2 flex-wrap">
-        {(["all", "pending", "approved", "denied"] as const).map((status) => (
-          <button
-            key={status}
-            onClick={() => setFilterStatus(status)}
-            className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 capitalize ${filterStatus === status
-                ? "bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg"
-                : "bg-white/80 text-gray-600 border-2 border-gray-200 hover:border-emerald-300 hover:bg-emerald-50"
+
+      {/* Filter Tabs + Bulk Delete */}
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <div className="flex items-center gap-2 flex-wrap">
+          {(["all", "pending", "approved", "denied"] as const).map((status) => (
+            <button
+              key={status}
+              onClick={() => setFilterStatus(status)}
+              className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 capitalize ${
+                filterStatus === status
+                  ? "bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg"
+                  : "bg-white/80 text-gray-600 border-2 border-gray-200 hover:border-emerald-300 hover:bg-emerald-50"
               }`}
+            >
+              {status === "all" ? `All (${requests.length})` : `${status} (${requests.filter((r) => r.status === status).length})`}
+            </button>
+          ))}
+        </div>
+
+        {selectedIds.size > 0 && (
+          <Button
+            onClick={handleDeleteSelected}
+            disabled={deleting}
+            className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 hover:bg-red-100 border-2 border-red-200 font-semibold rounded-xl transition-all text-sm disabled:opacity-50"
           >
-            {status === "all" ? `All (${requests.length})` : `${status} (${requests.filter((r) => r.status === filterStatus).length})`}
-          </button>
-        ))}
+            <Trash2 size={16} />
+            Delete Selected ({selectedIds.size})
+          </Button>
+        )}
       </div>
+
       {/* Requests List */}
       {filtered.length === 0 ? (
         <div className="text-center py-16 bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50">
@@ -899,175 +1117,121 @@ function MedicineRequests({
           </p>
         </div>
       ) : (
-        <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="bg-gradient-to-r from-gray-50 to-gray-100/50 border-b border-gray-200">
-                  <th className="text-left py-4 px-5 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                    Medicine
-                  </th>
-                  <th className="text-left py-4 px-5 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                    Qty
-                  </th>
-                  <th className="text-left py-4 px-5 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="text-left py-4 px-5 text-xs font-semibold text-gray-500 uppercase tracking-wider hidden md:table-cell">
-                    Reason
-                  </th>
-                  <th className="text-left py-4 px-5 text-xs font-semibold text-gray-500 uppercase tracking-wider hidden sm:table-cell">
-                    Submitted
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map((req) => (
-                  <tr
-                    key={req.id}
-                    className="border-b border-gray-50 last:border-0 hover:bg-emerald-50/30 transition-colors"
-                  >
-                    <td className="py-4 px-5">
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-emerald-100 to-teal-100 flex items-center justify-center shrink-0">
-                          <Pill className="text-emerald-600" size={16} />
-                        </div>
-                        <span className="font-semibold text-gray-900">{req.medicines?.name || "Unknown"}</span>
-                      </div>
-                    </td>
-                    <td className="py-4 px-5 text-gray-700 font-medium">{req.quantity}</td>
-                    <td className="py-4 px-5">
-                      <StatusBadge status={req.status} />
-                    </td>
-                    <td className="py-4 px-5 text-gray-500 hidden md:table-cell max-w-[200px] truncate">
-                      {req.reason || "—"}
-                    </td>
-                    <td className="py-4 px-5 text-gray-500 hidden sm:table-cell text-xs">
-                      {formatDistanceToNow(new Date(req.created_at), { addSuffix: true })}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-// ─── Events Section ───────────────────────────────────────────────────────────
-function EventsSection({ events }: { events: CommunityEvent[] }) {
-  const now = new Date();
-  const upcoming = events
-    .filter((e) => new Date(e.event_date) >= now)
-    .sort((a, b) => new Date(a.event_date).getTime() - new Date(b.event_date).getTime());
-  const past = events
-    .filter((e) => new Date(e.event_date) < now)
-    .sort((a, b) => new Date(b.event_date).getTime() - new Date(a.event_date).getTime());
-  function EventCard({ evt, isPast }: { evt: CommunityEvent; isPast?: boolean }) {
-    const d = new Date(evt.event_date);
-    return (
-      <div
-        className={`bg-white/95 backdrop-blur-sm border-2 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden ${isPast ? "border-gray-200 opacity-75" : "border-gray-100 hover:border-teal-200"
-          }`}
-      >
-        <div className="flex flex-col sm:flex-row">
-          {/* Date Side */}
-          <div
-            className={`sm:w-28 p-4 sm:p-5 flex sm:flex-col items-center justify-center gap-2 sm:gap-1 ${isPast
-                ? "bg-gradient-to-br from-gray-200 to-gray-300"
-                : "bg-gradient-to-br from-teal-500 to-cyan-600"
-              }`}
-          >
-            <span className="text-xs uppercase font-bold text-white/80">
-              {d.toLocaleDateString("en-PH", { month: "short" })}
-            </span>
-            <span className="text-3xl sm:text-4xl font-bold text-white leading-none">
-              {d.getDate()}
-            </span>
-            <span className="text-[11px] text-white/70 font-medium">
-              {d.toLocaleDateString("en-PH", { weekday: "short" })}
-            </span>
-          </div>
-          {/* Content */}
-          <div className="flex-1 p-5">
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0 flex-1">
-                <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-1.5">{evt.title}</h3>
-                <p className="text-sm text-gray-600 line-clamp-2 leading-relaxed">
-                  {evt.description}
-                </p>
-              </div>
-              {!isPast && (
-                <span className="shrink-0 px-3 py-1 bg-emerald-100 text-emerald-700 text-[11px] font-bold rounded-full uppercase tracking-wide">
-                  Upcoming
-                </span>
-              )}
-            </div>
-            <div className="flex flex-wrap items-center gap-4 mt-4 pt-3 border-t border-gray-100">
-              <div className="flex items-center gap-1.5 text-xs text-gray-500">
-                <MapPin size={14} className="text-teal-500" />
-                <span className="font-medium">{evt.location}</span>
-              </div>
-              <div className="flex items-center gap-1.5 text-xs text-gray-500">
-                <Clock size={14} className="text-teal-500" />
-                <span className="font-medium">
-                  {d.toLocaleTimeString("en-PH", {
-                    hour: "numeric",
-                    minute: "2-digit",
-                    hour12: true,
-                  })}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-  return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Community Events</h2>
-        <p className="text-sm text-gray-500 mt-1">
-          Health programs and wellness activities in your barangay
-        </p>
-      </div>
-      {events.length === 0 ? (
-        <div className="text-center py-16 bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50">
-          <div className="w-20 h-20 bg-teal-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <CalendarDays className="text-teal-400" size={32} />
-          </div>
-          <h3 className="text-lg font-semibold text-gray-600 mb-2">No events scheduled</h3>
-          <p className="text-sm text-gray-500">Check back later for community health events</p>
-        </div>
-      ) : (
         <>
-          {/* Upcoming */}
-          {upcoming.length > 0 && (
-            <div>
-              <h3 className="text-sm font-semibold text-emerald-700 uppercase tracking-wider mb-4 flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                Upcoming Events ({upcoming.length})
-              </h3>
-              <div className="space-y-4">
-                {upcoming.map((evt) => (
-                  <EventCard key={evt.id} evt={evt} />
-                ))}
-              </div>
+          <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="bg-gradient-to-r from-gray-50 to-gray-100/50 border-b border-gray-200">
+                    <th className="py-4 px-5 w-10">
+                      <input
+                        type="checkbox"
+                        checked={allOnPageSelected}
+                        onChange={toggleSelectAllOnPage}
+                        className="w-4 h-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer"
+                      />
+                    </th>
+                    <th className="text-left py-4 px-5 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      Medicine
+                    </th>
+                    <th className="text-left py-4 px-5 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      Qty
+                    </th>
+                    <th className="text-left py-4 px-5 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="text-left py-4 px-5 text-xs font-semibold text-gray-500 uppercase tracking-wider hidden md:table-cell">
+                      Reason
+                    </th>
+                    <th className="text-left py-4 px-5 text-xs font-semibold text-gray-500 uppercase tracking-wider hidden sm:table-cell">
+                      Submitted
+                    </th>
+                    <th className="text-right py-4 px-5 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {paged.map((req) => (
+                    <tr
+                      key={req.id}
+                      className={`border-b border-gray-50 last:border-0 transition-colors ${
+                        selectedIds.has(req.id) ? "bg-emerald-50/60" : "hover:bg-emerald-50/30"
+                      }`}
+                    >
+                      <td className="py-4 px-5">
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.has(req.id)}
+                          onChange={() => toggleSelect(req.id)}
+                          className="w-4 h-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer"
+                        />
+                      </td>
+                      <td className="py-4 px-5">
+                        <div className="flex items-center gap-3">
+                          <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-emerald-100 to-teal-100 flex items-center justify-center shrink-0">
+                            <Pill className="text-emerald-600" size={16} />
+                          </div>
+                          <span className="font-semibold text-gray-900">{req.medicines?.name || "Unknown"}</span>
+                        </div>
+                      </td>
+                      <td className="py-4 px-5 text-gray-700 font-medium">{req.quantity}</td>
+                      <td className="py-4 px-5">
+                        <StatusBadge status={req.status} />
+                      </td>
+                      <td className="py-4 px-5 text-gray-500 hidden md:table-cell max-w-[200px] truncate">
+                        {req.reason || "—"}
+                      </td>
+                      <td className="py-4 px-5 text-gray-500 hidden sm:table-cell text-xs">
+                        {formatDistanceToNow(new Date(req.created_at), { addSuffix: true })}
+                      </td>
+                      <td className="py-4 px-5 text-right">
+                        <button
+                          onClick={() => handleDeleteSingle(req.id)}
+                          disabled={deleting}
+                          className="p-2 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50"
+                          title="Delete request"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-          )}
-          {/* Past */}
-          {past.length > 0 && (
-            <div className="mt-8">
-              <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">
-                Past Events ({past.length})
-              </h3>
-              <div className="space-y-4">
-                {past.slice(0, 5).map((evt) => (
-                  <EventCard key={evt.id} evt={evt} isPast />
-                ))}
-              </div>
+          </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex justify-center items-center gap-2 pt-2">
+              <button
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="p-2.5 rounded-xl border-2 border-gray-200 text-gray-600 hover:bg-emerald-50 hover:border-emerald-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+              >
+                <ChevronLeft size={18} />
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <button
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  className={`w-10 h-10 rounded-xl font-semibold text-sm transition-all duration-200 ${
+                    page === currentPage
+                      ? "bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg"
+                      : "bg-white/80 text-gray-600 border-2 border-gray-200 hover:border-emerald-300 hover:bg-emerald-50"
+                  }`}
+                >
+                  {page}
+                </button>
+              ))}
+              <button
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                className="p-2.5 rounded-xl border-2 border-gray-200 text-gray-600 hover:bg-emerald-50 hover:border-emerald-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+              >
+                <ChevronRight size={18} />
+              </button>
             </div>
           )}
         </>
@@ -1081,31 +1245,32 @@ function ProfileSection({
   onUpdateProfile,
 }: {
   profile: Profile | null;
-  onUpdateProfile: (updates: Partial<Profile>) => Promise<void>;
+  onUpdateProfile: (updates: { age?: number; contact?: string }) => Promise<void>;
 }) {
   const [editing, setEditing] = useState(false);
-  const [fullName, setFullName] = useState(profile?.full_name || "");
-  const [phone, setPhone] = useState(profile?.phone || "");
-  const [barangay, setBarangay] = useState(profile?.barangay || "");
-  const [dob, setDob] = useState(profile?.date_of_birth || "");
+  const [age, setAge] = useState(profile?.age?.toString() || "");
+  const [contact, setContact] = useState(profile?.contact || "");
   const [saving, setSaving] = useState(false);
+
   useEffect(() => {
     if (profile) {
-      setFullName(profile.full_name || "");
-      setPhone(profile.phone || "");
-      setBarangay(profile.barangay || "");
-      setDob(profile.date_of_birth || "");
+      setAge(profile.age?.toString() || "");
+      setContact(profile.contact || "");
     }
   }, [profile]);
+
   async function handleSave() {
+    const trimmedAge = age.trim();
+    let parsedAge: number | undefined;
+    if (trimmedAge) {
+      parsedAge = parseInt(trimmedAge, 10);
+      if (isNaN(parsedAge) || parsedAge < 0 || parsedAge > 120) {
+        return toast.error("Please enter a valid age.");
+      }
+    }
     setSaving(true);
     try {
-      await onUpdateProfile({
-        full_name: fullName,
-        phone,
-        barangay,
-        date_of_birth: dob,
-      });
+      await onUpdateProfile({ age: parsedAge, contact });
       setEditing(false);
       toast.success("Profile updated successfully!");
     } catch {
@@ -1114,51 +1279,40 @@ function ProfileSection({
       setSaving(false);
     }
   }
+
   const initials = profile?.full_name
     ? profile.full_name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2)
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .toUpperCase()
+        .slice(0, 2)
     : "U";
+
   return (
     <div className="space-y-6">
       <div>
         <h2 className="text-xl sm:text-2xl font-bold text-gray-900">My Profile</h2>
         <p className="text-sm text-gray-500 mt-1">Manage your personal health information</p>
       </div>
+
       {/* Profile Card */}
       <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl border border-white/50 overflow-hidden">
         {/* Cover / Header */}
         <div className="relative h-32 sm:h-40 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500">
           <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDE4YzMuMzE0IDAgNiAyLjY4NiA2IDZzLTIuNjg2IDYtNiA2LTYtMi42ODYtNi02IDIuNjg2LTYgNi02eiIvPjwvZz48L2c+PC9zdmc+')] opacity-50" />
-          {/* Decorative blobs */}
           <div className="absolute top-4 right-8 w-20 h-20 bg-white/10 rounded-full blur-xl" />
           <div className="absolute bottom-2 left-12 w-16 h-16 bg-white/10 rounded-full blur-lg" />
         </div>
+
         {/* Avatar + Actions */}
         <div className="relative px-6 sm:px-8 pb-6">
           <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between -mt-12 sm:-mt-14 gap-4">
             <div className="flex items-end gap-4">
               <div className="relative">
-                {profile?.avatar_url ? (
-                  <img
-                    src={profile.avatar_url}
-                    alt="Profile"
-                    className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl object-cover border-4 border-white shadow-xl"
-                  />
-                ) : (
-                  <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-white font-bold text-3xl sm:text-4xl border-4 border-white shadow-xl">
-                    {initials}
-                  </div>
-                )}
-                <button
-                  className="absolute -bottom-1 -right-1 p-2 bg-white rounded-xl shadow-lg border border-gray-200 text-gray-500 hover:text-emerald-600 hover:border-emerald-300 transition-colors"
-                  title="Change photo"
-                >
-                  <Camera size={16} />
-                </button>
+                <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-white font-bold text-3xl sm:text-4xl border-4 border-white shadow-xl">
+                  {initials}
+                </div>
               </div>
               <div className="mb-1">
                 <h3 className="text-xl sm:text-2xl font-bold text-gray-900">
@@ -1170,10 +1324,11 @@ function ProfileSection({
             <Button
               onClick={() => (editing ? handleSave() : setEditing(true))}
               disabled={saving}
-              className={`flex items-center gap-2 px-5 py-2.5 font-semibold rounded-xl shadow-lg transition-all duration-300 text-sm ${editing
+              className={`flex items-center gap-2 px-5 py-2.5 font-semibold rounded-xl shadow-lg transition-all duration-300 text-sm ${
+                editing
                   ? "bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white"
                   : "bg-white border-2 border-gray-200 text-gray-700 hover:border-emerald-300 hover:bg-emerald-50"
-                }`}
+              }`}
             >
               {saving ? (
                 <>
@@ -1188,34 +1343,39 @@ function ProfileSection({
               ) : (
                 <>
                   <FileText size={16} />
-                  Edit Profile
+                  Edit Age / Phone
                 </>
               )}
             </Button>
           </div>
         </div>
+
         {/* Profile Fields */}
         <div className="px-6 sm:px-8 pb-8 pt-2">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-            {/* Full Name */}
+            {/* Full Name — read-only */}
             <div>
               <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-2">
                 <User size={14} className="text-emerald-500" />
                 Full Name
               </label>
-              {editing ? (
-                <Input
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  className="w-full px-4 py-3 bg-white/70 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 transition-all text-sm"
-                />
-              ) : (
-                <p className="px-4 py-3 bg-gray-50 rounded-xl text-sm text-gray-900 font-medium border border-gray-100">
-                  {profile?.full_name || "—"}
-                </p>
-              )}
+              <p className="px-4 py-3 bg-gray-50 rounded-xl text-sm text-gray-900 font-medium border border-gray-100">
+                {profile?.full_name || "—"}
+              </p>
             </div>
-            {/* Email (read-only) */}
+
+            {/* Role — read-only */}
+            <div>
+              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-2">
+                <Shield size={14} className="text-emerald-500" />
+                Role
+              </label>
+              <p className="px-4 py-3 bg-gray-50 rounded-xl text-sm text-gray-900 font-medium border border-gray-100 capitalize">
+                {profile?.role || "—"}
+              </p>
+            </div>
+
+            {/* Email — read-only */}
             <div>
               <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-2">
                 <Mail size={14} className="text-emerald-500" />
@@ -1225,7 +1385,8 @@ function ProfileSection({
                 {profile?.email || "—"}
               </p>
             </div>
-            {/* Phone */}
+
+            {/* Phone (contact) — editable */}
             <div>
               <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-2">
                 <Phone size={14} className="text-emerald-500" />
@@ -1233,62 +1394,64 @@ function ProfileSection({
               </label>
               {editing ? (
                 <Input
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
+                  value={contact}
+                  onChange={(e) => setContact(e.target.value)}
                   placeholder="e.g., +63 912 345 6789"
                   className="w-full px-4 py-3 bg-white/70 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 transition-all text-sm"
                 />
               ) : (
                 <p className="px-4 py-3 bg-gray-50 rounded-xl text-sm text-gray-900 font-medium border border-gray-100">
-                  {profile?.phone || "—"}
+                  {profile?.contact || "—"}
                 </p>
               )}
             </div>
-            {/* Barangay */}
-            <div>
-              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-2">
-                <Home size={14} className="text-emerald-500" />
-                Barangay
-              </label>
-              {editing ? (
-                <Input
-                  value={barangay}
-                  onChange={(e) => setBarangay(e.target.value)}
-                  placeholder="e.g., Barangay San Antonio"
-                  className="w-full px-4 py-3 bg-white/70 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 transition-all text-sm"
-                />
-              ) : (
-                <p className="px-4 py-3 bg-gray-50 rounded-xl text-sm text-gray-900 font-medium border border-gray-100">
-                  {profile?.barangay || "—"}
-                </p>
-              )}
-            </div>
-            {/* Date of Birth */}
+
+            {/* Age — editable */}
             <div>
               <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-2">
                 <Cake size={14} className="text-emerald-500" />
-                Date of Birth
+                Age
               </label>
               {editing ? (
                 <Input
-                  type="date"
-                  value={dob}
-                  onChange={(e) => setDob(e.target.value)}
+                  type="number"
+                  min="0"
+                  max="120"
+                  value={age}
+                  onChange={(e) => setAge(e.target.value)}
+                  placeholder="e.g., 32"
                   className="w-full px-4 py-3 bg-white/70 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 transition-all text-sm"
                 />
               ) : (
                 <p className="px-4 py-3 bg-gray-50 rounded-xl text-sm text-gray-900 font-medium border border-gray-100">
-                  {profile?.date_of_birth
-                    ? new Date(profile.date_of_birth).toLocaleDateString("en-PH", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })
-                    : "—"}
+                  {profile?.age ?? "—"}
                 </p>
               )}
             </div>
-            {/* Member Since (read-only) */}
+
+            {/* Sex — read-only */}
+            <div>
+              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-2">
+                <User size={14} className="text-emerald-500" />
+                Sex
+              </label>
+              <p className="px-4 py-3 bg-gray-50 rounded-xl text-sm text-gray-900 font-medium border border-gray-100">
+                {profile?.sex || "—"}
+              </p>
+            </div>
+
+            {/* Address — read-only */}
+            <div>
+              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-2">
+                <Home size={14} className="text-emerald-500" />
+                Address
+              </label>
+              <p className="px-4 py-3 bg-gray-50 rounded-xl text-sm text-gray-900 font-medium border border-gray-100">
+                {profile?.address || "—"}
+              </p>
+            </div>
+
+            {/* Member Since — read-only */}
             <div>
               <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-2">
                 <Shield size={14} className="text-emerald-500" />
@@ -1297,23 +1460,22 @@ function ProfileSection({
               <p className="px-4 py-3 bg-gray-50 rounded-xl text-sm text-gray-900 font-medium border border-gray-100">
                 {profile?.created_at
                   ? new Date(profile.created_at).toLocaleDateString("en-PH", {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })
                   : "—"}
               </p>
             </div>
           </div>
+
           {editing && (
             <div className="mt-6 pt-5 border-t border-gray-100 flex justify-end gap-3">
               <Button
                 onClick={() => {
                   setEditing(false);
-                  setFullName(profile?.full_name || "");
-                  setPhone(profile?.phone || "");
-                  setBarangay(profile?.barangay || "");
-                  setDob(profile?.date_of_birth || "");
+                  setAge(profile?.age?.toString() || "");
+                  setContact(profile?.contact || "");
                 }}
                 className="px-5 py-2.5 bg-gray-100 text-gray-700 hover:bg-gray-200 border-2 border-gray-200 rounded-xl font-semibold transition-all text-sm"
               >
@@ -1333,6 +1495,7 @@ function ProfileSection({
     </div>
   );
 }
+
 // ─── Main: UserDashboard ──────────────────────────────────────────────────────
 export default function UserDashboard() {
   const navigate = useNavigate();
@@ -1346,6 +1509,7 @@ export default function UserDashboard() {
   // Navigation State
   const [activeSection, setActiveSection] = useState<Section>("home");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
   // ── Auth Guard ──────────────────────────────────────────────────────────────
   useEffect(() => {
     async function checkAuth() {
@@ -1369,12 +1533,48 @@ export default function UserDashboard() {
     });
     return () => subscription.unsubscribe();
   }, [navigate]);
+
   // ── Data Fetching ───────────────────────────────────────────────────────────
   const fetchProfile = useCallback(async () => {
     if (!userId) return;
-    const { data } = await supabase.from("profiles").select("*").eq("id", userId).single();
-    if (data) setProfile(data);
+
+    const [
+      { data: profileRow, error: profileErr },
+      { data: endUserRow, error: endUserErr },
+      { data: authData, error: authErr },
+    ] = await Promise.all([
+      supabase.from("profiles").select("*").eq("id", userId).single(),
+      supabase.from("end_user").select("*").eq("id", userId).single(),
+      supabase.auth.getUser(),
+    ]);
+
+    if (profileErr) {
+      console.error("Error fetching profile:", profileErr);
+      return;
+    }
+    if (endUserErr) {
+      // Not fatal — user may not have an end_user row yet
+      console.warn("No end_user row found:", endUserErr.message);
+    }
+    if (authErr) {
+      console.error("Error fetching auth user:", authErr);
+    }
+
+    if (profileRow) {
+      setProfile({
+        id: profileRow.id,
+        full_name: profileRow.full_name,
+        role: profileRow.role,
+        created_at: profileRow.created_at,
+        email: authData?.user?.email || "",
+        age: endUserRow?.age ?? undefined,
+        sex: endUserRow?.sex ?? undefined,
+        contact: endUserRow?.contact ?? undefined,
+        address: endUserRow?.address ?? undefined,
+      });
+    }
   }, [userId]);
+
   const fetchAnnouncements = useCallback(async () => {
     const { data } = await supabase
       .from("announcements")
@@ -1382,22 +1582,24 @@ export default function UserDashboard() {
       .order("created_at", { ascending: false });
     if (data) setAnnouncements(data);
   }, []);
+
   const fetchMedicineRequests = useCallback(async () => {
-    if (!userId || !profile) return;
-    const { data } = await supabase
-      .from("medicine_requests")
-      .select(`*, medicines:medicine_id ( id, name, dosage, form, stock )`)
-      .eq("requester_name", profile.full_name)
-      .order("created_at", { ascending: false });
-    if (data) setMedicineRequests(data as MedicineRequest[]);
-  }, [userId, profile]);
+  if (!userId || !profile?.full_name) return;
+  const { data } = await supabase
+    .from("medicine_requests")
+    .select(`*, medicines:medicine_id ( id, name, dosage, form, stock )`)
+    .eq("requester_name", profile.full_name)
+    .order("created_at", { ascending: false });
+  if (data) setMedicineRequests(data as MedicineRequest[]);
+}, [userId, profile?.full_name]);
+
   const fetchEvents = useCallback(async () => {
-    const { data } = await supabase
-      .from("events")
-      .select("*")
-      .order("event_date", { ascending: true });
-    if (data) setEvents(data);
-  }, []);
+  const { data } = await supabase
+    .from("events")
+    .select("*")
+    .order("date", { ascending: true });
+  if (data) setEvents(data);
+}, []);
   useEffect(() => {
     if (!userId) return;
     fetchProfile();
@@ -1405,14 +1607,15 @@ export default function UserDashboard() {
     fetchMedicineRequests();
     fetchEvents();
   }, [userId, fetchProfile, fetchAnnouncements, fetchMedicineRequests, fetchEvents]);
+
   // ── Handlers ────────────────────────────────────────────────────────────────
   async function handleSubmitMedicineRequest(data: { medicine_id: string; quantity: number; reason: string }) {
     if (!userId || !profile) return;
     const { error } = await supabase.from("medicine_requests").insert([
       {
         requester_name: profile.full_name || "Unknown",
-        contact: profile.phone || "N/A",
-        address: profile.barangay || "N/A",
+        contact: profile.contact || "N/A",   // was profile.phone
+        address: profile.address || "N/A",   // was profile.barangay
         medicine_id: data.medicine_id,
         quantity: data.quantity,
         reason: data.reason || null,
@@ -1422,16 +1625,45 @@ export default function UserDashboard() {
     if (error) throw error;
     fetchMedicineRequests();
   }
-  async function handleUpdateProfile(updates: Partial<Profile>) {
-    if (!userId) return;
-    const { error } = await supabase.from("profiles").update(updates).eq("id", userId);
-    if (error) throw error;
-    fetchProfile();
+  async function handleDeleteMedicineRequests(ids: number[]) {
+  if (!userId || ids.length === 0) return;
+  const { error } = await supabase
+    .from("medicine_requests")
+    .delete()
+    .in("id", ids);
+  if (error) throw error;
+  fetchMedicineRequests();
+}
+
+async function handleUpdateProfile(updates: { age?: number; contact?: string }) {
+  if (!userId) return;
+
+  const patch: Record<string, unknown> = {};
+  if (updates.age !== undefined) patch.age = updates.age;
+  if (updates.contact !== undefined) patch.contact = updates.contact;
+
+  if (Object.keys(patch).length === 0) return;
+
+  const { data, error } = await supabase
+    .from("end_user")
+    .update(patch)
+    .eq("id", userId)
+    .select();
+
+  if (error) throw error;
+
+  if (!data || data.length === 0) {
+    throw new Error("No end_user row found for this account — nothing was updated.");
   }
+
+  fetchProfile();
+}
+
   async function handleLogout() {
     await supabase.auth.signOut();
     navigate("/login");
   }
+
   // ── Loading State ───────────────────────────────────────────────────────────
   if (loadingAuth) {
     return (
@@ -1450,35 +1682,37 @@ export default function UserDashboard() {
       </div>
     );
   }
+
   // ── Render Active Section ───────────────────────────────────────────────────
   function renderSection() {
-    switch (activeSection) {
-      case "home":
-        return (
-          <DashboardHome
-            profile={profile}
-            announcements={announcements}
-            medicineRequests={medicineRequests}
-            events={events}
-            onNavigate={setActiveSection}
-          />
-        );
-      case "announcements":
-        return <AnnouncementsFeed announcements={announcements} />;
-      case "medicine":
-        return (
-          <MedicineRequests
-            requests={medicineRequests}
-            onSubmitRequest={handleSubmitMedicineRequest}
-            profile={profile}
-          />
-        );
-      case "events":
-        return <EventsSection events={events} />;
-      case "profile":
-        return <ProfileSection profile={profile} onUpdateProfile={handleUpdateProfile} />;
-    }
+  switch (activeSection) {
+    case "home":
+      return (
+        <DashboardHome
+          profile={profile}
+          announcements={announcements}
+          medicineRequests={medicineRequests}
+          events={events}
+          onNavigate={setActiveSection}
+        />
+      );
+    case "announcements":
+      return <AnnouncementsFeed announcements={announcements} />;
+    case "medicine":
+      return (
+        <MedicineRequests
+          requests={medicineRequests}
+          onSubmitRequest={handleSubmitMedicineRequest}
+          onDeleteRequests={handleDeleteMedicineRequests}
+        />
+      );
+    case "events":
+      return <EventsSection events={events} />;
+    case "profile":
+      return <ProfileSection profile={profile} onUpdateProfile={handleUpdateProfile} />;
   }
+}
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50/30 to-cyan-50">
       {/* Desktop Sidebar */}
@@ -1494,8 +1728,9 @@ export default function UserDashboard() {
       <UserBottomNav activeSection={activeSection} onNavigate={setActiveSection} />
       {/* Main Content */}
       <main
-        className={`transition-all duration-300 ${sidebarCollapsed ? "lg:ml-20" : "lg:ml-72"
-          } pb-24 lg:pb-8`}
+        className={`transition-all duration-300 ${
+          sidebarCollapsed ? "lg:ml-20" : "lg:ml-72"
+        } pb-24 lg:pb-8`}
       >
         {/* Mobile Header */}
         <div className="lg:hidden sticky top-0 z-30 bg-white/95 backdrop-blur-xl border-b border-emerald-100 shadow-sm px-4 py-3">
