@@ -34,6 +34,9 @@ import {
   X,
   Eye,
   Trash2,
+  Upload,
+  ImageIcon,
+  Paperclip,
 } from "lucide-react";
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Profile {
@@ -255,6 +258,46 @@ function StatusBadge({ status }: { status: "pending" | "approved" | "denied" }) 
       {c.icon}
       {c.label}
     </span>
+  );
+}
+// ─── Prescription Image Lightbox ──────────────────────────────────────────────
+function PrescriptionLightbox({ url, onClose }: { url: string; onClose: () => void }) {
+  return (
+    <div
+      className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4"
+      onClick={onClose}
+    >
+      <div
+        className="relative max-w-2xl w-full bg-white rounded-2xl shadow-2xl overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between px-5 py-3 border-b border-gray-100">
+          <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2">
+            <ImageIcon size={16} className="text-emerald-500" />
+            Prescription Attachment
+          </h3>
+          <button
+            onClick={onClose}
+            className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+          >
+            <X size={18} />
+          </button>
+        </div>
+        <div className="max-h-[75vh] overflow-auto bg-gray-50 flex items-center justify-center p-4">
+          <img src={url} alt="Prescription" className="max-w-full max-h-full rounded-lg shadow-md" />
+        </div>
+        <div className="px-5 py-3 border-t border-gray-100 flex justify-end">
+          <a
+            href={url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs font-semibold text-emerald-600 hover:text-emerald-700 hover:underline"
+          >
+            Open original in new tab
+          </a>
+        </div>
+      </div>
+    </div>
   );
 }
 // ─── Dashboard Home ───────────────────────────────────────────────────────────
@@ -826,7 +869,7 @@ function MedicineRequests({
   onDeleteRequests,
 }: {
   requests: MedicineRequest[];
-  onSubmitRequest: (data: { medicine_id: string; quantity: number; reason: string }) => Promise<void>;
+  onSubmitRequest: (data: { medicine_id: string; quantity: number; reason: string; file: File | null }) => Promise<void>;
   onDeleteRequests: (ids: number[]) => Promise<void>;
 }) {
   const [medicines, setMedicines] = useState<{ id: string; name: string; dosage?: string; form?: string; stock?: number }[]>([]);
@@ -836,6 +879,14 @@ function MedicineRequests({
   const [submitting, setSubmitting] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [filterStatus, setFilterStatus] = useState<"all" | "pending" | "approved" | "denied">("all");
+
+  // Prescription upload
+  const [prescriptionFile, setPrescriptionFile] = useState<File | null>(null);
+  const [prescriptionPreview, setPrescriptionPreview] = useState<string | null>(null);
+  const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+
+  // Lightbox
+  const [viewImageUrl, setViewImageUrl] = useState<string | null>(null);
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -856,6 +907,13 @@ function MedicineRequests({
     fetchMedicines();
   }, []);
 
+  // Revoke object URL when the preview changes/unmounts to avoid memory leaks
+  useEffect(() => {
+    return () => {
+      if (prescriptionPreview) URL.revokeObjectURL(prescriptionPreview);
+    };
+  }, [prescriptionPreview]);
+
   const selectedMedicine = medicines.find((m) => m.id === selectedMedicineId);
   const filtered = filterStatus === "all" ? requests : requests.filter((r) => r.status === filterStatus);
   const totalPages = Math.max(1, Math.ceil(filtered.length / perPage));
@@ -866,6 +924,30 @@ function MedicineRequests({
     setCurrentPage(1);
     setSelectedIds(new Set());
   }, [filterStatus]);
+
+  function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please upload an image file (JPG, PNG, etc).");
+      e.target.value = "";
+      return;
+    }
+    if (file.size > MAX_FILE_SIZE) {
+      toast.error("Image must be smaller than 5MB.");
+      e.target.value = "";
+      return;
+    }
+    if (prescriptionPreview) URL.revokeObjectURL(prescriptionPreview);
+    setPrescriptionFile(file);
+    setPrescriptionPreview(URL.createObjectURL(file));
+  }
+
+  function clearPrescriptionFile() {
+    if (prescriptionPreview) URL.revokeObjectURL(prescriptionPreview);
+    setPrescriptionFile(null);
+    setPrescriptionPreview(null);
+  }
 
   async function handleSubmit() {
     if (!selectedMedicineId) {
@@ -883,10 +965,16 @@ function MedicineRequests({
     }
     setSubmitting(true);
     try {
-      await onSubmitRequest({ medicine_id: selectedMedicineId, quantity: qty, reason: reason.trim() });
+      await onSubmitRequest({
+        medicine_id: selectedMedicineId,
+        quantity: qty,
+        reason: reason.trim(),
+        file: prescriptionFile,
+      });
       setSelectedMedicineId("");
       setQuantity("");
       setReason("");
+      clearPrescriptionFile();
       setShowForm(false);
       toast.success("Medicine request submitted successfully!");
     } catch {
@@ -1051,6 +1139,57 @@ function MedicineRequests({
               className="w-full px-4 py-3 bg-white/70 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 transition-all min-h-20 text-sm"
             />
           </div>
+          {/* Prescription Upload */}
+          <div className="mt-4">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Prescription Image{" "}
+              <span className="text-gray-400 font-normal text-xs">(optional, max 5MB)</span>
+            </label>
+            {!prescriptionPreview ? (
+              <label
+                htmlFor="prescription-upload"
+                className="flex flex-col items-center justify-center gap-2 w-full px-4 py-6 bg-white/70 border-2 border-dashed border-gray-300 rounded-xl hover:border-emerald-400 hover:bg-emerald-50/40 transition-all cursor-pointer"
+              >
+                <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center">
+                  <Upload className="text-emerald-600" size={18} />
+                </div>
+                <p className="text-sm font-medium text-gray-700">Click to upload prescription photo</p>
+                <p className="text-xs text-gray-400">JPG, PNG, or WEBP — up to 5MB</p>
+                <input
+                  id="prescription-upload"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileSelect}
+                  className="hidden"
+                />
+              </label>
+            ) : (
+              <div className="flex items-center gap-4 p-3 bg-white/70 border-2 border-gray-200 rounded-xl">
+                <img
+                  src={prescriptionPreview}
+                  alt="Prescription preview"
+                  className="w-16 h-16 rounded-lg object-cover border border-gray-200 shrink-0"
+                />
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium text-gray-800 truncate flex items-center gap-1.5">
+                    <Paperclip size={13} className="text-emerald-500 shrink-0" />
+                    {prescriptionFile?.name}
+                  </p>
+                  <p className="text-xs text-gray-400">
+                    {prescriptionFile ? `${(prescriptionFile.size / 1024).toFixed(0)} KB` : ""}
+                  </p>
+                </div>
+                <button
+                  onClick={clearPrescriptionFile}
+                  type="button"
+                  className="p-2 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors shrink-0"
+                  title="Remove file"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+            )}
+          </div>
           <div className="mt-5 flex justify-end">
             <Button
               onClick={handleSubmit}
@@ -1143,6 +1282,9 @@ function MedicineRequests({
                     <th className="text-left py-4 px-5 text-xs font-semibold text-gray-500 uppercase tracking-wider hidden md:table-cell">
                       Reason
                     </th>
+                    <th className="text-left py-4 px-5 text-xs font-semibold text-gray-500 uppercase tracking-wider hidden lg:table-cell">
+                      Prescription
+                    </th>
                     <th className="text-left py-4 px-5 text-xs font-semibold text-gray-500 uppercase tracking-wider hidden sm:table-cell">
                       Submitted
                     </th>
@@ -1181,6 +1323,19 @@ function MedicineRequests({
                       </td>
                       <td className="py-4 px-5 text-gray-500 hidden md:table-cell max-w-[200px] truncate">
                         {req.reason || "—"}
+                      </td>
+                      <td className="py-4 px-5 hidden lg:table-cell">
+                        {req.file_url ? (
+                          <button
+                            onClick={() => setViewImageUrl(req.file_url!)}
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 text-xs font-semibold transition-colors"
+                          >
+                            <ImageIcon size={13} />
+                            View
+                          </button>
+                        ) : (
+                          <span className="text-xs text-gray-400">—</span>
+                        )}
                       </td>
                       <td className="py-4 px-5 text-gray-500 hidden sm:table-cell text-xs">
                         {formatDistanceToNow(new Date(req.created_at), { addSuffix: true })}
@@ -1235,6 +1390,10 @@ function MedicineRequests({
             </div>
           )}
         </>
+      )}
+
+      {viewImageUrl && (
+        <PrescriptionLightbox url={viewImageUrl} onClose={() => setViewImageUrl(null)} />
       )}
     </div>
   );
@@ -1609,8 +1768,32 @@ export default function UserDashboard() {
   }, [userId, fetchProfile, fetchAnnouncements, fetchMedicineRequests, fetchEvents]);
 
   // ── Handlers ────────────────────────────────────────────────────────────────
-  async function handleSubmitMedicineRequest(data: { medicine_id: string; quantity: number; reason: string }) {
+  async function handleSubmitMedicineRequest(data: { medicine_id: string; quantity: number; reason: string; file: File | null }) {
     if (!userId || !profile) return;
+
+    const storageBucket = "medicine_requests";
+    let file_url: string | null = null;
+
+    if (data.file) {
+      const fileExt = data.file.name.split(".").pop();
+      const filePath = `${userId}/${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from(storageBucket)
+        .upload(filePath, data.file, {
+          cacheControl: "3600",
+          upsert: false,
+        });
+
+      if (uploadError) throw uploadError;
+
+      const { data: publicUrlData } = supabase.storage
+        .from(storageBucket)
+        .getPublicUrl(filePath);
+
+      file_url = publicUrlData.publicUrl;
+    }
+
     const { error } = await supabase.from("medicine_requests").insert([
       {
         requester_name: profile.full_name || "Unknown",
@@ -1619,6 +1802,7 @@ export default function UserDashboard() {
         medicine_id: data.medicine_id,
         quantity: data.quantity,
         reason: data.reason || null,
+        file_url,
         status: "pending",
       },
     ]);

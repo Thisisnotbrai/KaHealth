@@ -38,9 +38,19 @@ export default function RequestDetailModal({ open, setOpen, request }: any) {
   const downloadFile = async () => {
     if (!request?.file_url) return;
     try {
-      const { data, error } = await supabase.storage.from("medicine_requests").download(request.file_url);
-      if (error) throw error;
-      const url = URL.createObjectURL(data);
+      let blob: Blob;
+
+      if (request.file_url.startsWith("http")) {
+        const response = await fetch(request.file_url);
+        if (!response.ok) throw new Error(`Download failed with status ${response.status}`);
+        blob = await response.blob();
+      } else {
+        const { data, error } = await supabase.storage.from("medicine_requests").download(request.file_url);
+        if (error) throw error;
+        blob = data;
+      }
+
+      const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
       a.download = request.file_url.split("/").pop() || "prescription";
