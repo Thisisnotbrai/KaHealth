@@ -440,17 +440,6 @@ export default function AdminMedicineRequests() {
       return;
     }
 
-    const { error: updateStockErr } = await supabase
-      .from("medicines")
-      .update({ stock: currentStock - req.quantity })
-      .eq("id", req.medicine_id);
-
-    if (updateStockErr) {
-      console.error(updateStockErr);
-      toast.error("Failed to deduct stock.");
-      return;
-    }
-
     const { error: updateReqErr } = await supabase
       .from("medicine_requests")
       .update({ status: "approved" })
