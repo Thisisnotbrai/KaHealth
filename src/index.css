@@ -114,6 +114,20 @@
   * {
     @apply border-border outline-ring/50;
   }
+
+  input,
+  select,
+  textarea,
+  button {
+    color: var(--foreground);
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: oklch(0.45 0 0);
+    opacity: 1;
+  }
+
   body {
     @apply bg-background text-foreground;
   }
