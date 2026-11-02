@@ -11,6 +11,7 @@ import {
   Menu,
   Megaphone,
   MessageSquare,
+  FileBarChart,
   ScrollText,
   Shield,
 } from "lucide-react";
@@ -24,6 +25,7 @@ const navItems = [
   { label: "Archives", href: "/admin/archive", icon: Archive },
   { label: "Medicine Inventory", href: "/admin/medicine-inventory", icon: Shield },
   { label: "Medicine Requests", href: "/admin/medicine-requests", icon: Heart },
+  { label: "Reports", href: "/admin/reports", icon: FileBarChart },
   { label: "Logs", href: "/admin/logs", icon: ScrollText },
 ];
 
@@ -89,11 +91,11 @@ function SidebarContent() {
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-slate-950 lg:flex lg:items-start">
-      <div className="hidden lg:sticky lg:top-0 lg:block lg:self-start">
+      <div data-admin-sidebar className="hidden lg:sticky lg:top-0 lg:block lg:self-start">
         <SidebarContent />
       </div>
 
-      <div className="fixed left-4 top-4 z-50 lg:hidden">
+      <div data-admin-sidebar className="fixed left-4 top-4 z-50 lg:hidden">
         <Sheet>
           <SheetTrigger asChild>
             <Button

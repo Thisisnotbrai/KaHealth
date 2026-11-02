@@ -323,10 +323,6 @@ export default function Analytics() {
   }, [announcements, events, feedback, medicines, requests, claimHistory]);
 
 
-  const handleDownloadReport = () => {
-    setShowPrintModal(true);
-  };
-
   const handleDownloadPDF = () => {
     // Create a printable version
     const printContent = printRef.current;
@@ -531,16 +527,6 @@ export default function Analytics() {
                 <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Analytics Dashboard</h1>
                 <p className="text-sm sm:text-base text-gray-500 mt-1">Overview of your barangay health system performance</p>
               </div>
-            </div>
-            <div className="flex gap-3">
-              <button
-                onClick={handleDownloadReport}
-                className="flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-teal-600 hover:bg-teal-700 text-white font-semibold rounded-xl shadow-sm transition-colors"
-              >
-                <Download size={20} />
-                <span className="hidden sm:inline">Generate Report</span>
-                <span className="sm:hidden">Report</span>
-              </button>
             </div>
           </div>
         </div>
