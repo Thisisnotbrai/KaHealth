@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import * as XLSX from "xlsx-js-style";
 import AdminLayout from "../AdminLayout";
 import { supabase } from "@/supabase-client";
 import {
@@ -10,6 +11,8 @@ import {
   Package,
   Pill,
   Printer,
+  Download,
+  ChevronDown,
   RefreshCw,
 } from "lucide-react";
 
@@ -53,7 +56,7 @@ type RequestRow = {
 };
 type ClaimRow = { id: string; request_id?: string | null; medicine_id?: string | null; claimed_at?: string | null; created_at?: string | null };
 type ReportTableProps = { title: string; headers: string[]; rows: (string | number)[][] };
-type IssueReportRow = { request?: RequestRow; medicine?: MedicineRow; issuedAt?: string };
+type IssueReportRow = { request?: RequestRow; medicine?: MedicineRow; issuedAt?: string | null };
 type ReportType = "all" | "issues" | "requests";
 type ReportPeriod = "all" | "daily" | "weekly" | "monthly" | "quarterly";
 
@@ -90,6 +93,7 @@ export default function Reports() {
   const [reportType, setReportType] = useState<ReportType>("issues");
   const [reportPeriod, setReportPeriod] = useState<ReportPeriod>("daily");
   const [printingReport, setPrintingReport] = useState(false);
+  const [exportMenuOpen, setExportMenuOpen] = useState(false);
 
   const loadReport = useCallback(async () => {
     setLoading(true);
@@ -147,7 +151,6 @@ export default function Reports() {
   const thisMonth = report.announcementRows.filter((item) => item.created_at && new Date(item.created_at).getMonth() === now.getMonth()).length;
   const upcomingEvents = report.eventRows.filter((item) => item.date && new Date(item.date) >= now);
   const thisWeekFeedback = report.feedbackRows.filter((item) => item.created_at && (now.getTime() - new Date(item.created_at).getTime()) <= 7 * 86400000);
-  const lowStockMeds = report.medicineRows.filter((item) => Number(item.stock) < 10);
   const issueHistory: IssueReportRow[] = report.claimRows.filter((claim) => claim.claimed_at).map((claim) => {
     const request = report.requestRows.find((item) => item.id === claim.request_id);
     const medicine = report.medicineRows.find((item) => item.id === claim.medicine_id);
@@ -205,6 +208,7 @@ export default function Reports() {
         filteredRequests.reduce((total, item) => total + (Number(item.quantity) || 0), 0);
   const periodLabel = reportPeriod === "all" ? "All time" : reportPeriod[0].toUpperCase() + reportPeriod.slice(1);
   const handlePrint = () => {
+    setExportMenuOpen(false);
     setPrintingReport(true);
     document.body.classList.add("focused-report-print");
     window.setTimeout(() => {
@@ -214,6 +218,110 @@ export default function Reports() {
         setPrintingReport(false);
       }, 500);
     }, 50);
+  };
+  const handleExportExcel = () => {
+    setExportMenuOpen(false);
+    const workbook = XLSX.utils.book_new();
+    const reportTitle = reportType === "issues"
+      ? "Medicine Issue Report"
+      : reportType === "requests"
+        ? "Request History Report"
+        : "Complete KaHealth Report";
+    const headerStyle = {
+      font: { bold: true, color: { rgb: "FFFFFF" } },
+      fill: { fgColor: { rgb: "0F766E" } },
+      alignment: { horizontal: "center", vertical: "center" },
+    };
+    const titleStyle = {
+      font: { bold: true, color: { rgb: "FFFFFF" }, sz: 16 },
+      fill: { fgColor: { rgb: "115E59" } },
+      alignment: { horizontal: "left", vertical: "center" },
+    };
+    const metadataLabelStyle = {
+      font: { bold: true, color: { rgb: "334155" } },
+      fill: { fgColor: { rgb: "E2E8F0" } },
+    };
+    const addSheet = (
+      name: string,
+      columns: string[],
+      rows: Record<string, string | number>[],
+    ) => {
+      const worksheet = XLSX.utils.aoa_to_sheet([]);
+      const titleRow = `${reportTitle} - ${name}`;
+      XLSX.utils.sheet_add_aoa(worksheet, [[titleRow]], { origin: "A1" });
+      XLSX.utils.sheet_add_aoa(worksheet, [
+        ["Period", periodLabel, "Generated", generatedAt.toLocaleString("en-PH")],
+      ], { origin: "A2" });
+      XLSX.utils.sheet_add_aoa(worksheet, [
+        columns,
+        ...rows.map((row) => columns.map((column) => row[column])),
+      ], { origin: "A4" });
+      if (!rows.length) {
+        XLSX.utils.sheet_add_aoa(worksheet, [["No records available for the selected filters."]], { origin: "A5" });
+      }
+
+      const lastColumn = Math.max(columns.length, 4) - 1;
+      worksheet["!merges"] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: lastColumn } }];
+      worksheet["!freeze"] = { xSplit: 0, ySplit: 4 };
+      worksheet["!autofilter"] = {
+        ref: `A4:${XLSX.utils.encode_col(columns.length - 1)}${Math.max(rows.length + 4, 4)}`,
+      };
+      worksheet["!cols"] = columns.map((column) => ({
+        wch: Math.min(32, Math.max(column.length + 3, 16)),
+      }));
+      worksheet["!rows"] = [{ hpt: 28 }, { hpt: 20 }, { hpt: 8 }, { hpt: 22 }];
+      worksheet["A1"].s = titleStyle;
+      ["A2", "C2"].forEach((cell) => {
+        if (worksheet[cell]) worksheet[cell].s = metadataLabelStyle;
+      });
+      columns.forEach((_, index) => {
+        const cell = worksheet[XLSX.utils.encode_cell({ r: 3, c: index })];
+        if (cell) cell.s = headerStyle;
+      });
+      XLSX.utils.book_append_sheet(workbook, worksheet, name);
+    };
+    const formatDate = (value?: string | null) => value ? new Date(value).toLocaleString("en-PH") : "N/A";
+    const issueRows = filteredIssues.map((item) => ({
+      Requester: item.request?.requester_name || "N/A",
+      Medicine: item.medicine?.name || item.request?.medicines?.name || "N/A",
+      Quantity: item.request?.quantity ?? "N/A",
+      Status: item.request?.status || "claimed",
+      "Issued / Claimed": formatDate(item.issuedAt),
+    }));
+    const requestRows = filteredRequests.map((item) => ({
+      Requester: item.requester_name || "N/A",
+      Medicine: item.medicines?.name || "N/A",
+      Quantity: item.quantity ?? "N/A",
+      Status: item.status || "N/A",
+      "Requested At": formatDate(item.created_at),
+    }));
+
+    addSheet("Summary", ["Metric", "Value"], [
+      { Metric: "Report", Value: reportTitle },
+      { Metric: "Period", Value: periodLabel },
+      { Metric: "Generated", Value: generatedAt.toLocaleString("en-PH") },
+      { Metric: "Records", Value: selectedRows.length },
+      { Metric: "Medicines", Value: selectedQuantity },
+    ]);
+    if (reportType === "issues" || reportType === "all") {
+      addSheet("Medicine Issues", ["Requester", "Medicine", "Quantity", "Status", "Issued / Claimed"], issueRows);
+    }
+    if (reportType === "requests" || reportType === "all") {
+      addSheet("Requests", ["Requester", "Medicine", "Quantity", "Status", "Requested At"], requestRows);
+    }
+    if (reportType === "all") {
+      addSheet("Inventory", ["Medicine", "Dosage", "Form", "Stock", "Expiry", "Prescription"], report.medicineRows.map((item) => ({
+        Medicine: item.name || "N/A",
+        Dosage: item.dosage || "N/A",
+        Form: item.form || "N/A",
+        Stock: item.stock ?? "N/A",
+        Expiry: item.expiry_date ? new Date(item.expiry_date).toLocaleDateString("en-PH") : "N/A",
+        Prescription: item.requires_prescription ? "Yes" : "No",
+      })));
+    }
+
+    const dateStamp = new Date().toISOString().slice(0, 10);
+    XLSX.writeFile(workbook, `kahealth-${reportType}-${reportPeriod}-${dateStamp}.xlsx`);
   };
 
   return (
@@ -364,10 +472,41 @@ export default function Reports() {
                       <option className="text-slate-900" value="quarterly">Last 90 days</option>
                     </select>
                   </label>
-                  <button type="button" onClick={handlePrint} className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-teal-700 px-4 py-2 text-center font-semibold text-white hover:bg-teal-800 sm:col-span-2 lg:w-auto lg:whitespace-nowrap">
-                    <Printer className="h-4 w-4" />
-                    Print {periodLabel} report ({selectedQuantity} medicines)
-                  </button>
+                  <div className="relative sm:col-span-2 lg:flex">
+                    <button
+                      type="button"
+                      onClick={() => setExportMenuOpen((isOpen) => !isOpen)}
+                      aria-expanded={exportMenuOpen}
+                      aria-haspopup="menu"
+                      className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-teal-700 px-4 py-2 text-center font-semibold text-white hover:bg-teal-800 lg:w-auto lg:whitespace-nowrap"
+                    >
+                      <Printer className="h-4 w-4" />
+                      Print {periodLabel} report
+                      <ChevronDown className="h-4 w-4" />
+                    </button>
+                    {exportMenuOpen && (
+                      <div role="menu" className="absolute right-0 top-full z-10 mt-2 w-full min-w-48 overflow-hidden rounded-lg border border-slate-200 bg-white p-1 shadow-lg lg:w-auto">
+                        <button
+                          type="button"
+                          role="menuitem"
+                          onClick={handlePrint}
+                          className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm font-medium text-slate-700 hover:bg-teal-50"
+                        >
+                          <Printer className="h-4 w-4 text-teal-700" />
+                          Print report
+                        </button>
+                        <button
+                          type="button"
+                          role="menuitem"
+                          onClick={handleExportExcel}
+                          className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm font-medium text-slate-700 hover:bg-teal-50"
+                        >
+                          <Download className="h-4 w-4 text-teal-700" />
+                          Export to Excel
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </section>
