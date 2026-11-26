@@ -56,8 +56,8 @@ type RequestRow = {
 };
 type ClaimRow = { id: string; request_id?: string | null; medicine_id?: string | null; claimed_at?: string | null; created_at?: string | null };
 type ReportTableProps = { title: string; headers: string[]; rows: (string | number)[][] };
-type IssueReportRow = { request?: RequestRow; medicine?: MedicineRow; issuedAt?: string | null };
-type ReportType = "all" | "issues" | "requests";
+type IssueReportRow = { issuedAt?: string | null };
+type ReportType = "all" | "requests";
 type ReportPeriod = "all" | "daily" | "weekly" | "monthly" | "quarterly";
 
 const emptyReport: ReportData = {
@@ -90,7 +90,7 @@ export default function Reports() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [generatedAt, setGeneratedAt] = useState(new Date());
-  const [reportType, setReportType] = useState<ReportType>("issues");
+  const [reportType, setReportType] = useState<ReportType>("requests");
   const [reportPeriod, setReportPeriod] = useState<ReportPeriod>("daily");
   const [printingReport, setPrintingReport] = useState(false);
   const [exportMenuOpen, setExportMenuOpen] = useState(false);
@@ -151,11 +151,9 @@ export default function Reports() {
   const thisMonth = report.announcementRows.filter((item) => item.created_at && new Date(item.created_at).getMonth() === now.getMonth()).length;
   const upcomingEvents = report.eventRows.filter((item) => item.date && new Date(item.date) >= now);
   const thisWeekFeedback = report.feedbackRows.filter((item) => item.created_at && (now.getTime() - new Date(item.created_at).getTime()) <= 7 * 86400000);
-  const issueHistory: IssueReportRow[] = report.claimRows.filter((claim) => claim.claimed_at).map((claim) => {
-    const request = report.requestRows.find((item) => item.id === claim.request_id);
-    const medicine = report.medicineRows.find((item) => item.id === claim.medicine_id);
-    return { claim, request, medicine, issuedAt: claim.claimed_at || claim.created_at || request?.created_at };
-  }).filter((item) => item.issuedAt);
+  const issueHistory: IssueReportRow[] = report.claimRows
+    .filter((claim) => claim.claimed_at)
+    .map((claim) => ({ issuedAt: claim.claimed_at }));
   const issueWindowCount = (days: number) => issueHistory.filter((item) => item.issuedAt && now.getTime() - new Date(item.issuedAt).getTime() <= days * 86400000).length;
   const monthlyData = Array.from({ length: 6 }, (_, index) => {
     const date = new Date();
@@ -173,10 +171,6 @@ export default function Reports() {
     lowStock: report.medicineRows.filter((item) => Number(item.stock) >= 10 && Number(item.stock) < 30).length,
     critical: report.medicineRows.filter((item) => Number(item.stock) < 10).length,
   };
-  const issuedRows = (issueHistory.length ? issueHistory : report.requestRows
-    .filter((item) => item.status === "approved" || item.status === "claimed")
-    .map((request) => ({ request, medicine: null, issuedAt: request.created_at })))
-    .slice(0, 10);
   const periodDays: Record<Exclude<ReportPeriod, "all">, number> = {
     daily: 1,
     weekly: 7,
@@ -189,23 +183,11 @@ export default function Reports() {
     periodStartDate.setDate(periodStartDate.getDate() - (periodDays[reportPeriod] - 1));
   }
   const periodStart = periodStartDate.getTime();
-  const filteredIssues = reportPeriod === "all"
-    ? issueHistory
-    : issueHistory.filter((item) => item.issuedAt && new Date(item.issuedAt).getTime() >= periodStart);
   const filteredRequests = reportPeriod === "all"
     ? report.requestRows
     : report.requestRows.filter((item) => item.created_at && new Date(item.created_at).getTime() >= periodStart);
-  const selectedRows = reportType === "issues"
-    ? filteredIssues
-    : reportType === "requests"
-      ? filteredRequests
-      : [...filteredIssues, ...filteredRequests];
-  const selectedQuantity = reportType === "issues"
-    ? filteredIssues.reduce((total, item) => total + (Number(item.request?.quantity) || 0), 0)
-    : reportType === "requests"
-      ? filteredRequests.reduce((total, item) => total + (Number(item.quantity) || 0), 0)
-      : filteredIssues.reduce((total, item) => total + (Number(item.request?.quantity) || 0), 0) +
-        filteredRequests.reduce((total, item) => total + (Number(item.quantity) || 0), 0);
+  const selectedRows = filteredRequests;
+  const selectedQuantity = filteredRequests.reduce((total, item) => total + (Number(item.quantity) || 0), 0);
   const periodLabel = reportPeriod === "all" ? "All time" : reportPeriod[0].toUpperCase() + reportPeriod.slice(1);
   const handlePrint = () => {
     setExportMenuOpen(false);
@@ -222,24 +204,48 @@ export default function Reports() {
   const handleExportExcel = () => {
     setExportMenuOpen(false);
     const workbook = XLSX.utils.book_new();
-    const reportTitle = reportType === "issues"
-      ? "Medicine Issue Report"
-      : reportType === "requests"
-        ? "Request History Report"
-        : "Complete KaHealth Report";
+    const reportTitle = reportType === "requests"
+      ? "Request History Report"
+      : "Complete KaHealth Report";
+    const formatDate = (value?: string | null) => {
+      if (!value) return "N/A";
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return "N/A";
+      const datePart = new Intl.DateTimeFormat("en-US", {
+        month: "short",
+        day: "2-digit",
+        year: "numeric",
+      }).format(date);
+      const timePart = new Intl.DateTimeFormat("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      }).format(date);
+      return `${datePart} ${timePart}`;
+    };
+    const cellBorder = {
+      top: { style: "thin", color: { rgb: "D1D5DB" } },
+      bottom: { style: "thin", color: { rgb: "D1D5DB" } },
+      left: { style: "thin", color: { rgb: "D1D5DB" } },
+      right: { style: "thin", color: { rgb: "D1D5DB" } },
+    };
     const headerStyle = {
       font: { bold: true, color: { rgb: "FFFFFF" } },
       fill: { fgColor: { rgb: "0F766E" } },
       alignment: { horizontal: "center", vertical: "center" },
+      border: cellBorder,
     };
     const titleStyle = {
       font: { bold: true, color: { rgb: "FFFFFF" }, sz: 16 },
       fill: { fgColor: { rgb: "115E59" } },
-      alignment: { horizontal: "left", vertical: "center" },
+      alignment: { horizontal: "left", vertical: "center", indent: 1 },
+      border: cellBorder,
     };
     const metadataLabelStyle = {
       font: { bold: true, color: { rgb: "334155" } },
       fill: { fgColor: { rgb: "E2E8F0" } },
+      alignment: { horizontal: "left", vertical: "center", indent: 1 },
+      border: cellBorder,
     };
     const addSheet = (
       name: string,
@@ -250,7 +256,7 @@ export default function Reports() {
       const titleRow = `${reportTitle} - ${name}`;
       XLSX.utils.sheet_add_aoa(worksheet, [[titleRow]], { origin: "A1" });
       XLSX.utils.sheet_add_aoa(worksheet, [
-        ["Period", periodLabel, "Generated", generatedAt.toLocaleString("en-PH")],
+        ["Period", periodLabel, "Generated", formatDate(generatedAt.toISOString())],
       ], { origin: "A2" });
       XLSX.utils.sheet_add_aoa(worksheet, [
         columns,
@@ -260,34 +266,82 @@ export default function Reports() {
         XLSX.utils.sheet_add_aoa(worksheet, [["No records available for the selected filters."]], { origin: "A5" });
       }
 
-      const lastColumn = Math.max(columns.length, 4) - 1;
+      const range = XLSX.utils.decode_range(worksheet["!ref"] || "A1:A1");
+      const lastColumn = range.e.c;
       worksheet["!merges"] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: lastColumn } }];
       worksheet["!freeze"] = { xSplit: 0, ySplit: 4 };
       worksheet["!autofilter"] = {
         ref: `A4:${XLSX.utils.encode_col(columns.length - 1)}${Math.max(rows.length + 4, 4)}`,
       };
-      worksheet["!cols"] = columns.map((column) => ({
-        wch: Math.min(32, Math.max(column.length + 3, 16)),
+      worksheet["!cols"] = Array.from({ length: lastColumn + 1 }, (_, columnIndex) => {
+        let longestValue = 0;
+        for (let rowIndex = 1; rowIndex <= range.e.r; rowIndex += 1) {
+          const cell = worksheet[XLSX.utils.encode_cell({ r: rowIndex, c: columnIndex })];
+          if (cell?.v !== undefined && cell?.v !== null) {
+            longestValue = Math.max(longestValue, String(cell.v).length);
+          }
+        }
+        return { wch: Math.min(40, Math.max(12, longestValue + 2)) };
+      });
+      worksheet["!rows"] = Array.from({ length: range.e.r + 1 }, (_, rowIndex) => ({
+        hpt: rowIndex === 0 ? 36 : rowIndex === 2 ? 8 : rowIndex === 3 ? 28 : 22,
       }));
-      worksheet["!rows"] = [{ hpt: 28 }, { hpt: 20 }, { hpt: 8 }, { hpt: 22 }];
-      worksheet["A1"].s = titleStyle;
-      ["A2", "C2"].forEach((cell) => {
-        if (worksheet[cell]) worksheet[cell].s = metadataLabelStyle;
-      });
-      columns.forEach((_, index) => {
-        const cell = worksheet[XLSX.utils.encode_cell({ r: 3, c: index })];
-        if (cell) cell.s = headerStyle;
-      });
+
+      for (let rowIndex = range.s.r; rowIndex <= range.e.r; rowIndex += 1) {
+        for (let columnIndex = range.s.c; columnIndex <= range.e.c; columnIndex += 1) {
+          const address = XLSX.utils.encode_cell({ r: rowIndex, c: columnIndex });
+          const cell = worksheet[address];
+          if (!cell) continue;
+
+          if (rowIndex === 0) {
+            cell.s = titleStyle;
+            continue;
+          }
+          if (rowIndex === 3) {
+            cell.s = headerStyle;
+            continue;
+          }
+
+          const isNumber = typeof cell.v === "number";
+          const columnName = columns[columnIndex];
+          const alignment = {
+            horizontal: columnName === "Status" || columnName === "Prescription"
+              ? "center"
+              : isNumber ? "right" : "left",
+            vertical: "center",
+            indent: isNumber ? 0 : 1,
+          };
+          const style = {
+            alignment,
+            border: cellBorder,
+            fill: {
+              fgColor: { rgb: rowIndex >= 4 && (rowIndex - 4) % 2 === 1 ? "F0FDFA" : "FFFFFF" },
+            },
+          };
+
+          if (rowIndex === 1 && (columnIndex === 0 || columnIndex === 2)) {
+            cell.s = { ...style, ...metadataLabelStyle };
+          } else if (rowIndex >= 4 && columnName === "Status") {
+            const statusColors: Record<string, { fill: string; font: string }> = {
+              pending: { fill: "FEF3C7", font: "92400E" },
+              claimed: { fill: "D1FAE5", font: "065F46" },
+              denied: { fill: "FEE2E2", font: "991B1B" },
+            };
+            const colors = statusColors[String(cell.v).toLowerCase()];
+            cell.s = colors
+              ? {
+                  ...style,
+                  fill: { fgColor: { rgb: colors.fill } },
+                  font: { color: { rgb: colors.font } },
+                }
+              : style;
+          } else {
+            cell.s = style;
+          }
+        }
+      }
       XLSX.utils.book_append_sheet(workbook, worksheet, name);
     };
-    const formatDate = (value?: string | null) => value ? new Date(value).toLocaleString("en-PH") : "N/A";
-    const issueRows = filteredIssues.map((item) => ({
-      Requester: item.request?.requester_name || "N/A",
-      Medicine: item.medicine?.name || item.request?.medicines?.name || "N/A",
-      Quantity: item.request?.quantity ?? "N/A",
-      Status: item.request?.status || "claimed",
-      "Issued / Claimed": formatDate(item.issuedAt),
-    }));
     const requestRows = filteredRequests.map((item) => ({
       Requester: item.requester_name || "N/A",
       Medicine: item.medicines?.name || "N/A",
@@ -299,13 +353,10 @@ export default function Reports() {
     addSheet("Summary", ["Metric", "Value"], [
       { Metric: "Report", Value: reportTitle },
       { Metric: "Period", Value: periodLabel },
-      { Metric: "Generated", Value: generatedAt.toLocaleString("en-PH") },
+      { Metric: "Generated", Value: formatDate(generatedAt.toISOString()) },
       { Metric: "Records", Value: selectedRows.length },
       { Metric: "Medicines", Value: selectedQuantity },
     ]);
-    if (reportType === "issues" || reportType === "all") {
-      addSheet("Medicine Issues", ["Requester", "Medicine", "Quantity", "Status", "Issued / Claimed"], issueRows);
-    }
     if (reportType === "requests" || reportType === "all") {
       addSheet("Requests", ["Requester", "Medicine", "Quantity", "Status", "Requested At"], requestRows);
     }
@@ -315,7 +366,7 @@ export default function Reports() {
         Dosage: item.dosage || "N/A",
         Form: item.form || "N/A",
         Stock: item.stock ?? "N/A",
-        Expiry: item.expiry_date ? new Date(item.expiry_date).toLocaleDateString("en-PH") : "N/A",
+        Expiry: formatDate(item.expiry_date),
         Prescription: item.requires_prescription ? "Yes" : "No",
       })));
     }
@@ -338,14 +389,13 @@ export default function Reports() {
           <main className="mx-auto max-w-5xl bg-white p-8 text-slate-900">
             <div className="mb-8 border-b-2 border-teal-700 pb-4 text-center">
               <h1 className="text-3xl font-bold">
-                KaHealth {reportType === "issues" ? "Medicine Issue" : reportType === "requests" ? "Request History" : "Complete"} Report
+                KaHealth {reportType === "requests" ? "Request History" : "Complete"} Report
               </h1>
               <p className="mt-2 text-sm text-slate-600">{periodLabel} report · Generated {generatedAt.toLocaleString("en-PH")}</p>
             </div>
             {reportType === "all" ? (
               <AllReportsPrint
                 report={report}
-                issueRows={filteredIssues}
                 requestRows={filteredRequests}
                 monthlyData={monthlyData}
                 stockStatus={stockStatus}
@@ -358,40 +408,15 @@ export default function Reports() {
               />
             ) : (
               <ReportTable
-                title={`${periodLabel} ${reportType === "issues" ? "medicine issues" : "requests"} (${selectedRows.length} records, ${selectedQuantity} medicines)`}
-                headers={reportType === "issues" ? ["Requester", "Medicine", "Quantity", "Status", "Issued / Claimed"] : ["Requester", "Medicine", "Quantity", "Status", "Requested At"]}
-                rows={reportType === "issues"
-                ? filteredIssues.map((item) => [
-                    item.request?.requester_name || "N/A",
-                    item.medicine?.name || item.request?.medicines?.name || "N/A",
-                    item.request?.quantity || "N/A",
-                    item.request?.status || "claimed",
-                    item.issuedAt ? new Date(item.issuedAt).toLocaleString("en-PH") : "N/A",
-                  ])
-                : reportType === "requests"
-                  ? filteredRequests.map((item) => [
+                title={`${periodLabel} requests (${selectedRows.length} records, ${selectedQuantity} medicines)`}
+                headers={["Requester", "Medicine", "Quantity", "Status", "Requested At"]}
+                rows={filteredRequests.map((item) => [
                     item.requester_name || "N/A",
                     item.medicines?.name || "N/A",
                     item.quantity || "N/A",
                     item.status || "N/A",
                     item.created_at ? new Date(item.created_at).toLocaleString("en-PH") : "N/A",
-                  ])
-                  : [
-                    ...filteredIssues.map((item) => [
-                      item.request?.requester_name || "N/A",
-                      item.medicine?.name || item.request?.medicines?.name || "N/A",
-                      item.request?.quantity || "N/A",
-                      item.request?.status || "claimed",
-                      item.issuedAt ? new Date(item.issuedAt).toLocaleString("en-PH") : "N/A",
-                    ]),
-                    ...filteredRequests.map((item) => [
-                      item.requester_name || "N/A",
-                      item.medicines?.name || "N/A",
-                      item.quantity || "N/A",
-                      item.status || "N/A",
-                      item.created_at ? new Date(item.created_at).toLocaleString("en-PH") : "N/A",
-                    ]),
-                  ]}
+                  ])}
               />
             )}
           </main>
@@ -441,7 +466,7 @@ export default function Reports() {
                   <p className="mt-1 text-sm text-slate-500">Choose exactly what to include in the printed report.</p>
                   <p className="mt-4 text-sm text-slate-600 lg:mt-5">
                     This selection contains <strong>{selectedQuantity}</strong>{" "}
-                    {reportType === "issues" ? "issued medicines" : "requested medicines"} across{" "}
+                    requested medicines across{" "}
                     <strong>{selectedRows.length}</strong> records.
                   </p>
                 </div>
@@ -454,7 +479,6 @@ export default function Reports() {
                       className="mt-1 block w-full min-w-0 rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 shadow-sm lg:w-48"
                     >
                       <option className="text-slate-900" value="all">All reports</option>
-                      <option className="text-slate-900" value="issues">Issue of medicines</option>
                       <option className="text-slate-900" value="requests">History of requests</option>
                     </select>
                   </label>
@@ -607,10 +631,6 @@ export default function Reports() {
                 </div>
               </section>
 
-              <ReportTable title="Issue medicines" headers={["Requester", "Medicine", "Qty", "Status", "Issued / Claimed"]} rows={issuedRows.map((item) => [
-                item.request?.requester_name || "N/A", item.medicine?.name || item.request?.medicines?.name || "N/A", item.request?.quantity || "N/A", item.request?.status || "issued", item.issuedAt ? new Date(item.issuedAt).toLocaleString("en-PH") : "N/A",
-              ])} />
-
               <ReportTable title="History of requests" headers={["Requester", "Medicine", "Quantity", "Status", "Requested At"]} rows={report.requestRows.slice(0, 15).map((item) => [
                 item.requester_name || "N/A", item.medicines?.name || "N/A", item.quantity || "N/A", item.status || "N/A", item.created_at ? new Date(item.created_at).toLocaleString("en-PH") : "N/A",
               ])} />
@@ -654,7 +674,6 @@ function ReportTable({ title, headers, rows }: ReportTableProps) {
 
 type AllReportsPrintProps = {
   report: ReportData;
-  issueRows: IssueReportRow[];
   requestRows: RequestRow[];
   monthlyData: { month: string; announcements: number; events: number; feedback: number }[];
   stockStatus: { inStock: number; lowStock: number; critical: number };
@@ -663,7 +682,6 @@ type AllReportsPrintProps = {
 
 function AllReportsPrint({
   report,
-  issueRows,
   requestRows,
   monthlyData,
   stockStatus,
@@ -719,17 +737,6 @@ function AllReportsPrint({
         </div>
       </section>
 
-      <ReportTable
-        title={`Issue of medicines (${issueRows.length} records)`}
-        headers={["Requester", "Medicine", "Quantity", "Status", "Issued / Claimed"]}
-        rows={issueRows.map((item) => [
-          item.request?.requester_name || "N/A",
-          item.medicine?.name || item.request?.medicines?.name || "N/A",
-          item.request?.quantity || "N/A",
-          item.request?.status || "claimed",
-          item.issuedAt ? new Date(item.issuedAt).toLocaleString("en-PH") : "N/A",
-        ])}
-      />
       <ReportTable
         title={`History of requests (${requestRows.length} records)`}
         headers={["Requester", "Medicine", "Quantity", "Status", "Requested At"]}

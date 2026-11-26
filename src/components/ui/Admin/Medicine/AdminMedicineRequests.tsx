@@ -32,7 +32,6 @@ import {
   Users,
   CheckCircle2,
   ScrollText,
-  PlusCircle,
 } from "lucide-react";
 import { getCurrentAdminIdentity } from "@/lib/adminIdentity";
 
@@ -201,7 +200,6 @@ function LiveClock() {
 export default function AdminMedicineRequests() {
   const [requests, setRequests] = useState<RequestRow[]>([]);
   const [, setLoading] = useState(false);
-  const [creatingTestRequest, setCreatingTestRequest] = useState(false);
   const [q, setQ] = useState("");
   const [selected, setSelected] = useState<RequestRow | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
@@ -371,50 +369,6 @@ export default function AdminMedicineRequests() {
     } finally {
       setArchiving(false);
     }
-  };
-
-  const handleCreateTestRequest = async () => {
-    setCreatingTestRequest(true);
-
-    const { data: medicine, error: medicineError } = await supabase
-      .from("medicines")
-      .select("id, name")
-      .order("name", { ascending: true })
-      .limit(1)
-      .maybeSingle();
-
-    if (medicineError || !medicine) {
-      console.error(medicineError);
-      toast.error("No medicine is available for a test request.");
-      setCreatingTestRequest(false);
-      return;
-    }
-
-    const stamp = new Date().toLocaleTimeString();
-
-    const { error } = await supabase.from("medicine_requests").insert({
-      requester_name: `Activity Log Test ${stamp}`,
-      age: 30,
-      sex: "Male",
-      contact: "09170000000",
-      address: "KaHealth test queue",
-      medicine_id: medicine.id,
-      quantity: 1,
-      reason: "Temporary request created to verify approval activity logging.",
-      file_url: null,
-      status: "pending",
-    });
-
-    if (error) {
-      console.error(error);
-      toast.error("Failed to create a test request.");
-      setCreatingTestRequest(false);
-      return;
-    }
-
-    toast.success(`Created a test request for ${medicine.name}. Approve it to verify the activity log.`);
-    fetchRequests();
-    setCreatingTestRequest(false);
   };
 
   const handleApprove = async (req: RequestRow) => {
@@ -642,14 +596,6 @@ export default function AdminMedicineRequests() {
                 onChange={(e: any) => setQ(e.target.value)}
                 className="w-full sm:w-64 px-4 py-2 bg-white border border-gray-300 rounded-xl focus:border-teal-500 focus:ring-2 focus:ring-teal-100 transition-colors"
               />
-              <Button
-                onClick={handleCreateTestRequest}
-                disabled={creatingTestRequest}
-                className="px-4 sm:px-6 py-2 bg-white text-teal-700 border border-teal-200 hover:bg-teal-50 font-semibold rounded-xl transition-colors"
-              >
-                <PlusCircle size={18} className="mr-2" />
-                {creatingTestRequest ? "Creating..." : "Add Test Request"}
-              </Button>
               <Button
                 onClick={() => fetchRequests()}
                 className="px-4 sm:px-6 py-2 bg-teal-600 hover:bg-teal-700 text-white font-semibold rounded-xl shadow-sm transition-colors"
